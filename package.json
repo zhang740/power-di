@@ -1,6 +1,6 @@
 {
   "name": "power-di",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "",
   "main": "index.js",
   "files": [
@@ -9,7 +9,8 @@
     "helper.js",
     "helper.d.ts",
     "react.js",
-    "react.d.ts"
+    "react.d.ts",
+    "dist"
   ],
   "scripts": {
     "clean:dist": "rimraf -- dist",
