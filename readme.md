@@ -15,7 +15,9 @@ npm i power-di --save
 ## Example
 
 ### a simple example
-```typescript
+```ts
+import { IocContext } from 'power-di'
+
 class AService { }
 
 // default instance, you can also new IocContext to get a instance.
@@ -25,7 +27,7 @@ const aService = context.get(AService) // a instance of AService
 ```
 
 ### inject with key
-```typescript
+```ts
 class AService { }
 
 const context = IocContext.DefaultInstance
@@ -34,7 +36,9 @@ context.get('XService')
 ```
 
 ### use with decorators
-```typescript
+```ts
+import { register, inject, lazyInject } from 'power-di/helper'
+
 @register()
 class AService { }
 
@@ -47,4 +51,27 @@ class SomeClass {
 }
 
 context.get(AService)
+```
+
+### use in react
+```tsx
+import { IocProvider, Component } from 'power-di/react'
+
+@register()
+class AService { }
+
+class TestComponent extends Component<{}, {}> {
+    componentWillMount() {
+        this.GetComponent(AService)
+    }
+
+    render(): any {
+        return null
+    }
+}
+
+// parent component, the IocProvider is not necessary.
+<IocProvider context={context}>
+    <TestComponent />
+</IocProvider>
 ```
