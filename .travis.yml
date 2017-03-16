@@ -10,5 +10,7 @@ node_js:
 - 7.3.0
 script:
 - npm test
-after_success: 
+after_success:
+- npm run coverage
+- npm run coverage:report
 - npm run coverage:upload
