@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "preserveConstEnums": true,
+        "declaration": true,
+        "rootDir": "src",
+        "outDir": "dist",
+        "sourceMap": true,
+        "pretty": true
+    },
+    "filesGlob": [
+        "typings/**/*.d.ts",
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "test/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ],
+    "compileOnSave": true
+}
