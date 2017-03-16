@@ -18,6 +18,7 @@
     "test": "rimraf -- dist/__tests__ && tsc && ava -v -s",
     "coverage": "nyc npm test",
     "coverage:report": "nyc report --reporter=lcov",
+    "coverage:upload": "cat ./coverage/lcov.info | coveralls",
     "report": "npm run coverage && npm run coverage:report",
     "reinstall": "rimraf -- node_modules && npm install",
     "prepublish": "npm run build"

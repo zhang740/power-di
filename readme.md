@@ -1,7 +1,8 @@
 # Power DI
 
 <p>
-  <a href="https://www.npmjs.com/package/power-di"><img src="https://img.shields.io/travis/zhang740/power-di.svg" alt="Latest push build on default branch:"></a>
+  <a href="https://www.npmjs.com/package/power-di"><img src="https://img.shields.io/travis/zhang740/power-di.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/power-di"><img src="https://img.shields.io/coveralls/zhang740/power-di.svg" alt="Coverage"></a>
   <a href="https://www.npmjs.com/package/power-di"><img src="https://img.shields.io/npm/v/power-di.svg" alt="Version"></a>
   <a href="https://www.npmjs.com/package/power-di"><img src="https://img.shields.io/npm/l/power-di.svg" alt="License"></a>
 </p>
