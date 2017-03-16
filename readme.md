@@ -5,7 +5,7 @@
   <a href="https://www.npmjs.com/package/power-di"><img src="https://img.shields.io/npm/l/power-di.svg" alt="License"></a>
 </p>
 
-A powerful Dependency Injection library. Using es6 and other features, easy and convenient to use.
+A lightweight Dependency Injection library. Using es6 and other features, remove unnecessary concepts, easy and convenient to use.
 
 ## Install
 ```shell
