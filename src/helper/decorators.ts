@@ -7,7 +7,7 @@ const context = IocContext.DefaultInstance
  * register class
  * @param target need a class
  */
-export function registerDecorator(key?: KeyType, options?: RegisterOptions) {
+export function register(key?: KeyType, options?: RegisterOptions) {
     return function (target: any) {
         context.register(target, key, options)
     }
@@ -17,7 +17,7 @@ export function registerDecorator(key?: KeyType, options?: RegisterOptions) {
  * inject
  * @param type class or string
  */
-export function injectDecorator(type: any) {
+export function inject(type: any) {
     const globalType = getGlobalType(type)
     return function (target: any, key: any): void {
         target[key] = context.get(globalType)
@@ -32,7 +32,7 @@ export function injectDecorator(type: any) {
  * @param type class or string
  * @param always always read from context. default: false
  */
-export function lazyInjectDecorator(type: any, always = false) {
+export function lazyInject(type: any, always = false) {
     const globalType = getGlobalType(type)
     return function (target: any, key: any): void {
         Object.defineProperty(target, key, {

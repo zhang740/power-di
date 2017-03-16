@@ -1,22 +1,22 @@
 import test from 'ava'
 import { IocContext } from '../IocContext'
-import { registerDecorator, injectDecorator, lazyInjectDecorator } from '../helper'
+import { register, inject, lazyInject } from '../helper'
 import { logger, OutLevel } from '../utils'
 logger.setOutLevel(OutLevel.Error)
 
 const context = IocContext.DefaultInstance
 
 test('register decorator.', t => {
-    @registerDecorator()
+    @register()
     class DTestService { }
     t.true(context.get(DTestService) instanceof DTestService)
 })
 
 test('inject decorator.', t => {
-    @registerDecorator()
+    @register()
     class DTestService { }
     class ITestService {
-        @injectDecorator(DTestService)
+        @inject(DTestService)
         public testService: DTestService
     }
 
@@ -27,7 +27,7 @@ test('inject decorator.', t => {
 test('inject decorator, no data.', t => {
     class NRService { }
     class ITestService {
-        @injectDecorator(NRService)
+        @inject(NRService)
         public testService: NRService
     }
 
@@ -36,10 +36,10 @@ test('inject decorator, no data.', t => {
 })
 
 test('lazyInject decorator.', t => {
-    @registerDecorator()
+    @register()
     class DTestService { }
     class LITestService {
-        @lazyInjectDecorator(DTestService)
+        @lazyInject(DTestService)
         public testService: DTestService
     }
 
@@ -50,7 +50,7 @@ test('lazyInject decorator.', t => {
 test('lazyInject decorator, no data.', t => {
     class NRService { }
     class LITestService {
-        @lazyInjectDecorator(NRService)
+        @lazyInject(NRService)
         public testService: NRService
     }
 
@@ -61,7 +61,7 @@ test('lazyInject decorator, no data.', t => {
 test('lazyInject decorator, no data, then have.', t => {
     class NRService { }
     class LITestService {
-        @lazyInjectDecorator(NRService)
+        @lazyInject(NRService)
         public testService: NRService
     }
 
@@ -73,10 +73,10 @@ test('lazyInject decorator, no data, then have.', t => {
 })
 
 test('lazyInject decorator, always option true.', t => {
-    @registerDecorator()
+    @register()
     class NRService { }
     class LITestService {
-        @lazyInjectDecorator(NRService, true)
+        @lazyInject(NRService, true)
         public testService: NRService
     }
 
@@ -87,10 +87,10 @@ test('lazyInject decorator, always option true.', t => {
 })
 
 test('lazyInject decorator, always option false.', t => {
-    @registerDecorator()
+    @register()
     class NRService { }
     class LITestService {
-        @lazyInjectDecorator(NRService, false)
+        @lazyInject(NRService, false)
         public testService: NRService
     }
 
