@@ -14,15 +14,9 @@
         "sourceMap": true,
         "pretty": true
     },
-    "filesGlob": [
-        "typings/**/*.d.ts",
+    "include": [
         "src/**/*.ts",
-        "src/**/*.tsx",
-        "test/**/*.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist"
+        "src/**/*.tsx"
     ],
     "compileOnSave": true
 }

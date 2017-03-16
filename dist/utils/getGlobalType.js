@@ -1,21 +1,19 @@
 "use strict";
-
 Object.defineProperty(exports, "__esModule", { value: true });
-var _uid = 0;
-var _globalTypes = {};
+let _uid = 0;
+const _globalTypes = {};
 /**
  * getGlobalType
  * @param thisConstructor class or string
  * @param prefix the prefix of type
  */
-exports.getGlobalType = function (thisConstructor) {
-    var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
-    if (!thisConstructor) return;
+exports.getGlobalType = function (thisConstructor, prefix = '') {
+    if (!thisConstructor)
+        return;
     if (typeof thisConstructor === 'string') {
         return thisConstructor;
     }
-    var type = void 0;
+    let type;
     if (thisConstructor.hasOwnProperty('__type')) {
         type = thisConstructor['__type'];
     }

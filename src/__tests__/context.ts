@@ -44,7 +44,7 @@ test('register component no autonew.', t => {
     t.true(dataA === TestService)
 })
 
-test('register 2nd with same key, need return the same object.', t => {
+test('register 2nd with same key.', t => {
     const context = new IocContext
     context.register(TestService)
     t.throws(() => context.register(TestService))
