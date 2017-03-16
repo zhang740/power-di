@@ -52,7 +52,7 @@ var IocProvider = function (_react_1$Component) {
     return IocProvider;
 }(react_1.Component);
 
-IocProvider.childrenContextTypes = {
+IocProvider.childContextTypes = {
     iocContext: react_1.PropTypes.any
 };
 exports.IocProvider = IocProvider;

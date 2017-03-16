@@ -5,7 +5,7 @@ export interface PropsDefine {
     context?: IocContext;
 }
 export declare class IocProvider extends Component<PropsDefine, {}> {
-    static childrenContextTypes: any;
+    static childContextTypes: any;
     private iocContext;
     constructor(props: PropsDefine, context: any);
     getChildContext(): {

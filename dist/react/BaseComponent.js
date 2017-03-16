@@ -23,11 +23,11 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = require("react");
+var react_1 = require("react");
 var IocContext_1 = require("../IocContext");
 
-var Component = function (_React$Component) {
-    (0, _inherits3.default)(Component, _React$Component);
+var Component = function (_react_1$Component) {
+    (0, _inherits3.default)(Component, _react_1$Component);
 
     function Component(props, context) {
         (0, _classCallCheck3.default)(this, Component);
@@ -45,7 +45,10 @@ var Component = function (_React$Component) {
         }
     }]);
     return Component;
-}(React.Component);
+}(react_1.Component);
 
+Component.contextTypes = {
+    iocContext: react_1.PropTypes.any
+};
 exports.Component = Component;
 //# sourceMappingURL=BaseComponent.js.map

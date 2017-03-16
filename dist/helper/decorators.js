@@ -37,7 +37,7 @@ exports.injectDecorator = injectDecorator;
 /**
  * lazy inject
  * @param type class or string
- * @param always always read from context default: false
+ * @param always always read from context. default: false
  */
 function lazyInjectDecorator(type) {
     var always = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;

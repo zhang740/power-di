@@ -30,7 +30,7 @@ export function injectDecorator(type: any) {
 /**
  * lazy inject
  * @param type class or string
- * @param always always read from context default: false
+ * @param always always read from context. default: false
  */
 export function lazyInjectDecorator(type: any, always = false) {
     const globalType = getGlobalType(type)

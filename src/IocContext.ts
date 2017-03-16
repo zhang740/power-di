@@ -5,9 +5,9 @@ export const DefaultRegisterOption: RegisterOptions = {
     autoNew: true,
 }
 export interface RegisterOptions {
-    /** Default:true */
+    /** default: true */
     singleton?: boolean
-    /** if data a class, auto gen a instance, Default:true */
+    /** if data a class, auto gen a instance. default: true */
     autoNew?: boolean
 }
 export type InterceptorType = () => void

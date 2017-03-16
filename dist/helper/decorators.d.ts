@@ -12,6 +12,6 @@ export declare function injectDecorator(type: any): (target: any, key: any) => v
 /**
  * lazy inject
  * @param type class or string
- * @param always always read from context default: false
+ * @param always always read from context. default: false
  */
 export declare function lazyInjectDecorator(type: any, always?: boolean): (target: any, key: any) => void;
