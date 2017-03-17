@@ -54,12 +54,10 @@ export function lazyInject(type: any, always = false, subClass = false) {
                 const data = subClass ? context.getSubClasses(globalType) : context.get(globalType)
                 if (!data) {
                     logger.warn('Notfound:' + globalType)
-                } else {
-                    if (!always) {
-                        Object.defineProperty(target, key, {
-                            value: data
-                        })
-                    }
+                } else if (!always) {
+                    Object.defineProperty(target, key, {
+                        value: data
+                    })
                 }
                 return data
             }

@@ -53,12 +53,10 @@ function lazyInject(type, always = false, subClass = false) {
                 if (!data) {
                     utils_1.logger.warn('Notfound:' + globalType);
                 }
-                else {
-                    if (!always) {
-                        Object.defineProperty(target, key, {
-                            value: data
-                        });
-                    }
+                else if (!always) {
+                    Object.defineProperty(target, key, {
+                        value: data
+                    });
                 }
                 return data;
             }

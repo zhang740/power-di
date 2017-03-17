@@ -21,31 +21,20 @@ class IocContext {
         const data = this.components.get(utils_1.getGlobalType(keyOrType));
         if (!data)
             return;
-        if (data.options.singleton) {
-            return data.value;
-        }
-        else {
-            return data.value();
-        }
+        return this.returnValue(data);
     }
     getSubClasses(keyOrType) {
         const data = this.components.get(utils_1.getGlobalType(keyOrType));
         if (!data)
             return;
-        return data.subClasses.map(sc => {
-            if (sc.options.singleton) {
-                return sc.value;
-            }
-            else {
-                return sc.value();
-            }
-        });
+        return data.subClasses.map(sc => this.returnValue(sc));
     }
     replace(keyOrType, newData, options) {
         const key = utils_1.getGlobalType(keyOrType);
         const data = this.components.get(key);
         if (data) {
             const dataIsFunction = newData instanceof Function;
+            data.inited = false;
             data.value = this.genValue(dataIsFunction, options || data.options, newData);
         }
         else {
@@ -67,6 +56,7 @@ class IocContext {
         }
         options = Object.assign({}, exports.DefaultRegisterOption, options);
         const store = {
+            inited: false,
             value: this.genValue(dataIsFunction, options, data),
             options,
             subClasses: []
@@ -86,12 +76,23 @@ class IocContext {
         this.components.set(dataType, store);
     }
     genValue(dataIsFunction, options, data) {
-        const genData = () => dataIsFunction && options.autoNew ? new data : data;
+        const genData = () => dataIsFunction && options.autoNew ? new data() : data;
         if (options.singleton) {
-            return genData();
+            return () => genData();
         }
         else {
             return genData;
+        }
+    }
+    returnValue(data) {
+        if (data.options.singleton) {
+            return data.inited ? data.value :
+                (data.inited = true,
+                    data.value = data.value(),
+                    data.value);
+        }
+        else {
+            return data.value();
         }
     }
 }

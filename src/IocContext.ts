@@ -20,6 +20,7 @@ export interface RegisterOptions {
 export type InterceptorType = () => void
 export type KeyType = Function | string | undefined
 interface Store {
+    inited: boolean,
     value: any,
     options: RegisterOptions,
     subClasses: Store[],
@@ -39,23 +40,13 @@ export class IocContext {
     public get<T>(keyOrType: string | Function): T {
         const data = this.components.get(getGlobalType(keyOrType))
         if (!data) return
-        if (data.options.singleton) {
-            return data.value
-        } else {
-            return data.value()
-        }
+        return this.returnValue(data)
     }
 
     public getSubClasses<T>(keyOrType: string | Function): T[] {
         const data = this.components.get(getGlobalType(keyOrType))
         if (!data) return
-        return data.subClasses.map(sc => {
-            if (sc.options.singleton) {
-                return sc.value
-            } else {
-                return sc.value()
-            }
-        })
+        return data.subClasses.map(sc => this.returnValue(sc))
     }
 
     public replace<T>(keyOrType: string | Function, newData: any, options?: RegisterOptions) {
@@ -63,6 +54,7 @@ export class IocContext {
         const data = this.components.get(key)
         if (data) {
             const dataIsFunction = newData instanceof Function
+            data.inited = false
             data.value = this.genValue(dataIsFunction, options || data.options, newData)
         } else {
             throw new Error(`the key:[${key}] is not register.`)
@@ -85,6 +77,7 @@ export class IocContext {
         }
         options = Object.assign({}, DefaultRegisterOption, options)
         const store: Store = {
+            inited: false,
             value: this.genValue(dataIsFunction, options, data),
             options,
             subClasses: []
@@ -105,11 +98,24 @@ export class IocContext {
     }
 
     private genValue(dataIsFunction: boolean, options: RegisterOptions, data: any) {
-        const genData = () => dataIsFunction && options.autoNew ? new data : data
+        const genData = () => dataIsFunction && options.autoNew ? new data() : data
         if (options.singleton) {
-            return genData()
+            return () => genData()
         } else {
             return genData
+        }
+    }
+
+    private returnValue(data: Store) {
+        if (data.options.singleton) {
+            return data.inited ? data.value :
+                (
+                    data.inited = true,
+                    data.value = data.value(),
+                    data.value
+                )
+        } else {
+            return data.value()
         }
     }
 }

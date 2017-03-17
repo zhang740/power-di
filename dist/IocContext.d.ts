@@ -23,4 +23,5 @@ export declare class IocContext {
     replace<T>(keyOrType: string | Function, newData: any, options?: RegisterOptions): void;
     register(data: any, key?: KeyType, options?: RegisterOptions): void;
     private genValue(dataIsFunction, options, data);
+    private returnValue(data);
 }
