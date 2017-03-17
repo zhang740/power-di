@@ -125,4 +125,28 @@ ava_1.default('lazyInject decorator, always option false.', t => {
     context.remove(NRService);
     t.false(!test.testService);
 });
+ava_1.default('lazyInject decorator, subclass.', t => {
+    class A {
+    }
+    let B = class B extends A {
+    };
+    B = __decorate([
+        helper_1.register(undefined, { regInSuperClass: true })
+    ], B);
+    let C = class C extends A {
+    };
+    C = __decorate([
+        helper_1.registerSubClass()
+    ], C);
+    class LITestService {
+    }
+    __decorate([
+        helper_1.lazyInject(A, false, true),
+        __metadata("design:type", Array)
+    ], LITestService.prototype, "testService", void 0);
+    const test = new LITestService;
+    t.true(test.testService.length === 2);
+    t.true(test.testService[0] instanceof B);
+    t.true(test.testService[1] instanceof C);
+});
 //# sourceMappingURL=decorators.js.map

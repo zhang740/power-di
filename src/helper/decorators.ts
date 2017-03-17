@@ -14,6 +14,18 @@ export function register(key?: KeyType, options?: RegisterOptions) {
 }
 
 /**
+ * register class
+ * @param target need a class
+ */
+export function registerSubClass(key?: KeyType, options?: RegisterOptions) {
+    return function (target: any) {
+        context.register(target, key, {
+            ...options, regInSuperClass: true
+        })
+    }
+}
+
+/**
  * inject
  * @param type class or string
  */
@@ -31,14 +43,15 @@ export function inject(type: any) {
  * lazy inject
  * @param type class or string
  * @param always always read from context. default: false
+ * @param subClass getSubClasses. default: false
  */
-export function lazyInject(type: any, always = false) {
+export function lazyInject(type: any, always = false, subClass = false) {
     const globalType = getGlobalType(type)
     return function (target: any, key: any): void {
         Object.defineProperty(target, key, {
             configurable: !always,
             get: () => {
-                const data = context.get(globalType)
+                const data = subClass ? context.getSubClasses(globalType) : context.get(globalType)
                 if (!data) {
                     logger.warn('Notfound:' + globalType)
                 } else {

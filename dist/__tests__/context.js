@@ -13,6 +13,7 @@ ava_1.default('register component error case.', t => {
         INJECTTYPE[INJECTTYPE["test"] = 0] = "test";
     })(INJECTTYPE || (INJECTTYPE = {}));
     const context = new IocContext_1.IocContext;
+    t.throws(() => context.register(undefined));
     t.throws(() => context.register(123123));
     t.throws(() => context.register('123123'));
     t.throws(() => context.register({}, 123123));
@@ -98,5 +99,51 @@ ava_1.default('subcomponent? whatever.', t => {
     t.true(context.get(TestService) instanceof SubClass);
     t.false(context.get(TestService) instanceof TestService);
     t.true(!context.get(SubClass));
+});
+ava_1.default('getSubClasses.', t => {
+    class AClass {
+    }
+    class BClass extends AClass {
+    }
+    class CClass extends AClass {
+    }
+    const context = new IocContext_1.IocContext;
+    t.true(!context.getSubClasses(AClass));
+    context.register(BClass, undefined, { regInSuperClass: true });
+    context.register(CClass, undefined, { regInSuperClass: true });
+    const cls = context.getSubClasses(AClass);
+    t.true(cls.length === 2);
+    t.true(cls[0] instanceof BClass);
+    t.true(cls[1] instanceof CClass);
+    t.false(!context.get(AClass));
+});
+ava_1.default('getSubClasses, diff options.', t => {
+    class AClass {
+    }
+    class BClass extends AClass {
+    }
+    class CClass extends AClass {
+    }
+    const context = new IocContext_1.IocContext;
+    context.register(BClass, undefined, { regInSuperClass: true });
+    context.register(CClass, undefined, { singleton: false, regInSuperClass: true });
+    const cls1 = context.getSubClasses(AClass);
+    const cls2 = context.getSubClasses(AClass);
+    t.true(cls1[0] === cls2[0]);
+    t.true(cls1[1] !== cls2[1]);
+});
+ava_1.default('getSubClasses, mutli.', t => {
+    class AClass {
+    }
+    class BClass extends AClass {
+    }
+    class CClass extends BClass {
+    }
+    const context = new IocContext_1.IocContext;
+    context.register(CClass, undefined, { regInSuperClass: true });
+    t.true(context.getSubClasses(AClass).length === 1);
+    t.true(context.getSubClasses(AClass)[0] instanceof AClass);
+    t.true(context.getSubClasses(BClass).length === 1);
+    t.true(context.getSubClasses(BClass)[0] instanceof BClass);
 });
 //# sourceMappingURL=context.js.map

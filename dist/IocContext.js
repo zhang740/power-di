@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const getGlobalType_1 = require("./utils/getGlobalType");
+const utils_1 = require("./utils");
 exports.DefaultRegisterOption = {
     singleton: true,
     autoNew: true,
+    regInSuperClass: false,
 };
 class IocContext {
     constructor() {
@@ -14,10 +15,10 @@ class IocContext {
             (this.defaultInstance = new IocContext(), this.defaultInstance);
     }
     remove(keyOrType) {
-        return this.components.delete(getGlobalType_1.default(keyOrType));
+        return this.components.delete(utils_1.getGlobalType(keyOrType));
     }
     get(keyOrType) {
-        const data = this.components.get(getGlobalType_1.default(keyOrType));
+        const data = this.components.get(utils_1.getGlobalType(keyOrType));
         if (!data)
             return;
         if (data.options.singleton) {
@@ -27,12 +28,25 @@ class IocContext {
             return data.value();
         }
     }
-    replace(keyOrType, newData) {
-        const key = getGlobalType_1.default(keyOrType);
+    getSubClasses(keyOrType) {
+        const data = this.components.get(utils_1.getGlobalType(keyOrType));
+        if (!data)
+            return;
+        return data.subClasses.map(sc => {
+            if (sc.options.singleton) {
+                return sc.value;
+            }
+            else {
+                return sc.value();
+            }
+        });
+    }
+    replace(keyOrType, newData, options) {
+        const key = utils_1.getGlobalType(keyOrType);
         const data = this.components.get(key);
         if (data) {
             const dataIsFunction = newData instanceof Function;
-            data.value = this.genValue(dataIsFunction, data.options, newData);
+            data.value = this.genValue(dataIsFunction, options || data.options, newData);
         }
         else {
             throw new Error(`the key:[${key}] is not register.`);
@@ -47,15 +61,29 @@ class IocContext {
         if (!keyIsOK) {
             throw new Error('key require a string or a class.');
         }
-        const dataKey = getGlobalType_1.default(key) || getGlobalType_1.default(data);
-        if (this.components.has(dataKey)) {
-            throw new Error(`the key:[${dataKey}] is already register.`);
+        const dataType = (key && utils_1.getGlobalType(key)) || (data && utils_1.getGlobalType(data));
+        if (this.components.has(dataType)) {
+            throw new Error(`the key:[${dataType}] is already register.`);
         }
         options = Object.assign({}, exports.DefaultRegisterOption, options);
-        this.components.set(dataKey, {
+        const store = {
             value: this.genValue(dataIsFunction, options, data),
-            options
-        });
+            options,
+            subClasses: []
+        };
+        if (options.regInSuperClass) {
+            const newOptions = Object.assign({}, options, { regInSuperClass: false });
+            const superClasses = utils_1.getSuperClassInfo(data);
+            superClasses.forEach(sc => {
+                let superClass = this.components.get(sc.type);
+                if (!superClass) {
+                    this.register(sc.class, undefined, newOptions);
+                    superClass = this.components.get(sc.type);
+                }
+                superClass.subClasses.push(store);
+            });
+        }
+        this.components.set(dataType, store);
     }
     genValue(dataIsFunction, options, data) {
         const genData = () => dataIsFunction && options.autoNew ? new data : data;

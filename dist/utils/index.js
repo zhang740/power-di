@@ -5,6 +5,7 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var getGlobalType_1 = require("./getGlobalType");
 exports.getGlobalType = getGlobalType_1.getGlobalType;
+exports.getSuperClassInfo = getGlobalType_1.getSuperClassInfo;
 __export(require("./logger"));
 const logger_1 = require("./logger");
 exports.logger = logger_1.default;

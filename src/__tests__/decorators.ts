@@ -1,6 +1,6 @@
 import test from 'ava'
 import { IocContext } from '../IocContext'
-import { register, inject, lazyInject } from '../helper'
+import { register, inject, lazyInject, registerSubClass } from '../helper'
 import { logger, OutLevel } from '../utils'
 logger.setOutLevel(OutLevel.Error)
 
@@ -98,4 +98,21 @@ test('lazyInject decorator, always option false.', t => {
     t.true(test.testService instanceof NRService)
     context.remove(NRService)
     t.false(!test.testService)
+})
+
+test('lazyInject decorator, subclass.', t => {
+    class A { }
+    @register(undefined, { regInSuperClass: true })
+    class B extends A { }
+    @registerSubClass()
+    class C extends A { }
+    class LITestService {
+        @lazyInject(A, false, true)
+        public testService: A[]
+    }
+
+    const test = new LITestService
+    t.true(test.testService.length === 2)
+    t.true(test.testService[0] instanceof B)
+    t.true(test.testService[1] instanceof C)
 })
