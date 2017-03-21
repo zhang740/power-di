@@ -1,12 +1,41 @@
 import test from 'ava'
 import { IocContext } from '../IocContext'
 import { logger, OutLevel } from '../utils'
-import {
+import { getDecorators, Decorators } from '../helper'
+const {
     register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
-} from '../helper'
+} = getDecorators()
+
 logger.setOutLevel(OutLevel.Error)
 
 const context = IocContext.DefaultInstance
+
+test('decorator, custom IocContext.', t => {
+    const context = new IocContext()
+    const { register, lazyInject } = new Decorators(context)
+    @register()
+    class NRService { }
+    class LITestService {
+        @lazyInject(NRService)
+        public testService: NRService
+    }
+
+    const test = new LITestService
+    t.true(test.testService instanceof NRService)
+})
+
+test('decorator, default IocContext.', t => {
+    const decorator = new Decorators()
+    @decorator.register()
+    class NRService { }
+    class LITestService {
+        @decorator.lazyInject(NRService)
+        public testService: NRService
+    }
+
+    const test = new LITestService
+    t.true(test.testService instanceof NRService)
+})
 
 test('register decorator.', t => {
     @register()

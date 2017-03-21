@@ -13,13 +13,47 @@ const ava_1 = require("ava");
 const IocContext_1 = require("../IocContext");
 const utils_1 = require("../utils");
 const helper_1 = require("../helper");
+const { register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass } = helper_1.getDecorators();
 utils_1.logger.setOutLevel(utils_1.OutLevel.Error);
 const context = IocContext_1.IocContext.DefaultInstance;
+ava_1.default('decorator, custom IocContext.', t => {
+    const context = new IocContext_1.IocContext();
+    const { register, lazyInject } = new helper_1.Decorators(context);
+    let NRService = class NRService {
+    };
+    NRService = __decorate([
+        register()
+    ], NRService);
+    class LITestService {
+    }
+    __decorate([
+        lazyInject(NRService),
+        __metadata("design:type", NRService)
+    ], LITestService.prototype, "testService", void 0);
+    const test = new LITestService;
+    t.true(test.testService instanceof NRService);
+});
+ava_1.default('decorator, default IocContext.', t => {
+    const decorator = new helper_1.Decorators();
+    let NRService = class NRService {
+    };
+    NRService = __decorate([
+        decorator.register()
+    ], NRService);
+    class LITestService {
+    }
+    __decorate([
+        decorator.lazyInject(NRService),
+        __metadata("design:type", NRService)
+    ], LITestService.prototype, "testService", void 0);
+    const test = new LITestService;
+    t.true(test.testService instanceof NRService);
+});
 ava_1.default('register decorator.', t => {
     let DTestService = class DTestService {
     };
     DTestService = __decorate([
-        helper_1.register()
+        register()
     ], DTestService);
     t.true(context.get(DTestService) instanceof DTestService);
 });
@@ -27,12 +61,12 @@ ava_1.default('inject decorator.', t => {
     let DTestService = class DTestService {
     };
     DTestService = __decorate([
-        helper_1.register()
+        register()
     ], DTestService);
     class ITestService {
     }
     __decorate([
-        helper_1.inject(DTestService),
+        inject(DTestService),
         __metadata("design:type", DTestService)
     ], ITestService.prototype, "testService", void 0);
     const test = new ITestService;
@@ -44,7 +78,7 @@ ava_1.default('inject decorator, no data.', t => {
     class ITestService {
     }
     __decorate([
-        helper_1.inject(NRService),
+        inject(NRService),
         __metadata("design:type", NRService)
     ], ITestService.prototype, "testService", void 0);
     const test = new ITestService;
@@ -54,12 +88,12 @@ ava_1.default('lazyInject decorator.', t => {
     let DTestService = class DTestService {
     };
     DTestService = __decorate([
-        helper_1.register()
+        register()
     ], DTestService);
     class LITestService {
     }
     __decorate([
-        helper_1.lazyInject(DTestService),
+        lazyInject(DTestService),
         __metadata("design:type", DTestService)
     ], LITestService.prototype, "testService", void 0);
     const test = new LITestService;
@@ -71,7 +105,7 @@ ava_1.default('lazyInject decorator, no data.', t => {
     class LITestService {
     }
     __decorate([
-        helper_1.lazyInject(NRService),
+        lazyInject(NRService),
         __metadata("design:type", NRService)
     ], LITestService.prototype, "testService", void 0);
     const test = new LITestService;
@@ -83,7 +117,7 @@ ava_1.default('lazyInject decorator, no data, then have.', t => {
     class LITestService {
     }
     __decorate([
-        helper_1.lazyInject(NRService),
+        lazyInject(NRService),
         __metadata("design:type", NRService)
     ], LITestService.prototype, "testService", void 0);
     const test = new LITestService;
@@ -95,12 +129,12 @@ ava_1.default('lazyInject decorator, always option true.', t => {
     let NRService = class NRService {
     };
     NRService = __decorate([
-        helper_1.register()
+        register()
     ], NRService);
     class LITestService {
     }
     __decorate([
-        helper_1.lazyInject(NRService, true),
+        lazyInject(NRService, true),
         __metadata("design:type", NRService)
     ], LITestService.prototype, "testService", void 0);
     const test = new LITestService;
@@ -112,12 +146,12 @@ ava_1.default('lazyInject decorator, always option false.', t => {
     let NRService = class NRService {
     };
     NRService = __decorate([
-        helper_1.register()
+        register()
     ], NRService);
     class LITestService {
     }
     __decorate([
-        helper_1.lazyInject(NRService, false),
+        lazyInject(NRService, false),
         __metadata("design:type", NRService)
     ], LITestService.prototype, "testService", void 0);
     const test = new LITestService;
@@ -131,26 +165,26 @@ ava_1.default('lazyInject decorator, subclass.', t => {
     let B = class B extends A {
     };
     B = __decorate([
-        helper_1.register(undefined, { regInSuperClass: true })
+        register(undefined, { regInSuperClass: true })
     ], B);
     let C = class C extends A {
     };
     C = __decorate([
-        helper_1.registerSubClass()
+        registerSubClass()
     ], C);
     let D = class D {
     };
     D = __decorate([
-        helper_1.append(A)
+        append(A)
     ], D);
     class LITestService {
     }
     __decorate([
-        helper_1.lazyInject(A, false, true),
+        lazyInject(A, false, true),
         __metadata("design:type", Array)
     ], LITestService.prototype, "testService", void 0);
     __decorate([
-        helper_1.lazyInjectSubClass(A),
+        lazyInjectSubClass(A),
         __metadata("design:type", Array)
     ], LITestService.prototype, "testService2", void 0);
     const test = new LITestService;

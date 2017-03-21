@@ -1,9 +1,9 @@
 # Power DI
 
-[![CI](https://img.shields.io/travis/zhang740/power-di.svg)](https://travis-ci.org/zhang740/power-di)
-[![Coverage](https://img.shields.io/coveralls/zhang740/power-di.svg)](https://coveralls.io/github/zhang740/power-di)
-[![Version](https://img.shields.io/npm/v/power-di.svg)](https://www.npmjs.com/package/power-di)
-[![License](https://img.shields.io/npm/l/power-di.svg)](https://github.com/zhang740/power-di/blob/master/LICENSE)
+[![CI](https://img.shields.io/travis/zhang740/power-di.svg?style=flat-square)](https://travis-ci.org/zhang740/power-di)
+[![Coverage](https://img.shields.io/coveralls/zhang740/power-di.svg?style=flat-square)](https://coveralls.io/github/zhang740/power-di)
+[![Version](https://img.shields.io/npm/v/power-di.svg?style=flat-square)](https://www.npmjs.com/package/power-di)
+[![License](https://img.shields.io/npm/l/power-di.svg?style=flat-square)](https://github.com/zhang740/power-di/blob/master/LICENSE)
 
 A lightweight Dependency Injection library. Using es6 and other features, remove unnecessary concepts, easy and convenient to use.
 
@@ -37,7 +37,10 @@ context.get('XService')
 
 ### use with decorators
 ```ts
-import { register, inject, lazyInject } from 'power-di/helper'
+import { getDecorators } from '../helper'
+const {
+    register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
+} = getDecorators() // you can provider a iocContext for this method.
 
 @register()
 class AService { }
@@ -98,4 +101,4 @@ class LITestService {
 }
 ```
 
-### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/src/__tests__)
+#### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/src/__tests__)
