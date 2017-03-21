@@ -11,8 +11,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ava_1 = require("ava");
 const IocContext_1 = require("../IocContext");
-const helper_1 = require("../helper");
 const utils_1 = require("../utils");
+const helper_1 = require("../helper");
 utils_1.logger.setOutLevel(utils_1.OutLevel.Error);
 const context = IocContext_1.IocContext.DefaultInstance;
 ava_1.default('register decorator.', t => {
@@ -138,15 +138,29 @@ ava_1.default('lazyInject decorator, subclass.', t => {
     C = __decorate([
         helper_1.registerSubClass()
     ], C);
+    let D = class D {
+    };
+    D = __decorate([
+        helper_1.append(A)
+    ], D);
     class LITestService {
     }
     __decorate([
         helper_1.lazyInject(A, false, true),
         __metadata("design:type", Array)
     ], LITestService.prototype, "testService", void 0);
+    __decorate([
+        helper_1.lazyInjectSubClass(A),
+        __metadata("design:type", Array)
+    ], LITestService.prototype, "testService2", void 0);
     const test = new LITestService;
-    t.true(test.testService.length === 2);
+    t.true(test.testService.length === 3);
     t.true(test.testService[0] instanceof B);
     t.true(test.testService[1] instanceof C);
+    t.true(test.testService[2] instanceof D);
+    t.true(test.testService2.length === 3);
+    t.true(test.testService2[0] instanceof B);
+    t.true(test.testService2[1] instanceof C);
+    t.true(test.testService2[2] instanceof D);
 });
 //# sourceMappingURL=decorators.js.map

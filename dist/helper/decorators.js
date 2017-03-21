@@ -6,6 +6,7 @@ const context = IocContext_1.IocContext.DefaultInstance;
 /**
  * register class
  * @param target need a class
+ * @param options RegisterOptions
  */
 function register(key, options) {
     return function (target) {
@@ -14,8 +15,9 @@ function register(key, options) {
 }
 exports.register = register;
 /**
- * register class
+ * register subClass, the abbreviation of register
  * @param target need a class
+ * @param options RegisterOptions
  */
 function registerSubClass(key, options) {
     return function (target) {
@@ -23,6 +25,17 @@ function registerSubClass(key, options) {
     };
 }
 exports.registerSubClass = registerSubClass;
+/**
+ * append class to subClass list by key
+ * @param key class or string
+ * @param options RegisterOptions
+ */
+function append(key, options) {
+    return function (target) {
+        context.append(key, target, options);
+    };
+}
+exports.append = append;
 /**
  * inject
  * @param type class or string
@@ -64,4 +77,13 @@ function lazyInject(type, always = false, subClass = false) {
     };
 }
 exports.lazyInject = lazyInject;
+/**
+ * lazy inject subClass, the abbreviation of lazy inject
+ * @param type class or string
+ * @param always always read from context. default: false
+ */
+function lazyInjectSubClass(type, always = false) {
+    return lazyInject(type, always, true);
+}
+exports.lazyInjectSubClass = lazyInjectSubClass;
 //# sourceMappingURL=decorators.js.map

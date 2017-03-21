@@ -83,11 +83,19 @@ class A { }
 @register(undefined, { regInSuperClass: true })
 class B extends A { }
 
-@registerSubClass() // an alias of above
+@registerSubClass() // the abbreviation of above
 class C extends A { }
+
+@append(A)
+class D { }
 
 class LITestService {
     @lazyInject(A, false, true)
-    public testService: A[] // [b, c]
+    public testService1: A[] // [b, c, d], the type is A[] or any[] (D may be not instance of A)
+
+    @lazyInjectSubClass(A)
+    public testService2: A[] // the abbreviation of above
 }
 ```
+
+### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/src/__tests__)

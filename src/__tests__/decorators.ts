@@ -1,7 +1,9 @@
 import test from 'ava'
 import { IocContext } from '../IocContext'
-import { register, inject, lazyInject, registerSubClass } from '../helper'
 import { logger, OutLevel } from '../utils'
+import {
+    register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
+} from '../helper'
 logger.setOutLevel(OutLevel.Error)
 
 const context = IocContext.DefaultInstance
@@ -106,13 +108,22 @@ test('lazyInject decorator, subclass.', t => {
     class B extends A { }
     @registerSubClass()
     class C extends A { }
+    @append(A)
+    class D { }
     class LITestService {
         @lazyInject(A, false, true)
         public testService: A[]
+        @lazyInjectSubClass(A)
+        public testService2: A[]
     }
 
     const test = new LITestService
-    t.true(test.testService.length === 2)
+    t.true(test.testService.length === 3)
     t.true(test.testService[0] instanceof B)
     t.true(test.testService[1] instanceof C)
+    t.true(test.testService[2] instanceof D)
+    t.true(test.testService2.length === 3)
+    t.true(test.testService2[0] instanceof B)
+    t.true(test.testService2[1] instanceof C)
+    t.true(test.testService2[2] instanceof D)
 })

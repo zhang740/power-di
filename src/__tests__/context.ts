@@ -16,9 +16,10 @@ test('register component error case.', t => {
     const context = new IocContext
     t.throws(() => context.register(undefined))
     t.throws(() => context.register(123123))
-    t.throws(() => context.register('123123'))
+    t.throws(() => context.register({}))
     t.throws(() => context.register({}, 123123 as any))
     t.throws(() => context.register({}, INJECTTYPE.test as any))
+    t.throws(() => context.register('33333', undefined, { regInSuperClass: true }))
 })
 
 test('register component by class.', t => {
@@ -59,6 +60,12 @@ test('register component by string.', t => {
     const data = { x: 'test' }
     context.register(data, 'string_key_value')
     t.true(context.get('string_key_value') === data)
+
+    const data2 = 'test_str'
+    context.register(data2, 'string_key_value2')
+    t.true(context.get('string_key_value2') === data2)
+
+    t.true(!context.register('123123'))
 })
 
 test('register not allowed.', t => {
@@ -154,4 +161,27 @@ test('getSubClasses, mutli.', t => {
     t.true(context.getSubClasses(AClass)[0] instanceof AClass)
     t.true(context.getSubClasses(BClass).length === 1)
     t.true(context.getSubClasses(BClass)[0] instanceof BClass)
+})
+
+test('getSubClasses, by custom append.', t => {
+    const context = new IocContext
+    const dataA = { a: 'a' }
+    const dataB = { b: 'b' }
+    context.append('Test', dataA)
+    context.append('Test', dataB)
+    const result = context.getSubClasses('Test')
+    t.true(result.length === 2)
+    t.true(result[0] === dataA)
+    t.true(result[1] === dataB)
+})
+
+test('getSubClasses, by custom append, class.', t => {
+    class AClass { }
+
+    const context = new IocContext
+    context.append('Test', AClass)
+    const result = context.getSubClasses('Test')
+    t.true(result.length === 1)
+    t.true(result[0] instanceof AClass)
+    t.true(result[0] === context.get(AClass))
 })

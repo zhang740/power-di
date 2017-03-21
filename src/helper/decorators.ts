@@ -1,4 +1,4 @@
-import { IocContext, RegisterOptions, KeyType } from '../IocContext'
+import { IocContext, RegisterOptions, KeyType, RegKeyType } from '../IocContext'
 import { getGlobalType, logger } from '../utils'
 
 const context = IocContext.DefaultInstance
@@ -6,22 +6,35 @@ const context = IocContext.DefaultInstance
 /**
  * register class
  * @param target need a class
+ * @param options RegisterOptions
  */
-export function register(key?: KeyType, options?: RegisterOptions) {
+export function register(key?: RegKeyType, options?: RegisterOptions) {
     return function (target: any) {
         context.register(target, key, options)
     }
 }
 
 /**
- * register class
+ * register subClass, the abbreviation of register
  * @param target need a class
+ * @param options RegisterOptions
  */
-export function registerSubClass(key?: KeyType, options?: RegisterOptions) {
+export function registerSubClass(key?: RegKeyType, options?: RegisterOptions) {
     return function (target: any) {
         context.register(target, key, {
             ...options, regInSuperClass: true
         })
+    }
+}
+
+/**
+ * append class to subClass list by key
+ * @param key class or string
+ * @param options RegisterOptions
+ */
+export function append(key?: KeyType, options?: RegisterOptions) {
+    return function (target: any) {
+        context.append(key, target, options)
     }
 }
 
@@ -63,4 +76,13 @@ export function lazyInject(type: any, always = false, subClass = false) {
             }
         })
     }
+}
+
+/**
+ * lazy inject subClass, the abbreviation of lazy inject
+ * @param type class or string
+ * @param always always read from context. default: false
+ */
+export function lazyInjectSubClass(type: any, always = false) {
+    return lazyInject(type, always, true)
 }

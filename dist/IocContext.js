@@ -41,42 +41,60 @@ class IocContext {
             throw new Error(`the key:[${key}] is not register.`);
         }
     }
-    register(data, key, options = exports.DefaultRegisterOption) {
-        const dataIsFunction = data instanceof Function;
-        if (!dataIsFunction && !key) {
-            throw new Error('when data is not a class, require a key.');
+    append(keyOrType, subData, options = exports.DefaultRegisterOption) {
+        if (subData instanceof Function) {
+            this.register(subData, undefined, options);
         }
-        const keyIsOK = !key || key instanceof Function || typeof key === 'string';
-        if (!keyIsOK) {
-            throw new Error('key require a string or a class.');
+        this.appendData(utils_1.getGlobalType(keyOrType), keyOrType, options, this.components.get(utils_1.getGlobalType(subData)) || this.newStore(subData, options));
+    }
+    register(data, key, options = exports.DefaultRegisterOption) {
+        if (key) {
+            if (!this.canBeKey(key)) {
+                throw new Error('key require a string or a class.');
+            }
+        }
+        else {
+            if (!this.canBeKey(data)) {
+                throw new Error('when data is not a class or string, require a key.');
+            }
         }
         const dataType = (key && utils_1.getGlobalType(key)) || (data && utils_1.getGlobalType(data));
         if (this.components.has(dataType)) {
             throw new Error(`the key:[${dataType}] is already register.`);
         }
         options = Object.assign({}, exports.DefaultRegisterOption, options);
-        const store = {
+        const store = this.newStore(data, options);
+        this.components.set(dataType, store);
+        if (options.regInSuperClass) {
+            if (!(data instanceof Function)) {
+                throw new Error('if need regInSuperClass, data MUST be a class.');
+            }
+            const newOptions = Object.assign({}, options, { regInSuperClass: false });
+            const superClasses = utils_1.getSuperClassInfo(data);
+            superClasses.forEach(sc => this.appendData(sc.type, sc.class, newOptions, store));
+        }
+    }
+    appendData(keyType, typeData, options, store) {
+        let superClass = this.components.get(keyType);
+        if (!superClass) {
+            this.register(typeData, undefined, options);
+            superClass = this.components.get(keyType);
+        }
+        superClass.subClasses.push(store);
+    }
+    newStore(data, options) {
+        return {
             inited: false,
-            value: this.genValue(dataIsFunction, options, data),
+            value: this.genValue(data instanceof Function, options, data),
             options,
             subClasses: []
         };
-        if (options.regInSuperClass) {
-            const newOptions = Object.assign({}, options, { regInSuperClass: false });
-            const superClasses = utils_1.getSuperClassInfo(data);
-            superClasses.forEach(sc => {
-                let superClass = this.components.get(sc.type);
-                if (!superClass) {
-                    this.register(sc.class, undefined, newOptions);
-                    superClass = this.components.get(sc.type);
-                }
-                superClass.subClasses.push(store);
-            });
-        }
-        this.components.set(dataType, store);
     }
-    genValue(dataIsFunction, options, data) {
-        const genData = () => dataIsFunction && options.autoNew ? new data() : data;
+    canBeKey(obj) {
+        return obj instanceof Function || typeof obj === 'string';
+    }
+    genValue(isFunction, options, data) {
+        const genData = () => isFunction && options.autoNew ? new data() : data;
         if (options.singleton) {
             return () => genData();
         }
