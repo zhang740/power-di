@@ -2,7 +2,9 @@ export declare const DefaultRegisterOption: RegisterOptions;
 export interface RegisterOptions {
     /** default: true */
     singleton?: boolean;
-    /** if data a class or function, auto new a instance. default: true */
+    /** if data a class, auto new a instance.
+     *  if data a function, auto run(lazy).
+     *  default: true */
     autoNew?: boolean;
     /**
      * register in superclass, you can get use superclass with getSubClasses method.
@@ -27,6 +29,6 @@ export declare class IocContext {
     private appendData(keyType, typeData, options, store);
     private newStore(data, options);
     private canBeKey(obj);
-    private genValue(isFunction, options, data);
+    private genValue(data, options);
     private returnValue(data);
 }

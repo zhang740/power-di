@@ -28,6 +28,17 @@ test('register component by class.', t => {
     t.true(context.get(TestService) instanceof TestService)
 })
 
+test('register component by create function.', t => {
+    const context = new IocContext
+    context.register(() => {
+        t.fail()
+    }, 'test', { autoNew: false })
+    context.register(() => {
+        return { a: 5 }
+    }, 'test2')
+    t.true(context.get<{ a: number }>('test2').a === 5)
+})
+
 test('register component mutli-instance.', t => {
     const context = new IocContext
     context.register(TestService, undefined, { singleton: false })
@@ -173,6 +184,7 @@ test('getSubClasses, by custom append.', t => {
     t.true(result.length === 2)
     t.true(result[0] === dataA)
     t.true(result[1] === dataB)
+    t.throws(() => context.append(123 as any, dataA))
 })
 
 test('getSubClasses, by custom append, class.', t => {

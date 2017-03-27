@@ -33,19 +33,26 @@ class IocContext {
         const key = utils_1.getGlobalType(keyOrType);
         const data = this.components.get(key);
         if (data) {
-            const dataIsFunction = newData instanceof Function;
             data.inited = false;
-            data.value = this.genValue(dataIsFunction, options || data.options, newData);
+            data.value = this.genValue(newData, options || data.options);
         }
         else {
             throw new Error(`the key:[${key}] is not register.`);
         }
     }
     append(keyOrType, subData, options = exports.DefaultRegisterOption) {
-        if (subData instanceof Function) {
-            this.register(subData, undefined, options);
+        if (!this.canBeKey(keyOrType)) {
+            throw new Error('key require a string or a class.');
         }
-        this.appendData(utils_1.getGlobalType(keyOrType), keyOrType, options, this.components.get(utils_1.getGlobalType(subData)) || this.newStore(subData, options));
+        let store;
+        if (utils_1.isClass(subData)) {
+            this.register(subData, undefined, options);
+            store = this.components.get(utils_1.getGlobalType(subData));
+        }
+        else {
+            store = this.newStore(subData, options);
+        }
+        this.appendData(utils_1.getGlobalType(keyOrType), keyOrType, options, store);
     }
     register(data, key, options = exports.DefaultRegisterOption) {
         if (key) {
@@ -85,7 +92,7 @@ class IocContext {
     newStore(data, options) {
         return {
             inited: false,
-            value: this.genValue(data instanceof Function, options, data),
+            value: this.genValue(data, options),
             options,
             subClasses: []
         };
@@ -93,14 +100,11 @@ class IocContext {
     canBeKey(obj) {
         return obj instanceof Function || typeof obj === 'string';
     }
-    genValue(isFunction, options, data) {
-        const genData = () => isFunction && options.autoNew ? new data() : data;
-        if (options.singleton) {
-            return () => genData();
-        }
-        else {
-            return genData;
-        }
+    genValue(data, options) {
+        const dataIsFunction = data instanceof Function;
+        const dataIsClass = dataIsFunction && utils_1.isClass(data);
+        return () => dataIsFunction && options.autoNew ?
+            (dataIsClass ? new data() : data()) : data;
     }
     returnValue(data) {
         if (data.options.singleton) {

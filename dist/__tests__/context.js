@@ -25,6 +25,16 @@ ava_1.default('register component by class.', t => {
     context.register(TestService);
     t.true(context.get(TestService) instanceof TestService);
 });
+ava_1.default('register component by create function.', t => {
+    const context = new IocContext_1.IocContext;
+    context.register(() => {
+        t.fail();
+    }, 'test', { autoNew: false });
+    context.register(() => {
+        return { a: 5 };
+    }, 'test2');
+    t.true(context.get('test2').a === 5);
+});
 ava_1.default('register component mutli-instance.', t => {
     const context = new IocContext_1.IocContext;
     context.register(TestService, undefined, { singleton: false });
@@ -161,6 +171,7 @@ ava_1.default('getSubClasses, by custom append.', t => {
     t.true(result.length === 2);
     t.true(result[0] === dataA);
     t.true(result[1] === dataB);
+    t.throws(() => context.append(123, dataA));
 });
 ava_1.default('getSubClasses, by custom append, class.', t => {
     class AClass {

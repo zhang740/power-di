@@ -1,4 +1,4 @@
-import { getGlobalType, getSuperClassInfo } from './utils'
+import { getGlobalType, getSuperClassInfo, isClass } from './utils'
 
 export const DefaultRegisterOption: RegisterOptions = {
     singleton: true,
@@ -8,7 +8,9 @@ export const DefaultRegisterOption: RegisterOptions = {
 export interface RegisterOptions {
     /** default: true */
     singleton?: boolean
-    /** if data a class or function, auto new a instance. default: true */
+    /** if data a class, auto new a instance.
+     *  if data a function, auto run(lazy).
+     *  default: true */
     autoNew?: boolean
     /**
      * register in superclass, you can get use superclass with getSubClasses method.
@@ -54,24 +56,25 @@ export class IocContext {
         const key = getGlobalType(keyOrType)
         const data = this.components.get(key)
         if (data) {
-            const dataIsFunction = newData instanceof Function
             data.inited = false
-            data.value = this.genValue(dataIsFunction, options || data.options, newData)
+            data.value = this.genValue(newData, options || data.options)
         } else {
             throw new Error(`the key:[${key}] is not register.`)
         }
     }
 
     public append(keyOrType: KeyType, subData: any, options = DefaultRegisterOption) {
-        if (subData instanceof Function) {
-            this.register(subData, undefined, options)
+        if (!this.canBeKey(keyOrType)) {
+            throw new Error('key require a string or a class.')
         }
-        this.appendData(
-            getGlobalType(keyOrType),
-            keyOrType,
-            options,
-            this.components.get(getGlobalType(subData)) || this.newStore(subData, options)
-        )
+        let store: Store
+        if (isClass(subData)) {
+            this.register(subData, undefined, options)
+            store = this.components.get(getGlobalType(subData))
+        } else {
+            store = this.newStore(subData, options)
+        }
+        this.appendData(getGlobalType(keyOrType), keyOrType, options, store)
     }
 
     public register(data: any, key?: RegKeyType, options = DefaultRegisterOption) {
@@ -115,7 +118,7 @@ export class IocContext {
     private newStore(data: any, options: RegisterOptions) {
         return {
             inited: false,
-            value: this.genValue(data instanceof Function, options, data),
+            value: this.genValue(data, options),
             options,
             subClasses: []
         } as Store
@@ -125,13 +128,12 @@ export class IocContext {
         return obj instanceof Function || typeof obj === 'string'
     }
 
-    private genValue(isFunction: boolean, options: RegisterOptions, data: any) {
-        const genData = () => isFunction && options.autoNew ? new data() : data
-        if (options.singleton) {
-            return () => genData()
-        } else {
-            return genData
-        }
+    private genValue(data: any, options: RegisterOptions) {
+        const dataIsFunction = data instanceof Function
+        const dataIsClass = dataIsFunction && isClass(data)
+
+        return () => dataIsFunction && options.autoNew ?
+            (dataIsClass ? new data() : data()) : data
     }
 
     private returnValue(data: Store) {

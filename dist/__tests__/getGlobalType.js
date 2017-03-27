@@ -5,6 +5,9 @@ const utils_1 = require("../utils");
 ava_1.default('getGlobalType, error.', t => {
     t.throws(() => utils_1.getGlobalType(undefined));
     t.throws(() => utils_1.getGlobalType(123));
+    t.throws(() => utils_1.getGlobalType(() => { }));
+    t.throws(() => utils_1.getGlobalType(function () { }));
+    t.throws(() => utils_1.getGlobalType(function test() { }));
 });
 ava_1.default('getGlobalType, string.', t => {
     t.true(utils_1.getGlobalType('stringkey') === 'stringkey');
@@ -26,5 +29,8 @@ ava_1.default('getSuperClassInfo.', t => {
     t.true(typeBs.length === 1);
     t.true(typeBs[0].type === utils_1.getGlobalType(A));
     t.true(typeBs[0].class === A);
+    t.throws(() => utils_1.getSuperClassInfo(123));
+    t.throws(() => utils_1.getSuperClassInfo('123'));
+    t.throws(() => utils_1.getSuperClassInfo(() => { }));
 });
 //# sourceMappingURL=getGlobalType.js.map

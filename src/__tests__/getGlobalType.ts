@@ -4,6 +4,9 @@ import { getGlobalType, getSuperClassInfo } from '../utils'
 test('getGlobalType, error.', t => {
     t.throws(() => getGlobalType(undefined))
     t.throws(() => getGlobalType(123))
+    t.throws(() => getGlobalType(() => { }))
+    t.throws(() => getGlobalType(function () { }))
+    t.throws(() => getGlobalType(function test() { }))
 })
 
 test('getGlobalType, string.', t => {
@@ -27,4 +30,7 @@ test('getSuperClassInfo.', t => {
     t.true(typeBs.length === 1)
     t.true(typeBs[0].type === getGlobalType(A))
     t.true(typeBs[0].class === A)
+    t.throws(() => getSuperClassInfo(123 as any))
+    t.throws(() => getSuperClassInfo('123' as any))
+    t.throws(() => getSuperClassInfo(() => { }))
 })

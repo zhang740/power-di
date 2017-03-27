@@ -1,9 +1,10 @@
+export declare function isClass(target: any): boolean;
 /**
  * getGlobalType
- * @param thisConstructor thisConstructor class or string.
+ * @param classOrString class or string.
  * @param prefix the prefix of type.
  */
-export declare const getGlobalType: (classOrString: any, prefix?: string) => string;
+export declare function getGlobalType(classOrString: any, prefix?: string): string;
 export interface TypeInfo {
     type: string;
     class: Function;
