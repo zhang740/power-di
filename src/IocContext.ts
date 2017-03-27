@@ -18,8 +18,8 @@ export interface RegisterOptions {
     regInSuperClass?: boolean
 }
 export type InterceptorType = () => void
-export type KeyType = Function | string
-export type RegKeyType = Function | string | undefined
+export type KeyType = Function | string // typeof Object
+export type RegKeyType = KeyType | undefined
 interface Store {
     inited: boolean,
     value: any,
@@ -34,23 +34,23 @@ export class IocContext {
             (this.defaultInstance = new IocContext(), this.defaultInstance)
     }
 
-    public remove(keyOrType: string | Function) {
+    public remove(keyOrType: KeyType) {
         return this.components.delete(getGlobalType(keyOrType))
     }
 
-    public get<T>(keyOrType: string | Function): T {
+    public get<T>(keyOrType: KeyType): T {
         const data = this.components.get(getGlobalType(keyOrType))
         if (!data) return
         return this.returnValue(data)
     }
 
-    public getSubClasses<T>(keyOrType: string | Function): T[] {
+    public getSubClasses<T>(keyOrType: KeyType): T[] {
         const data = this.components.get(getGlobalType(keyOrType))
         if (!data) return
         return data.subClasses.map(sc => this.returnValue(sc))
     }
 
-    public replace<T>(keyOrType: string | Function, newData: any, options?: RegisterOptions) {
+    public replace<T>(keyOrType: KeyType, newData: any, options?: RegisterOptions) {
         const key = getGlobalType(keyOrType)
         const data = this.components.get(key)
         if (data) {
@@ -62,7 +62,7 @@ export class IocContext {
         }
     }
 
-    public append(keyOrType: string | Function, subData: any, options = DefaultRegisterOption) {
+    public append(keyOrType: KeyType, subData: any, options = DefaultRegisterOption) {
         if (subData instanceof Function) {
             this.register(subData, undefined, options)
         }
