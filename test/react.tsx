@@ -1,8 +1,8 @@
 import test from 'ava'
 import * as React from 'react'
 import { create } from 'react-test-renderer'
-import { IocContext } from '../IocContext'
-import { IocProvider, Component } from '../react'
+import { IocContext } from '../dist/IocContext'
+import { IocProvider, Component } from '../dist/react'
 
 test('react only reactcomponent.', t => {
     const context = IocContext.DefaultInstance

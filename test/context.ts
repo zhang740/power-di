@@ -1,5 +1,5 @@
 import test from 'ava'
-import { IocContext } from '../IocContext'
+import { IocContext } from '../dist/IocContext'
 
 class TestService {
 }

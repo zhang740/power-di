@@ -86,3 +86,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# test
+__tests__

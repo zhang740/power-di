@@ -101,4 +101,4 @@ class LITestService {
 }
 ```
 
-#### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/src/__tests__)
+#### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/test)

@@ -1,7 +1,7 @@
 import test from 'ava'
-import { IocContext } from '../IocContext'
-import { logger, OutLevel } from '../utils'
-import { getDecorators, Decorators } from '../helper'
+import { IocContext } from '../dist/IocContext'
+import { logger, OutLevel } from '../dist/utils'
+import { getDecorators, Decorators } from '../dist/helper'
 const {
     register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
 } = getDecorators()

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { getGlobalType, getSuperClassInfo } from '../utils'
+import { getGlobalType, getSuperClassInfo } from '../dist/utils'
 
 test('getGlobalType, error.', t => {
     t.throws(() => getGlobalType(undefined))
