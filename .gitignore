@@ -89,3 +89,6 @@ $RECYCLE.BIN/
 
 # test
 __tests__
+
+# vscode
+.vscode
