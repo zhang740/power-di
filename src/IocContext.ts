@@ -133,7 +133,7 @@ export class IocContext {
         const dataIsClass = dataIsFunction && isClass(data)
 
         return () => dataIsFunction && options.autoNew ?
-            (dataIsClass ? new data() : data()) : data
+            (dataIsClass ? new data(this) : data(this)) : data
     }
 
     private returnValue(data: Store) {

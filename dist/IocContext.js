@@ -104,7 +104,7 @@ class IocContext {
         const dataIsFunction = data instanceof Function;
         const dataIsClass = dataIsFunction && utils_1.isClass(data);
         return () => dataIsFunction && options.autoNew ?
-            (dataIsClass ? new data() : data()) : data;
+            (dataIsClass ? new data(this) : data(this)) : data;
     }
     returnValue(data) {
         if (data.options.singleton) {

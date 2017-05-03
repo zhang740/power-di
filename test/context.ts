@@ -197,3 +197,15 @@ test('getSubClasses, by custom append, class.', t => {
     t.true(result[0] instanceof AClass)
     t.true(result[0] === context.get(AClass))
 })
+
+test('class init, with ioc instance.', t => {
+    class TestService {
+        constructor(ioc: IocContext) {
+            t.true(ioc instanceof IocContext)
+        }
+    }
+
+    const context = new IocContext
+    context.register(TestService)
+    context.get<TestService>(TestService)
+})
