@@ -17,27 +17,25 @@ function getGlobalType(classOrString, prefix = '') {
     if (typeof classOrString === 'string') {
         return classOrString;
     }
-    let type;
     if (classOrString.hasOwnProperty('__type')) {
-        type = classOrString['__type'];
+        return classOrString['__type'];
     }
-    if (!type) {
-        const info = classOrString.toString().match(/\w+/g);
-        if (info[0] !== 'class') {
-            throw new Error('data MUST be a class or string.');
-        }
-        type = prefix + info[1];
-        if (_globalTypes[type]) {
-            type = type + '_' + _uid++;
-        }
-        _globalTypes[type] = true;
-        Object.defineProperty(classOrString, '__type', {
-            configurable: false,
-            enumerable: false,
-            writable: false,
-            value: type
-        });
+    let type;
+    const info = classOrString.toString().match(/\w+/g);
+    if (info[0] !== 'class') {
+        throw new Error('data MUST be a class or string.');
     }
+    type = prefix + info[1];
+    if (_globalTypes[type]) {
+        type = type + '_' + _uid++;
+    }
+    _globalTypes[type] = true;
+    Object.defineProperty(classOrString, '__type', {
+        configurable: false,
+        enumerable: false,
+        writable: false,
+        value: type
+    });
     return type;
 }
 exports.getGlobalType = getGlobalType;
