@@ -92,7 +92,10 @@ export class IocContext {
         if (this.components.has(dataType)) {
             throw new Error(`the key:[${dataType}] is already register.`)
         }
-        options = Object.assign({}, DefaultRegisterOption, options)
+        options = {
+            ...DefaultRegisterOption,
+            ...options,
+        }
         const store: Store = this.newStore(data, options)
         this.components.set(dataType, store)
 

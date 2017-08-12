@@ -21,7 +21,7 @@ export function getGlobalType(classOrString: any, prefix: string = ''): string {
     }
     let type: string
     const info = classOrString.toString().match(/\w+/g)
-    if (info[0] !== 'class') {
+    if (info[0] !== 'class' && !(info[0] === 'function' && info.length > 1)) { // Only for compatible with es5 class
         throw new Error('data MUST be a class or string.')
     }
     type = prefix + info[1]

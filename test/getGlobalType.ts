@@ -1,23 +1,26 @@
 import test from 'ava'
-import { getGlobalType, getSuperClassInfo } from '../dist/utils'
+import { getGlobalType, getSuperClassInfo } from '../lib/utils'
 
 test('getGlobalType, error.', t => {
     t.throws(() => getGlobalType(undefined))
     t.throws(() => getGlobalType(123))
     t.throws(() => getGlobalType(() => { }))
     t.throws(() => getGlobalType(function () { }))
-    t.throws(() => getGlobalType(function test() { }))
 })
 
 test('getGlobalType, string.', t => {
     t.true(getGlobalType('stringkey') === 'stringkey')
 })
 
-test('getGlobalType, one class.', t => {
+test('getGlobalType, a class.', t => {
     class A { }
 
     const typeA = getGlobalType(A)
     t.true(typeA === 'A')
+
+    // es5
+    function test() { }
+    t.true(getGlobalType(test) === 'test')
 })
 
 test('getSuperClassInfo.', t => {

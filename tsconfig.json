@@ -10,7 +10,7 @@
         "preserveConstEnums": true,
         "declaration": true,
         "rootDir": "src",
-        "outDir": "dist",
+        "outDir": "lib",
         "sourceMap": true,
         "pretty": true
     },

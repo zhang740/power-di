@@ -1,5 +1,5 @@
 import test from 'ava'
-import { logger, OutLevel } from '../dist/utils'
+import { logger, OutLevel } from '../lib/utils'
 
 test('logger', t => {
     logger.log('')

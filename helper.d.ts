@@ -1,1 +1,1 @@
-export * from './dist/helper'
+export * from './lib/helper'
