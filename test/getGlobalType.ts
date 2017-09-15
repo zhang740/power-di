@@ -1,5 +1,5 @@
 import test from 'ava'
-import { getGlobalType, getSuperClassInfo } from '../lib/utils'
+import { getGlobalType, getSuperClassInfo, isExtendOf } from '../lib/utils'
 
 test('getGlobalType, error.', t => {
     t.throws(() => getGlobalType(undefined))
@@ -36,4 +36,16 @@ test('getSuperClassInfo.', t => {
     t.throws(() => getSuperClassInfo(123 as any))
     t.throws(() => getSuperClassInfo('123' as any))
     t.throws(() => getSuperClassInfo(() => { }))
+})
+
+test('isExtendOf', t => {
+    class A { }
+    class B extends A { }
+    class C { }
+
+    t.true(isExtendOf(B, A))
+    t.false(isExtendOf(A, B))
+    t.false(isExtendOf(C, A))
+    t.throws(() => isExtendOf(A, 1 as any))
+    t.throws(() => isExtendOf(1 as any, A))
 })

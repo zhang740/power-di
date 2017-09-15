@@ -60,3 +60,11 @@ export function getSuperClassInfo(classType: Function) {
     }
     return superClasses
 }
+
+export function isExtendOf(classType: Function, superClassType: Function) {
+    if (!isClass(classType) || !isClass(superClassType)) {
+        throw new Error('classType and superClassType MUST be a class.')
+    }
+    const type = getGlobalType(superClassType)
+    return !!getSuperClassInfo(classType).find(cls => cls.type === type)
+}

@@ -10,3 +10,4 @@ export interface TypeInfo {
     class: Function;
 }
 export declare function getSuperClassInfo(classType: Function): TypeInfo[];
+export declare function isExtendOf(classType: Function, superClassType: Function): boolean;
