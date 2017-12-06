@@ -1,1 +1,1 @@
-export * from './decoratorsWithReflect'
+export { Decorators, getDecorators } from './decoratorsWithReflect'

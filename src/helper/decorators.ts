@@ -1,6 +1,15 @@
 import { IocContext, RegisterOptions, KeyType, RegKeyType } from '../IocContext'
 import { getGlobalType, logger } from '../utils'
 
+export function getGlobalTypeByDecorator(
+    type: any, target: any, key: string
+) {
+    if (!type && Reflect && Reflect.getMetadata) {
+        type = Reflect.getMetadata('design:type', target, key)
+    }
+    return getGlobalType(type)
+}
+
 export class Decorators {
     private context: IocContext
 
@@ -61,7 +70,7 @@ export class Decorators {
         return (target: any, key: string) => {
             let t = Reflect.getMetadata('design:type', target, key)
             console.log(`${key} type: ${t.name}`)
-            const globalType = this.getGlobalType(type, target, key)
+            const globalType = getGlobalTypeByDecorator(type, target, key)
             target[key] = this.context.get(globalType)
             if (!target[key]) {
                 logger.warn('Notfound:' + globalType)
@@ -82,7 +91,7 @@ export class Decorators {
         type?: any, always?: boolean, subClass?: boolean
     } = {}) {
         return (target: any, key: string) => {
-            const globalType = this.getGlobalType(type, target, key)
+            const globalType = getGlobalTypeByDecorator(type, target, key)
             Object.defineProperty(target, key, {
                 configurable: !always,
                 get: () => {
@@ -114,12 +123,6 @@ export class Decorators {
         return this.lazyInject({ type, always, subClass: true })
     }
 
-    private getGlobalType(type: any, target: any, key: string) {
-        if (!type && Reflect && Reflect.getMetadata) {
-            type = Reflect.getMetadata('design:type', target, key)
-        }
-        return getGlobalType(type)
-    }
 }
 
 export function getDecorators(ioc: IocContext = IocContext.DefaultInstance) {
