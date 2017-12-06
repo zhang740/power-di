@@ -16,7 +16,7 @@ test('decorator, custom IocContext.', t => {
     @register()
     class NRService { }
     class LITestService {
-        @lazyInject(NRService)
+        @lazyInject()
         public testService: NRService
     }
 
@@ -29,7 +29,7 @@ test('decorator, default IocContext.', t => {
     @decorator.register()
     class NRService { }
     class LITestService {
-        @decorator.lazyInject(NRService)
+        @decorator.lazyInject()
         public testService: NRService
     }
 
@@ -47,18 +47,22 @@ test('inject decorator.', t => {
     @register()
     class DTestService { }
     class ITestService {
-        @inject(DTestService)
+        @inject()
         public testService: DTestService
+
+        @inject({ type: DTestService })
+        public testService2: DTestService
     }
 
     const test = new ITestService
     t.true(test.testService instanceof DTestService)
+    t.true(test.testService2 instanceof DTestService)
 })
 
 test('inject decorator, no data.', t => {
     class NRService { }
     class ITestService {
-        @inject(NRService)
+        @inject()
         public testService: NRService
     }
 
@@ -70,18 +74,22 @@ test('lazyInject decorator.', t => {
     @register()
     class DTestService { }
     class LITestService {
-        @lazyInject(DTestService)
+        @lazyInject()
         public testService: DTestService
+
+        @lazyInject({ type: DTestService })
+        public testService2: DTestService
     }
 
     const test = new LITestService
     t.true(test.testService instanceof DTestService)
+    t.true(test.testService2 instanceof DTestService)
 })
 
 test('lazyInject decorator, no data.', t => {
     class NRService { }
     class LITestService {
-        @lazyInject(NRService)
+        @lazyInject()
         public testService: NRService
     }
 
@@ -92,7 +100,7 @@ test('lazyInject decorator, no data.', t => {
 test('lazyInject decorator, no data, then have.', t => {
     class NRService { }
     class LITestService {
-        @lazyInject(NRService)
+        @lazyInject()
         public testService: NRService
     }
 
@@ -107,7 +115,7 @@ test('lazyInject decorator, always option true.', t => {
     @register()
     class NRService { }
     class LITestService {
-        @lazyInject(NRService, true)
+        @lazyInject({ always: true })
         public testService: NRService
     }
 
@@ -121,7 +129,7 @@ test('lazyInject decorator, always option false.', t => {
     @register()
     class NRService { }
     class LITestService {
-        @lazyInject(NRService, false)
+        @lazyInject({ always: false })
         public testService: NRService
     }
 
@@ -140,10 +148,13 @@ test('lazyInject decorator, subclass.', t => {
     @append(A)
     class D { }
     class LITestService {
-        @lazyInject(A, false, true)
+        @lazyInject({ type: A, subClass: true })
         public testService: A[]
-        @lazyInjectSubClass(A)
+        @lazyInjectSubClass({ type: A })
         public testService2: A[]
+
+        @lazyInjectSubClass()
+        public testServiceErr: A[]
     }
 
     const test = new LITestService
@@ -155,4 +166,5 @@ test('lazyInject decorator, subclass.', t => {
     t.true(test.testService2[0] instanceof B)
     t.true(test.testService2[1] instanceof C)
     t.true(test.testService2[2] instanceof D)
+    t.true(test.testServiceErr === undefined)
 })

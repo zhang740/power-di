@@ -46,10 +46,10 @@ const {
 class AService { }
 
 class SomeClass {
-    @inject(AService) // set right now
+    @inject() // set right now
     private aService: AService
 
-    @lazyInject(AService) // set when using
+    @lazyInject() // set when using
     private bService: AService
 }
 
@@ -93,10 +93,10 @@ class C extends A { }
 class D { }
 
 class LITestService {
-    @lazyInject(A, false, true)
+    @lazyInject({ type: A, subClass: true }) // need type when inject subClass, Reflect cannot get the type.
     public testService1: A[] // [b, c, d], the type is A[] or any[] (D may be not instance of A)
 
-    @lazyInjectSubClass(A)
+    @lazyInjectSubClass({ type: A }) // need type when inject subClass, Reflect cannot get the type.
     public testService2: A[] // the abbreviation of above
 }
 ```

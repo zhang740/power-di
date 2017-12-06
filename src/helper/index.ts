@@ -1,1 +1,1 @@
-export * from './decorators'
+export * from './decoratorsWithReflect'

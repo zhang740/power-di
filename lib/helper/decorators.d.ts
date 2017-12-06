@@ -22,21 +22,40 @@ export declare class Decorators {
     append(key?: KeyType, options?: RegisterOptions): (target: any) => void;
     /**
      * inject
-     * @param type class or string
+     * type: class or string
+     * @param {{ type: any }} { type }
+     * @returns
+     * @memberof Decorators
      */
-    inject(type: any): (target: any, key: any) => void;
+    inject({type}?: {
+        type?: any;
+    }): (target: any, key: string) => void;
     /**
      * lazy inject
-     * @param type class or string
-     * @param always always read from context. default: false
-     * @param subClass getSubClasses. default: false
+     * type: class or string
+     * always: always read from context. default: false
+     * subClass: getSubClasses. default: false
+     * @param {{ type: any, always: boolean, subClass: boolean }} { type, always = false, subClass = false }
+     * @returns
+     * @memberof Decorators
      */
-    lazyInject(type: any, always?: boolean, subClass?: boolean): (target: any, key: any) => void;
+    lazyInject({type, always, subClass}?: {
+        type?: any;
+        always?: boolean;
+        subClass?: boolean;
+    }): (target: any, key: string) => void;
     /**
      * lazy inject subClass, the abbreviation of lazy inject
-     * @param type class or string
-     * @param always always read from context. default: false
+     * type: class or string
+     * always: always read from context. default: false
+     * @param {{ type: any, always: boolean }} { type, always = false }
+     * @returns
+     * @memberof Decorators
      */
-    lazyInjectSubClass(type: any, always?: boolean): (target: any, key: any) => void;
+    lazyInjectSubClass({type, always}?: {
+        type: any;
+        always?: boolean;
+    }): (target: any, key: string) => void;
+    private getGlobalType(type, target, key);
 }
 export declare function getDecorators(ioc?: IocContext): Decorators;

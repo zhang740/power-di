@@ -52,11 +52,16 @@ export class Decorators {
 
     /**
      * inject
-     * @param type class or string
+     * type: class or string
+     * @param {{ type: any }} { type }
+     * @returns
+     * @memberof Decorators
      */
-    public inject(type: any) {
-        const globalType = getGlobalType(type)
-        return (target: any, key: any) => {
+    public inject({ type }: { type?: any } = {}) {
+        return (target: any, key: string) => {
+            let t = Reflect.getMetadata('design:type', target, key)
+            console.log(`${key} type: ${t.name}`)
+            const globalType = this.getGlobalType(type, target, key)
             target[key] = this.context.get(globalType)
             if (!target[key]) {
                 logger.warn('Notfound:' + globalType)
@@ -66,13 +71,18 @@ export class Decorators {
 
     /**
      * lazy inject
-     * @param type class or string
-     * @param always always read from context. default: false
-     * @param subClass getSubClasses. default: false
+     * type: class or string
+     * always: always read from context. default: false
+     * subClass: getSubClasses. default: false
+     * @param {{ type: any, always: boolean, subClass: boolean }} { type, always = false, subClass = false }
+     * @returns
+     * @memberof Decorators
      */
-    public lazyInject(type: any, always = false, subClass = false) {
-        const globalType = getGlobalType(type)
-        return (target: any, key: any) => {
+    public lazyInject({ type, always = false, subClass = false }: {
+        type?: any, always?: boolean, subClass?: boolean
+    } = {}) {
+        return (target: any, key: string) => {
+            const globalType = this.getGlobalType(type, target, key)
             Object.defineProperty(target, key, {
                 configurable: !always,
                 get: () => {
@@ -92,11 +102,23 @@ export class Decorators {
 
     /**
      * lazy inject subClass, the abbreviation of lazy inject
-     * @param type class or string
-     * @param always always read from context. default: false
+     * type: class or string
+     * always: always read from context. default: false
+     * @param {{ type: any, always: boolean }} { type, always = false }
+     * @returns
+     * @memberof Decorators
      */
-    public lazyInjectSubClass(type: any, always = false) {
-        return this.lazyInject(type, always, true)
+    public lazyInjectSubClass({ type, always = false }: {
+        type: any, always?: boolean
+    } = { type: undefined }) {
+        return this.lazyInject({ type, always, subClass: true })
+    }
+
+    private getGlobalType(type: any, target: any, key: string) {
+        if (!type && Reflect && Reflect.getMetadata) {
+            type = Reflect.getMetadata('design:type', target, key)
+        }
+        return getGlobalType(type)
     }
 }
 
