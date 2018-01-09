@@ -92,18 +92,25 @@ export class Decorators {
     } = {}) {
         return (target: any, key: string) => {
             const globalType = getGlobalTypeByDecorator(type, target, key)
+            let defaultValue = target[key]
             Object.defineProperty(target, key, {
                 configurable: !always,
                 get: () => {
                     const data = subClass ? this.context.getSubClasses(globalType) : this.context.get(globalType)
                     if (!data) {
                         logger.warn('Notfound:' + globalType)
-                    } else if (!always) {
-                        Object.defineProperty(target, key, {
-                            value: data
-                        })
+                    } else {
+                        defaultValue = undefined
+                        if (!always) {
+                            Object.defineProperty(target, key, {
+                                value: data
+                            })
+                        }
                     }
-                    return data
+                    return data || defaultValue
+                },
+                set: (value) => {
+                    defaultValue = value
                 }
             })
         }

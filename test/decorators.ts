@@ -168,3 +168,18 @@ test('lazyInject decorator, subclass.', t => {
     t.true(test.testService2[2] instanceof D)
     t.true(test.testServiceErr === undefined)
 })
+
+
+test('lazyInject decorator, defaultValue.', t => {
+
+    class NRService { }
+    const defaultValue = new NRService()
+
+    class LITestService {
+        @lazyInject()
+        public testService: NRService = defaultValue
+    }
+
+    const test = new LITestService
+    t.true(test.testService === defaultValue)
+})
