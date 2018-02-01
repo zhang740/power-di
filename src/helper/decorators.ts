@@ -69,7 +69,6 @@ export class Decorators {
     public inject({ type }: { type?: any } = {}) {
         return (target: any, key: string) => {
             let t = Reflect.getMetadata('design:type', target, key)
-            console.log(`${key} type: ${t.name}`)
             const globalType = getGlobalTypeByDecorator(type, target, key)
             target[key] = this.context.get(globalType)
             if (!target[key]) {
