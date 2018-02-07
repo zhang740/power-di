@@ -52,12 +52,14 @@ export class IocContext {
         return data.subClasses.map(sc => this.returnValue(sc))
     }
 
-    public replace<T>(keyOrType: KeyType, newData: any, options?: RegisterOptions) {
+    public replace<T>(keyOrType: KeyType, newData: any, options?: RegisterOptions, force = false) {
         const key = getGlobalType(keyOrType)
         const data = this.components.get(key)
         if (data) {
             data.inited = false
             data.value = this.genValue(newData, options || data.options)
+        } else if (force) {
+            this.register(newData, keyOrType, options)
         } else {
             throw new Error(`the key:[${key}] is not register.`)
         }

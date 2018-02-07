@@ -97,9 +97,14 @@ test('replace component.', t => {
     const context = new IocContext
     context.register(TestService)
     t.true(context.get(TestService) instanceof TestService)
+
     context.replace(TestService, BClass)
     t.true(context.get(TestService) instanceof BClass)
+
     t.throws(() => context.replace(BClass, TestService))
+
+    context.replace(BClass, '123', undefined, true)
+    t.true(context.get(BClass) === '123')
 })
 
 import { TestService as TS2 } from './base'
