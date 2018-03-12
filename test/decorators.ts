@@ -24,6 +24,20 @@ test('decorator, custom IocContext.', t => {
     t.true(test.testService instanceof NRService)
 })
 
+test('decorator, function IocContext.', t => {
+    const context = new IocContext
+    const { register, lazyInject } = new Decorators(() => context)
+    @register()
+    class NRService { }
+    class LITestService {
+        @lazyInject()
+        public testService: NRService
+    }
+
+    const test = new LITestService
+    t.true(test.testService instanceof NRService)
+})
+
 test('decorator, default IocContext.', t => {
     const decorator = new Decorators()
     @decorator.register()

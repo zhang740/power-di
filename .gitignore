@@ -5,6 +5,8 @@ npm-debug.log*
 
 dist
 lib
+src/**/*.js
+test/*.js
 
 # Runtime data
 pids

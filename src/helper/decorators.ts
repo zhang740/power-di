@@ -11,10 +11,19 @@ export function getGlobalTypeByDecorator(
 }
 
 export class Decorators {
-    private context: IocContext
+    private _funcContext = false
+    private _context: IocContext | (() => IocContext)
+    private get context() {
+        if (this._funcContext) {
+            return (this._context as Function)()
+        } else {
+            return this._context
+        }
+    }
 
-    constructor(ioc: IocContext = IocContext.DefaultInstance) {
-        this.context = ioc
+    constructor(ioc: IocContext | (() => IocContext) = IocContext.DefaultInstance) {
+        this._context = ioc
+        this._funcContext = typeof this._context === 'function'
 
         this.register = this.register.bind(this)
         this.registerSubClass = this.registerSubClass.bind(this)

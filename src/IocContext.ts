@@ -1,5 +1,9 @@
 import { getGlobalType, getSuperClassInfo, isClass } from './utils'
 
+export interface Config {
+    onGetValue: (data: Store) => any
+}
+
 export const DefaultRegisterOption: RegisterOptions = {
     singleton: true,
     autoNew: true,
@@ -22,7 +26,7 @@ export interface RegisterOptions {
 export type InterceptorType = () => void
 export type KeyType = Function | string // typeof Object
 export type RegKeyType = KeyType | undefined
-interface Store {
+export interface Store {
     inited: boolean,
     value: any,
     options: RegisterOptions,
