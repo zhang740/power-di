@@ -13,7 +13,7 @@ export function getGlobalTypeByDecorator(
 export class Decorators {
     private _funcContext = false
     private _context: IocContext | (() => IocContext)
-    private get context() {
+    protected get context() {
         if (this._funcContext) {
             return (this._context as Function)()
         } else {

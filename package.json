@@ -1,6 +1,6 @@
 {
     "name": "power-di",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "description": "A lightweight Dependency Injection library. Using es6 and other features, remove unnecessary concepts, easy and convenient to use.",
     "main": "./lib/index.js",
     "typings": "./lib/index.d.ts",
