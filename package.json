@@ -16,9 +16,10 @@
   ],
   "scripts": {
     "clean": "rimraf -- dist lib/**/*.js lib/**/*.js.map lib/**/*.d.ts",
+    "rmjsmap": "rimraf -- **/*.js.map ./*.js.map test/*.js.map scripts/*.js.map",
     "babel": "babel lib --out-dir lib",
     "build:dist": "webpack --progress",
-    "test": "rimraf -- test/**/*.js && tsc && ava -v -s",
+    "test": "rimraf -- test/**/*.js && tsc && ava -v -s && npm run rmjsmap",
     "test:prod": "tsc && npm run babel && npm run test",
     "coverage": "nyc npm test",
     "coverage:report": "nyc report --reporter=lcov",

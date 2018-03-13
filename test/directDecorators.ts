@@ -202,3 +202,24 @@ test('lazyInject decorator, defaultValue.', t => {
   const test = context.get<LITestService>(LITestService)
   t.true(test.testService === defaultValue)
 })
+
+test('lazyInject decorator, defaultValue.', t => {
+
+  class NRService { }
+  const defaultValue = new NRService()
+
+  class LITestService {
+    @lazyInject()
+    public testService: NRService = defaultValue
+  }
+
+  const context = new IocContext
+  context.register(LITestService)
+
+  const test = context.get<LITestService>(LITestService)
+  t.true(test.testService === defaultValue)
+
+  const value2 = new NRService()
+  test.testService = value2
+  t.true(test.testService === value2)
+})

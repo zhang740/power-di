@@ -214,3 +214,57 @@ test('class init, with ioc instance.', t => {
   context.register(TestService)
   context.get<TestService>(TestService)
 })
+
+import { lazyInject } from '../helper'
+test('inject instance.', t => {
+  const context = new IocContext
+
+  class AClass {
+  }
+
+  class BClass {
+    @lazyInject()
+    aclass: AClass
+  }
+
+  context.register(AClass)
+
+  const bclass = new BClass
+  context.injectForInstance(bclass)
+  t.true(bclass.aclass instanceof AClass)
+})
+
+test('inject instance, notfound.', t => {
+  const context = new IocContext
+
+  class AClass {
+  }
+
+  class BClass {
+    @lazyInject()
+    aclass: AClass
+  }
+
+  const bclass = new BClass
+  context.injectForInstance(bclass)
+  t.true(bclass.aclass === undefined)
+})
+
+import { getGlobalType } from '../utils'
+test('inject instance, notfoundhandler.', t => {
+  const context = new IocContext
+
+  class AClass {
+  }
+
+  class BClass {
+    @lazyInject()
+    aclass: AClass
+  }
+
+  const bclass = new BClass
+  context.injectForInstance(bclass, (globalType) => {
+    return globalType === getGlobalType(AClass) && new AClass
+  })
+  t.true(bclass.aclass instanceof AClass)
+})

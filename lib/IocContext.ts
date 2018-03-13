@@ -116,7 +116,7 @@ export class IocContext {
     }
   }
 
-  public injectForInstance(instance: any) {
+  public injectForInstance(instance: any, notFoundHandler?: (globalType: string) => any) {
     const classType = instance.constructor
     getMetadata(classType).injects
       .forEach(inject => {
@@ -135,9 +135,14 @@ export class IocContext {
             Object.defineProperty(instance, key, {
               configurable: true,
               get: () => {
-                const data = subClass ? this.getSubClasses(globalType) : this.get(globalType)
+                let data = subClass ? this.getSubClasses(globalType) : this.get(globalType)
                 if (data === undefined) {
-                  logger.warn(`Notfound: ${globalType}, use defaultValue.`)
+                  if (notFoundHandler) {
+                    data = notFoundHandler(globalType)
+                  }
+                  if (data === undefined) {
+                    logger.warn(`Notfound: ${globalType}, use defaultValue.`)
+                  }
                 } else {
                   defaultValue = undefined
                   if (!always) {

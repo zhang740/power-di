@@ -6,6 +6,7 @@ npm-debug.log*
 dist
 *.js
 *.d.ts
+*.js.map
 
 # Runtime data
 pids

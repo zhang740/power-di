@@ -5,13 +5,14 @@
     "jsx": "react",
     "moduleResolution": "node",
     "noImplicitAny": true,
+    "isolatedModules": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "preserveConstEnums": true,
     "removeComments": false,
     "declaration": true,
     "rootDir": "none",
-    "sourceMap": false,
+    "sourceMap": true,
     "pretty": true
   },
   "compileOnSave": true
