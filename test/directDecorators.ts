@@ -1,65 +1,62 @@
 import test from 'ava'
 import { IocContext } from '../lib/IocContext'
 import { logger, OutLevel } from '../lib/utils'
-import { getDecorators, Decorators } from '../lib/helper'
-const {
-  register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
-} = getDecorators()
-
-logger.setOutLevel(OutLevel.Error)
-
-const context = IocContext.DefaultInstance
+import { getDecorators, Decorators, inject, lazyInject, lazyInjectSubClass } from '../lib/helper'
 
 test('decorator, custom IocContext.', t => {
   const context = new IocContext()
-  const { register, lazyInject } = new Decorators(context)
+  const { register } = new Decorators(context)
+
   @register()
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject()
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService instanceof NRService)
 })
 
 test('decorator, function IocContext.', t => {
   const context = new IocContext
-  const { register, lazyInject } = new Decorators(() => context)
+  const { register } = new Decorators(() => context)
+
   @register()
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject()
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService instanceof NRService)
 })
 
 test('decorator, default IocContext.', t => {
-  const { register, lazyInject } = new Decorators(context)
+  const { register } = new Decorators()
   @register()
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject()
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = IocContext.DefaultInstance.get<LITestService>(LITestService)
   t.true(test.testService instanceof NRService)
 })
 
-test('register decorator.', t => {
-  @register()
-  class DTestService { }
-  t.true(context.get(DTestService) instanceof DTestService)
-})
+// default context, register decorators
+const context = new IocContext()
+const { register, registerSubClass, append } = new Decorators(context)
 
 test('inject decorator.', t => {
   @register()
   class DTestService { }
+  @register()
   class ITestService {
     @inject()
     public testService: DTestService
@@ -68,25 +65,27 @@ test('inject decorator.', t => {
     public testService2: DTestService
   }
 
-  const test = new ITestService
+  const test = context.get<ITestService>(ITestService)
   t.true(test.testService instanceof DTestService)
   t.true(test.testService2 instanceof DTestService)
 })
 
 test('inject decorator, no data.', t => {
   class NRService { }
+  @register()
   class ITestService {
     @inject()
     public testService: NRService
   }
 
-  const test = new ITestService
+  const test = context.get<ITestService>(ITestService)
   t.true(!test.testService)
 })
 
 test('lazyInject decorator.', t => {
   @register()
   class DTestService { }
+  @register()
   class LITestService {
     @lazyInject()
     public testService: DTestService
@@ -95,30 +94,32 @@ test('lazyInject decorator.', t => {
     public testService2: DTestService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService instanceof DTestService)
   t.true(test.testService2 instanceof DTestService)
 })
 
 test('lazyInject decorator, no data.', t => {
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject()
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(!test.testService)
 })
 
 test('lazyInject decorator, no data, then have.', t => {
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject()
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(!test.testService)
 
   context.register(NRService)
@@ -128,12 +129,13 @@ test('lazyInject decorator, no data, then have.', t => {
 test('lazyInject decorator, always option true.', t => {
   @register()
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject({ always: true })
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService instanceof NRService)
   context.remove(NRService)
   t.true(!test.testService)
@@ -142,12 +144,13 @@ test('lazyInject decorator, always option true.', t => {
 test('lazyInject decorator, always option false.', t => {
   @register()
   class NRService { }
+  @register()
   class LITestService {
     @lazyInject({ always: false })
     public testService: NRService
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService instanceof NRService)
   context.remove(NRService)
   t.false(!test.testService)
@@ -161,6 +164,7 @@ test('lazyInject decorator, subclass.', t => {
   class C extends A { }
   @append(A)
   class D { }
+  @register()
   class LITestService {
     @lazyInject({ type: A, subClass: true })
     public testService: A[]
@@ -171,7 +175,7 @@ test('lazyInject decorator, subclass.', t => {
     public testServiceErr: A[]
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService.length === 3)
   t.true(test.testService[0] instanceof B)
   t.true(test.testService[1] instanceof C)
@@ -189,11 +193,12 @@ test('lazyInject decorator, defaultValue.', t => {
   class NRService { }
   const defaultValue = new NRService()
 
+  @register()
   class LITestService {
     @lazyInject()
     public testService: NRService = defaultValue
   }
 
-  const test = new LITestService
+  const test = context.get<LITestService>(LITestService)
   t.true(test.testService === defaultValue)
 })

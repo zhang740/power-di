@@ -1,18 +1,18 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "jsx": "react",
-        "moduleResolution": "node",
-        "noImplicitAny": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "preserveConstEnums": true,
-        "declaration": false,
-        "rootDir": "none",
-        "sourceMap": false,
-        "pretty": true
-    },
-    "compileOnSave": true
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "jsx": "react",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "declaration": true,
+    "rootDir": "none",
+    "sourceMap": false,
+    "pretty": true
+  },
+  "compileOnSave": true
 }
-// only for IDE

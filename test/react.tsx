@@ -5,65 +5,65 @@ import { IocContext } from '../lib/IocContext'
 import { IocProvider, Component } from '../lib/react'
 
 test('react only reactcomponent.', t => {
-    const context = IocContext.DefaultInstance
-    class NRServiceDI { }
-    context.register(NRServiceDI)
+  const context = IocContext.DefaultInstance
+  class NRServiceDI { }
+  context.register(NRServiceDI)
 
-    class TestComponent extends Component<{}, {}> {
-        componentWillMount() {
-            t.true(this.GetComponent(NRServiceDI) instanceof NRServiceDI)
-        }
-
-        render(): any {
-            return null
-        }
+  class TestComponent extends Component<{}, {}> {
+    componentWillMount() {
+      t.true(this.GetComponent(NRServiceDI) instanceof NRServiceDI)
     }
 
-    create(
-        <TestComponent />
-    )
+    render(): any {
+      return null
+    }
+  }
+
+  create(
+    <TestComponent />
+  )
 })
 
 test('react IocProvider.', t => {
-    const context = IocContext.DefaultInstance
-    class NRServiceDI { }
-    context.register(NRServiceDI)
+  const context = IocContext.DefaultInstance
+  class NRServiceDI { }
+  context.register(NRServiceDI)
 
-    class TestComponent extends Component<{}, {}> {
-        componentWillMount() {
-            t.true(this.GetComponent(NRServiceDI) instanceof NRServiceDI)
-        }
-
-        render(): any {
-            return null
-        }
+  class TestComponent extends Component<{}, {}> {
+    componentWillMount() {
+      t.true(this.GetComponent(NRServiceDI) instanceof NRServiceDI)
     }
 
-    create(
-        <IocProvider>
-            <TestComponent />
-        </IocProvider>
-    )
+    render(): any {
+      return null
+    }
+  }
+
+  create(
+    <IocProvider>
+      <TestComponent />
+    </IocProvider>
+  )
 })
 
 test('react IocProvider with context.', t => {
-    const context = new IocContext
-    class NRService { }
-    context.register(NRService)
+  const context = new IocContext
+  class NRService { }
+  context.register(NRService)
 
-    class TestComponent extends Component<{}, {}> {
-        componentWillMount() {
-            t.true(this.GetComponent(NRService) instanceof NRService)
-        }
-
-        render(): any {
-            return null
-        }
+  class TestComponent extends Component<{}, {}> {
+    componentWillMount() {
+      t.true(this.GetComponent(NRService) instanceof NRService)
     }
 
-    create(
-        <IocProvider context={context}>
-            <TestComponent />
-        </IocProvider>
-    )
+    render(): any {
+      return null
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  )
 })
