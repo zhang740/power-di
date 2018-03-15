@@ -230,7 +230,7 @@ test('inject instance.', t => {
   context.register(AClass)
 
   const bclass = new BClass
-  context.injectForInstance(bclass)
+  context.inject(bclass)
   t.true(bclass.aclass instanceof AClass)
 })
 
@@ -246,7 +246,7 @@ test('inject instance, notfound.', t => {
   }
 
   const bclass = new BClass
-  context.injectForInstance(bclass)
+  context.inject(bclass)
   t.true(bclass.aclass === undefined)
 })
 
@@ -263,7 +263,7 @@ test('inject instance, notfoundhandler.', t => {
   }
 
   const bclass = new BClass
-  context.injectForInstance(bclass, (globalType) => {
+  context.inject(bclass, (globalType) => {
     return globalType === getGlobalType(AClass) && new AClass
   })
   t.true(bclass.aclass instanceof AClass)

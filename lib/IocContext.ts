@@ -116,7 +116,7 @@ export class IocContext {
     }
   }
 
-  public injectForInstance(instance: any, notFoundHandler?: (globalType: string) => any) {
+  public inject(instance: any, notFoundHandler?: (globalType: string) => any) {
     const classType = instance.constructor
     getMetadata(classType).injects
       .forEach(inject => {
@@ -192,7 +192,7 @@ export class IocContext {
       if (dataIsFunction && options.autoNew) {
         if (dataIsClass) {
           const value = new data(this)
-          this.injectForInstance(value)
+          this.inject(value)
           return value
         } else {
           return data(this)
