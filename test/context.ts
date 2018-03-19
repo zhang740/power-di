@@ -84,6 +84,16 @@ test('register not allowed.', t => {
   t.throws(() => context.register(new TestService))
 })
 
+test('has component.', t => {
+  const context = new IocContext
+  context.register(TestService)
+  t.true(context.has(TestService))
+
+  class BTest {
+  }
+  t.false(context.has(BTest))
+})
+
 test('remove component.', t => {
   const context = new IocContext
   context.register(TestService)

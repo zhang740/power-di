@@ -51,6 +51,10 @@ export class IocContext {
     return this.returnValue(data)
   }
 
+  public has(keyOrType: KeyType): boolean {
+    return this.components.has(getGlobalType(keyOrType))
+  }
+
   public getSubClasses<T>(keyOrType: KeyType): T[] {
     const data = this.components.get(getGlobalType(keyOrType))
     if (!data) return
