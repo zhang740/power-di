@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "es6",
     "jsx": "react",
     "moduleResolution": "node",
     "noImplicitAny": true,
@@ -12,7 +12,18 @@
     "removeComments": false,
     "declaration": true,
     "sourceMap": true,
-    "pretty": true
+    "pretty": true,
+    "outDir": "es"
   },
+  "include": [
+    "lib",
+    "react.ts",
+    "helper.ts",
+    "utils.ts"
+  ],
+  "exclude": [
+    "scripts",
+    "test"
+  ],
   "compileOnSave": true
 }
