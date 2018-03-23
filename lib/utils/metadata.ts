@@ -3,6 +3,7 @@ export interface InjectMetadataType {
   type: 'inject' | 'lazyInject',
   key: string,
   globalType: string,
+  typeCls: any,
   /** with lazyInject */
   always?: boolean,
   /** with lazyInject */

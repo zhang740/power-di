@@ -1,2 +1,2 @@
-export { Decorators, getDecorators } from './decoratorsWithReflect'
+export { Decorators, getDecorators } from './decorators'
 export { inject, lazyInject, lazyInjectSubClass } from './direct'

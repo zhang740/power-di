@@ -153,7 +153,7 @@ test('lazyInject decorator, always option false.', t => {
   const test = context.get<LITestService>(LITestService)
   t.true(test.testService instanceof NRService)
   context.remove(NRService)
-  t.false(!test.testService)
+  t.true(test.testService instanceof NRService)
 })
 
 test('lazyInject decorator, subclass.', t => {

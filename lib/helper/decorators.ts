@@ -1,13 +1,22 @@
+import 'reflect-metadata'
+
 import { IocContext, RegisterOptions, KeyType, RegKeyType } from '../IocContext'
 import { getGlobalType, logger } from '../utils'
+import { inject, lazyInject } from './direct'
 
-export function getGlobalTypeByDecorator(
+export function getClsTypeByDecorator(
   type: any, target: any, key: string
 ) {
   if (!type && Reflect && Reflect.getMetadata) {
     type = Reflect.getMetadata('design:type', target, key)
   }
-  return getGlobalType(type)
+  return type
+}
+
+export function getGlobalTypeByDecorator(
+  type: any, target: any, key: string
+) {
+  return getGlobalType(getClsTypeByDecorator(type, target, key))
 }
 
 export class Decorators {
@@ -71,18 +80,22 @@ export class Decorators {
   /**
    * inject
    * type: class or string
-   * @deprecated use direct @inject instead.
    * @param {{ type: any }} { type }
    * @returns
    * @memberof Decorators
    */
-  public inject({ type }: { type?: any } = {}) {
+  public inject(data: { type?: any } = {}) {
+    const decoratorThis = this
     return (target: any, key: string) => {
-      const globalType = getGlobalTypeByDecorator(type, target, key)
-      target[key] = this.context.get(globalType)
-      if (!target[key]) {
-        logger.warn('Notfound:' + globalType)
-      }
+      inject(data)(target, key)
+
+      Object.defineProperty(target, key, {
+        configurable: true,
+        get: function () {
+          decoratorThis.context.inject(this)
+          return target[key]
+        }
+      })
     }
   }
 
@@ -91,34 +104,29 @@ export class Decorators {
    * type: class or string
    * always: always read from context. default: false
    * subClass: getSubClasses. default: false
-   * @deprecated use direct @lazyInject instead.
    * @param {{ type: any, always: boolean, subClass: boolean }} { type, always = false, subClass = false }
    * @returns
    * @memberof Decorators
    */
-  public lazyInject({ type, always = false, subClass = false }: {
+  public lazyInject(data: {
     type?: any, always?: boolean, subClass?: boolean
   } = {}) {
+    const decoratorThis = this
     return (target: any, key: string) => {
-      const globalType = getGlobalTypeByDecorator(type, target, key)
+      lazyInject(data)(target, key)
+
       let defaultValue = target[key]
       Object.defineProperty(target, key, {
-        configurable: !always,
-        get: () => {
-          const data = subClass ? this.context.getSubClasses(globalType) : this.context.get(globalType)
-          if (!data) {
-            logger.warn('Notfound:' + globalType)
-          } else {
-            defaultValue = undefined
-            if (!always) {
-              Object.defineProperty(target, key, {
-                value: data
-              })
-            }
-          }
-          return data || defaultValue
+        configurable: true,
+        get: function () {
+          Object.defineProperty(target, key, {
+            configurable: true,
+            value: defaultValue
+          })
+          decoratorThis.context.inject(target)
+          return target[key]
         },
-        set: (value) => {
+        set: function (value) {
           defaultValue = value
         }
       })

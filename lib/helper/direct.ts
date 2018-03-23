@@ -1,4 +1,4 @@
-import { getGlobalTypeByDecorator } from './decorators'
+import { getGlobalTypeByDecorator, getClsTypeByDecorator } from './decorators'
 import { getMetadata } from '../utils'
 
 /**
@@ -14,7 +14,8 @@ export function inject({ type }: { type?: any } = {}) {
     getMetadata(target.constructor).injects.push({
       key,
       globalType,
-      type: 'inject'
+      type: 'inject',
+      typeCls: getClsTypeByDecorator(type, target, key),
     })
   }
 }
@@ -39,6 +40,7 @@ export function lazyInject({ type, always = false, subClass = false }: {
       type: 'lazyInject',
       always,
       subClass,
+      typeCls: getClsTypeByDecorator(type, target, key),
     })
   }
 }

@@ -84,6 +84,17 @@ test('register not allowed.', t => {
   t.throws(() => context.register(new TestService))
 })
 
+test('auto register component by class.', t => {
+  class A { }
+  class B {
+    @lazyInject()
+    a: A
+  }
+  const context = new IocContext({ autoRegister: true })
+  t.true(context.get<B>(B) instanceof B)
+  t.true(context.get<B>(B).a instanceof A)
+})
+
 test('has component.', t => {
   const context = new IocContext
   context.register(TestService)
@@ -225,7 +236,7 @@ test('class init, with ioc instance.', t => {
   context.get<TestService>(TestService)
 })
 
-import { lazyInject } from '../helper'
+import { inject, lazyInject } from '../helper'
 test('inject instance.', t => {
   const context = new IocContext
 
@@ -235,6 +246,8 @@ test('inject instance.', t => {
   class BClass {
     @lazyInject()
     aclass: AClass
+    @inject()
+    injectclass: AClass
   }
 
   context.register(AClass)
@@ -242,6 +255,7 @@ test('inject instance.', t => {
   const bclass = new BClass
   context.inject(bclass)
   t.true(bclass.aclass instanceof AClass)
+  t.true(bclass.injectclass instanceof AClass)
 })
 
 test('inject instance, notfound.', t => {
@@ -253,11 +267,14 @@ test('inject instance, notfound.', t => {
   class BClass {
     @lazyInject()
     aclass: AClass
+    @inject()
+    injectclass: AClass
   }
 
   const bclass = new BClass
   context.inject(bclass)
   t.true(bclass.aclass === undefined)
+  t.true(bclass.injectclass === undefined)
 })
 
 import { getGlobalType } from '../utils'
@@ -270,6 +287,8 @@ test('inject instance, notfoundhandler.', t => {
   class BClass {
     @lazyInject()
     aclass: AClass
+    @inject()
+    injectclass: AClass
   }
 
   const bclass = new BClass
@@ -277,4 +296,20 @@ test('inject instance, notfoundhandler.', t => {
     return globalType === getGlobalType(AClass) && new AClass
   })
   t.true(bclass.aclass instanceof AClass)
+  t.true(bclass.injectclass instanceof AClass)
+})
+
+test('inject instance, string.', t => {
+  const context = new IocContext
+
+  context.register({ a: 123 }, 'TEST_A')
+
+  class BClass {
+    @lazyInject({ type: 'TEST_A' })
+    aclass: { a: number }
+  }
+
+  const bclass = new BClass
+  context.inject(bclass)
+  t.true(bclass.aclass.a === 123)
 })

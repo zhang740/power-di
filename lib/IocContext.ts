@@ -1,8 +1,11 @@
 import { getGlobalType, getSuperClassInfo, isClass, getMetadata } from './utils'
 import { logger } from '../utils'
 
-export interface Config {
-  onGetValue: (data: Store) => any
+export class Config {
+  /** auto register class, when class not found. default: false */
+  autoRegister?: boolean = false
+  // onNotFound: (globalType: string) => any
+  // onGetValue: (data: Store) => any
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -41,14 +44,26 @@ export class IocContext {
       (this.defaultInstance = new IocContext(), this.defaultInstance)
   }
 
+  constructor(
+    private config = new Config
+  ) {
+  }
+
   public remove(keyOrType: KeyType) {
     return this.components.delete(getGlobalType(keyOrType))
   }
 
   public get<T>(keyOrType: KeyType): T {
-    const data = this.components.get(getGlobalType(keyOrType))
-    if (!data) return
-    return this.returnValue(data)
+    const key = getGlobalType(keyOrType)
+
+    if (this.components.has(key)) {
+      return this.returnValue(this.components.get(key))
+    } else if (this.config.autoRegister && isClass(keyOrType)) {
+      this.register(keyOrType)
+      return this.get(keyOrType)
+    } else {
+      return
+    }
   }
 
   public has(keyOrType: KeyType): boolean {
@@ -120,29 +135,38 @@ export class IocContext {
     }
   }
 
-  public inject(instance: any, notFoundHandler?: (globalType: string) => any) {
+  public inject(instance: any, notFoundHandler?: (globalType: string, typeCls?: any) => any) {
     const classType = instance.constructor
     getMetadata(classType).injects
       .forEach(inject => {
-        const { key, globalType } = inject
+        const { key, typeCls, globalType } = inject
         switch (inject.type) {
           case 'inject':
-            instance[key] = this.get(globalType)
-            if (instance[key] === undefined) {
-              logger.warn('Notfound:' + globalType)
+            let data = this.get(typeCls)
+            if (data === undefined) {
+              if (notFoundHandler) {
+                data = notFoundHandler(globalType, typeCls)
+              }
+              if (data === undefined) {
+                logger.warn('Notfound:' + globalType)
+              }
             }
+            Object.defineProperty(instance, key, {
+              configurable: true,
+              value: data,
+            })
             break
 
           case 'lazyInject':
             const { always, subClass } = inject
-            let defaultValue = instance[key]
+            let defaultValue: any = instance[key]
             Object.defineProperty(instance, key, {
               configurable: true,
               get: () => {
-                let data = subClass ? this.getSubClasses(globalType) : this.get(globalType)
+                let data = subClass ? this.getSubClasses(typeCls) : this.get(typeCls)
                 if (data === undefined) {
                   if (notFoundHandler) {
-                    data = notFoundHandler(globalType)
+                    data = notFoundHandler(globalType, typeCls)
                   }
                   if (data === undefined) {
                     logger.warn(`Notfound: ${globalType}, use defaultValue.`)
@@ -151,6 +175,7 @@ export class IocContext {
                   defaultValue = undefined
                   if (!always) {
                     Object.defineProperty(instance, key, {
+                      configurable: true,
                       value: data
                     })
                   }
