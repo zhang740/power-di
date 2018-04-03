@@ -214,3 +214,34 @@ test('lazyInject decorator, defaultValue.', t => {
   test.testService = value2
   t.true(test.testService === value2)
 })
+
+test('constructor inject.', t => {
+  @register()
+  class OtherClass { }
+  @register()
+  class AClass {
+    constructor(
+      public other: OtherClass
+    ) { }
+  }
+  const a = context.get<AClass>(AClass)
+
+  t.true(a.other instanceof OtherClass)
+})
+
+
+test('constructor inject, use normal .', t => {
+  @register()
+  class OtherClass { }
+  @register()
+  class AClass {
+    constructor(
+      public other: OtherClass,
+      public nodata: Object,
+    ) { }
+  }
+  const a = context.get<AClass>(AClass)
+
+  t.true(a.other instanceof OtherClass)
+  t.true(a.nodata === null)
+})

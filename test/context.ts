@@ -173,6 +173,24 @@ test('getSubClasses.', t => {
   t.false(!context.get(AClass))
 })
 
+test('new constructor.', t => {
+  let count = 0
+  class OtherClass { }
+  class AClass {
+    @lazyInject()
+    other: OtherClass
+
+    constructor() { count++ }
+  }
+  const context = new IocContext
+  context.register(AClass)
+  context.register(OtherClass)
+  const a = new AClass
+  context.inject(a)
+  t.true(a.other instanceof OtherClass)
+  t.true(count === 1)
+})
+
 test('getSubClasses, diff options.', t => {
   class AClass { }
   class BClass extends AClass { }

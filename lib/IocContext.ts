@@ -4,6 +4,8 @@ import { logger } from '../utils'
 export class Config {
   /** auto register class, when class not found. default: false */
   autoRegister?: boolean = false
+  /** constructor inject, MUST in TypeScript with emitDecoratorMetadata and use decorator with class, default: true */
+  constructorInject?: boolean = true
   // onNotFound: (globalType: string) => any
   // onGetValue: (data: Store) => any
 }
@@ -220,7 +222,29 @@ export class IocContext {
     return () => {
       if (dataIsFunction && options.autoNew) {
         if (dataIsClass) {
-          const value = new data(this)
+          let args: any[] = [this]
+          if (this.config.constructorInject && Reflect && Reflect.getMetadata) {
+            const paramTypes = Reflect.getMetadata('design:paramtypes', data)
+            if (paramTypes) {
+              args = paramTypes.map((type: any) => {
+                if (type === data ||
+                  type === undefined ||
+                  type === null ||
+                  type === Number ||
+                  type === Error ||
+                  type === Object ||
+                  type === String ||
+                  type === Boolean ||
+                  type === Array ||
+                  type === Function
+                ) {
+                  return null
+                }
+                return this.get(type)
+              })
+            }
+          }
+          const value = new data(...args)
           this.inject(value)
           return value
         } else {
