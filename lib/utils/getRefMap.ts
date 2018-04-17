@@ -1,4 +1,4 @@
-import { getMetadata } from './metadata'
+import { getMetadata, getInjects } from './metadata'
 import { getGlobalType } from './getGlobalType'
 
 export interface RefMapType {
@@ -24,8 +24,7 @@ export function getRefMap(clsType: any, initMaps = {}) {
       deps: [],
     }
 
-    const metadata = getMetadata(clsType)
-    metadata.injects.forEach(inj => {
+    getInjects(clsType.prototype).forEach(inj => {
       scan(inj.typeCls)
       maps[inj.globalType].count++
 

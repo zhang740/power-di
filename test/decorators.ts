@@ -100,6 +100,23 @@ test('lazyInject decorator.', t => {
   t.true(test.testService2 instanceof DTestService)
 })
 
+test('lazyInject decorator, extends.', t => {
+  @register()
+  class DTestService { }
+  class LITestServiceBase {
+    @lazyInject()
+    public testService: DTestService
+  }
+  class LITestService extends LITestServiceBase {
+    @lazyInject()
+    public testService2: DTestService
+  }
+
+  const test = new LITestService
+  t.true(test.testService instanceof DTestService)
+  t.true(test.testService2 instanceof DTestService)
+})
+
 test('lazyInject decorator, no data.', t => {
   class NRService { }
   class LITestService {
@@ -230,7 +247,7 @@ test('constructor inject.', t => {
 })
 
 
-test('constructor inject, use normal .', t => {
+test('constructor inject, use normal type.', t => {
   @register()
   class OtherClass { }
   @register()

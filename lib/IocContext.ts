@@ -1,4 +1,4 @@
-import { getGlobalType, getSuperClassInfo, isClass, getMetadata } from './utils'
+import { getGlobalType, getSuperClassInfo, isClass, getMetadata, getInjects } from './utils'
 import { logger } from '../utils'
 
 export class Config {
@@ -138,8 +138,8 @@ export class IocContext {
   }
 
   public inject(instance: any, notFoundHandler?: (globalType: string, typeCls?: any) => any) {
-    const classType = instance.constructor
-    getMetadata(classType).injects
+    const classType = instance.constructor.prototype
+    getInjects(classType)
       .forEach(inject => {
         const { key, typeCls, globalType } = inject
         switch (inject.type) {

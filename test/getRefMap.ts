@@ -22,7 +22,7 @@ test('getRefMap, base', t => {
   }
 
   const data = getRefMap(C)
-  t.true(JSON.stringify(data) === JSON.stringify({
+  t.deepEqual(data, {
     'C': {
       'count': 0,
       'deps': [
@@ -40,5 +40,101 @@ test('getRefMap, base', t => {
         { 'prop': 'a', 'type': 'A' }
       ]
     }
-  }))
+  })
+})
+
+test('getRefMap, super class', t => {
+
+  class Base { }
+
+  @register()
+  class D extends Base { }
+
+  @register()
+  class E extends Base {
+    @lazyInject()
+    private a: D
+  }
+
+  class F extends Base {
+    @lazyInject()
+    private a: D
+
+    @lazyInject()
+    private b: E
+  }
+
+  const data = getRefMap(F)
+  t.deepEqual(data, {
+    'F': {
+      'count': 0,
+      'deps': [
+        { 'prop': 'a', 'type': 'D' },
+        { 'prop': 'b', 'type': 'E' }
+      ]
+    },
+    'D': {
+      'count': 2,
+      'deps': []
+    },
+    'E': {
+      'count': 1,
+      'deps': [
+        { 'prop': 'a', 'type': 'D' }
+      ]
+    }
+  })
+})
+
+test('getRefMap, extends', t => {
+
+  class InjClsA { }
+  class InjClsB { }
+
+  class BaseCls {
+    @lazyInject()
+    a: InjClsA
+  }
+
+  class SubCls extends BaseCls {
+    @lazyInject()
+    b: InjClsB
+  }
+
+  const map = {}
+  getRefMap(BaseCls, map)
+  getRefMap(SubCls, map)
+
+  t.deepEqual(map, {
+    'BaseCls': {
+      'count': 0,
+      'deps': [
+        {
+          'prop': 'a',
+          'type': 'InjClsA'
+        }
+      ]
+    },
+    'InjClsA': {
+      'count': 2,
+      'deps': []
+    },
+    'SubCls': {
+      'count': 0,
+      'deps': [
+        {
+          'prop': 'b',
+          'type': 'InjClsB'
+        },
+        {
+          'prop': 'a',
+          'type': 'InjClsA'
+        }
+      ]
+    },
+    'InjClsB': {
+      'count': 1,
+      'deps': []
+    }
+  })
 })

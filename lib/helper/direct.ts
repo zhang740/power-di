@@ -11,7 +11,7 @@ import { getMetadata } from '../utils'
 export function inject({ type }: { type?: any } = {}) {
   return (target: any, key: string) => {
     const globalType = getGlobalTypeByDecorator(type, target, key)
-    getMetadata(target.constructor).injects.push({
+    getMetadata(target).injects.push({
       key,
       globalType,
       type: 'inject',
@@ -34,7 +34,7 @@ export function lazyInject({ type, always = false, subClass = false }: {
 } = {}) {
   return (target: any, key: string) => {
     const globalType = getGlobalTypeByDecorator(type, target, key)
-    getMetadata(target.constructor).injects.push({
+    getMetadata(target).injects.push({
       key,
       globalType,
       type: 'lazyInject',

@@ -14,7 +14,8 @@ export class MetadataType {
 }
 
 export function getMetadata(type: any): MetadataType {
-  if (!type[metaSymbol]) {
+  const metadata = Object.getOwnPropertyDescriptor(type, metaSymbol)
+  if (!metadata || !metadata.value) {
     Object.defineProperty(type, metaSymbol, {
       enumerable: false,
       configurable: false,
@@ -22,4 +23,13 @@ export function getMetadata(type: any): MetadataType {
     })
   }
   return type[metaSymbol]
+}
+
+export function getInjects(type: any): InjectMetadataType[] {
+  const injects = getMetadata(type).injects
+  const superType = Object.getPrototypeOf(type)
+  if (superType) {
+    return injects.concat(getInjects(superType))
+  }
+  return injects
 }

@@ -3,7 +3,7 @@ export enum OutLevel {
 }
 
 export class Logger {
-  private outLevel = OutLevel.Log
+  private outLevel = OutLevel.Warn
   public setOutLevel(level: OutLevel) {
     this.outLevel = level
   }
