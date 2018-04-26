@@ -262,3 +262,82 @@ test('constructor inject, use normal type.', t => {
   t.true(a.other instanceof OtherClass)
   t.true(a.nodata === null)
 })
+
+test('inject decorator, setter.', t => {
+  @register()
+  class NRService { }
+
+  @register()
+  class LITestService {
+    @inject()
+    public testService: NRService
+  }
+
+  const test = new LITestService
+  t.true(!!test.testService)
+  const oldService = test.testService
+
+  const newService = new NRService
+  test.testService = newService
+
+  t.true(test.testService !== oldService)
+  t.true(test.testService === newService)
+})
+
+test('inject decorator, setter direct.', t => {
+  @register()
+  class NRService { }
+
+  @register()
+  class LITestService {
+    @inject()
+    public testService: NRService
+  }
+
+  const test = new LITestService
+
+  const newService = new NRService
+  test.testService = newService
+
+  t.true(test.testService === newService)
+})
+
+test('lazyInject decorator, setter.', t => {
+
+  @register()
+  class NRService { }
+
+  @register()
+  class LITestService {
+    @lazyInject()
+    public testService: NRService
+  }
+
+  const test = new LITestService
+  t.true(!!test.testService)
+  const oldService = test.testService
+
+  const newService = new NRService
+  test.testService = newService
+
+  t.true(test.testService !== oldService)
+  t.true(test.testService === newService)
+})
+
+test('lazyInject decorator, setter direct.', t => {
+  @register()
+  class NRService { }
+
+  @register()
+  class LITestService {
+    @lazyInject()
+    public testService: NRService
+  }
+
+  const test = new LITestService
+
+  const newService = new NRService
+  test.testService = newService
+
+  t.true(test.testService === newService)
+})

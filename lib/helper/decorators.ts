@@ -93,7 +93,14 @@ export class Decorators {
         configurable: true,
         get: function () {
           decoratorThis.context.inject(this)
-          return target[key]
+          return this[key]
+        },
+        set: function (value) {
+          Object.defineProperty(this, key, {
+            configurable: true,
+            writable: true,
+            value,
+          })
         }
       })
     }
@@ -125,10 +132,14 @@ export class Decorators {
             value: defaultValue
           })
           decoratorThis.context.inject(target)
-          return target[key]
+          return this[key]
         },
         set: function (value) {
-          defaultValue = value
+          Object.defineProperty(this, key, {
+            configurable: true,
+            writable: true,
+            value,
+          })
         }
       })
     }

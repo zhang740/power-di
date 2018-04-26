@@ -138,6 +138,7 @@ export class IocContext {
   }
 
   public inject(instance: any, notFoundHandler?: (globalType: string, typeCls?: any) => any) {
+    const iocSelf = this
     const classType = instance.constructor.prototype
     getInjects(classType)
       .forEach(inject => {
@@ -165,8 +166,8 @@ export class IocContext {
             let defaultValue: any = instance[key]
             Object.defineProperty(instance, key, {
               configurable: true,
-              get: () => {
-                let data = subClass ? this.getSubClasses(typeCls) : this.get(typeCls)
+              get: function () {
+                let data = subClass ? iocSelf.getSubClasses(typeCls) : iocSelf.get(typeCls)
                 if (data === undefined) {
                   if (notFoundHandler) {
                     data = notFoundHandler(globalType, typeCls)
@@ -177,7 +178,7 @@ export class IocContext {
                 } else {
                   defaultValue = undefined
                   if (!always) {
-                    Object.defineProperty(instance, key, {
+                    Object.defineProperty(this, key, {
                       configurable: true,
                       writable: true,
                       value: data
@@ -186,8 +187,12 @@ export class IocContext {
                 }
                 return data || defaultValue
               },
-              set: (value) => {
-                defaultValue = value
+              set: function (value) {
+                Object.defineProperty(this, key, {
+                  configurable: true,
+                  writable: true,
+                  value,
+                })
               }
             })
             break
