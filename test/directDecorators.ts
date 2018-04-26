@@ -223,3 +223,53 @@ test('lazyInject decorator, defaultValue.', t => {
   test.testService = value2
   t.true(test.testService === value2)
 })
+
+test('inject decorator, setter.', t => {
+
+  class NRService { }
+
+  class LITestService {
+    @inject()
+    public testService: NRService
+  }
+
+  const context = new IocContext
+  context.register(NRService)
+  context.register(LITestService)
+
+  const test = context.get<LITestService>(LITestService)
+  t.true(!!test.testService)
+  const oldService = test.testService
+
+  const newService = new NRService
+  test.testService = newService
+
+  t.true(test.testService !== oldService)
+  t.true(test.testService === newService)
+})
+
+
+
+test('lazyInject decorator, setter.', t => {
+
+  class NRService { }
+
+  class LITestService {
+    @lazyInject()
+    public testService: NRService
+  }
+
+  const context = new IocContext
+  context.register(NRService)
+  context.register(LITestService)
+
+  const test = context.get<LITestService>(LITestService)
+  t.true(!!test.testService)
+  const oldService = test.testService
+
+  const newService = new NRService
+  test.testService = newService
+
+  t.true(test.testService !== oldService)
+  t.true(test.testService === newService)
+})

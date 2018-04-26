@@ -155,6 +155,7 @@ export class IocContext {
             }
             Object.defineProperty(instance, key, {
               configurable: true,
+              writable: true,
               value: data,
             })
             break
@@ -178,6 +179,7 @@ export class IocContext {
                   if (!always) {
                     Object.defineProperty(instance, key, {
                       configurable: true,
+                      writable: true,
                       value: data
                     })
                   }

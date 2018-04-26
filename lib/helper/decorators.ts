@@ -121,6 +121,7 @@ export class Decorators {
         get: function () {
           Object.defineProperty(target, key, {
             configurable: true,
+            writable: true,
             value: defaultValue
           })
           decoratorThis.context.inject(target)
