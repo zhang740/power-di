@@ -1,12 +1,12 @@
-import { Component, Children, PropTypes } from 'react'
+import * as React from 'react'
 import { IocContext } from '../IocContext'
 
 export interface PropsDefine {
   context?: IocContext
 }
-export class IocProvider extends Component<PropsDefine, {}> {
+export class IocProvider extends React.Component<PropsDefine, {}> {
   public static childContextTypes: any = {
-    iocContext: PropTypes.any
+    iocContext: React.PropTypes.any
   }
 
   private iocContext: IocContext
@@ -21,6 +21,6 @@ export class IocProvider extends Component<PropsDefine, {}> {
   }
 
   render() {
-    return Children.only(this.props.children)
+    return React.Children.only(this.props.children)
   }
 }

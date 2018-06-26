@@ -91,8 +91,8 @@ test('auto register component by class.', t => {
     a: A
   }
   const context = new IocContext({ autoRegister: true })
-  t.true(context.get<B>(B) instanceof B)
-  t.true(context.get<B>(B).a instanceof A)
+  t.true(context.get(B) instanceof B)
+  t.true(context.get(B).a instanceof A)
 })
 
 test('has component.', t => {
@@ -251,7 +251,7 @@ test('class init, with ioc instance.', t => {
 
   const context = new IocContext
   context.register(TestService)
-  context.get<TestService>(TestService)
+  context.get(TestService)
 })
 
 import { inject, lazyInject } from '../helper'
@@ -330,4 +330,29 @@ test('inject instance, string.', t => {
   const bclass = new BClass
   context.inject(bclass)
   t.true(bclass.aclass.a === 123)
+})
+
+
+test('lazyInject redefined.', t => {
+  const context = new IocContext
+
+  class TestClass {
+    a() { return 1 }
+  }
+
+  class AClass {
+    @lazyInject()
+    tClass: TestClass
+  }
+
+  class BClass extends AClass {
+    @lazyInject()
+    tClass: TestClass
+  }
+
+  context.register(TestClass)
+  context.register(AClass)
+  context.register(BClass)
+
+  t.true(context.get(BClass).tClass.a() === 1)
 })

@@ -15,7 +15,7 @@ test('decorator, custom IocContext.', t => {
     public testService: NRService
   }
 
-  const test = context.get<LITestService>(LITestService)
+  const test = context.get(LITestService)
   t.true(test.testService instanceof NRService)
 })
 
@@ -31,7 +31,7 @@ test('decorator, function IocContext.', t => {
     public testService: NRService
   }
 
-  const test = context.get<LITestService>(LITestService)
+  const test = context.get(LITestService)
   t.true(test.testService instanceof NRService)
 })
 
@@ -45,7 +45,7 @@ test('decorator, default IocContext.', t => {
     public testService: NRService
   }
 
-  const test = IocContext.DefaultInstance.get<LITestService>(LITestService)
+  const test = IocContext.DefaultInstance.get(LITestService)
   t.true(test.testService instanceof NRService)
 })
 
@@ -65,7 +65,7 @@ test('inject decorator.', t => {
     public testService2: DTestService
   }
 
-  const test = context.get<ITestService>(ITestService)
+  const test = context.get(ITestService)
   t.true(test.testService instanceof DTestService)
   t.true(test.testService2 instanceof DTestService)
 })
@@ -78,7 +78,7 @@ test('inject decorator, no data.', t => {
     public testService: NRService
   }
 
-  const test = context.get<ITestService>(ITestService)
+  const test = context.get(ITestService)
   t.true(!test.testService)
 })
 
@@ -94,7 +94,7 @@ test('lazyInject decorator.', t => {
     public testService2: DTestService
   }
 
-  const test = context.get<LITestService>(LITestService)
+  const test = context.get(LITestService)
   t.true(test.testService instanceof DTestService)
   t.true(test.testService2 instanceof DTestService)
 })

@@ -241,7 +241,7 @@ test('constructor inject.', t => {
       public other: OtherClass
     ) { }
   }
-  const a = context.get<AClass>(AClass)
+  const a = context.get(AClass)
 
   t.true(a.other instanceof OtherClass)
 })
@@ -257,7 +257,7 @@ test('constructor inject, use normal type.', t => {
       public nodata: Object,
     ) { }
   }
-  const a = context.get<AClass>(AClass)
+  const a = context.get(AClass)
 
   t.true(a.other instanceof OtherClass)
   t.true(a.nodata === null)

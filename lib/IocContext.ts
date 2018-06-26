@@ -29,9 +29,13 @@ export interface RegisterOptions {
    * */
   regInSuperClass?: boolean
 }
+export type ClassType = new (...args: any[]) => any
 export type InterceptorType = () => void
 export type KeyType = Function | string // typeof Object
 export type RegKeyType = KeyType | undefined
+export type GetReturnType<T, ClsType> = T extends undefined ?
+  (ClsType extends new (...args: any[]) => infer R ? R : any)
+  : T
 export interface Store {
   inited: boolean,
   value: any,
@@ -55,7 +59,7 @@ export class IocContext {
     return this.components.delete(getGlobalType(keyOrType))
   }
 
-  public get<T>(keyOrType: KeyType): T {
+  public get<T = undefined, KeyType = any>(keyOrType: KeyType): GetReturnType<T, KeyType> {
     const key = getGlobalType(keyOrType)
 
     if (this.components.has(key)) {
