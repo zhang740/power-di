@@ -4,7 +4,7 @@ import { IocContext, RegisterOptions, KeyType, RegKeyType } from '../IocContext'
 import { getClsTypeByDecorator, getGlobalTypeByDecorator } from '../utils'
 import { inject, lazyInject } from './direct'
 
-/** Obsolete, for compatible */
+/** Obsolete, for compatible, move to utils */
 export { getClsTypeByDecorator, getGlobalTypeByDecorator }
 
 export class Decorators {
