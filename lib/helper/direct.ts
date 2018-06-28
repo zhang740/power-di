@@ -1,5 +1,4 @@
-import { getGlobalTypeByDecorator, getClsTypeByDecorator } from './decorators'
-import { getMetadata } from '../utils'
+import { getGlobalTypeByDecorator, getClsTypeByDecorator, getMetadata } from '../utils'
 
 /**
  * inject

@@ -1,23 +1,11 @@
 import 'reflect-metadata'
 
 import { IocContext, RegisterOptions, KeyType, RegKeyType } from '../IocContext'
-import { getGlobalType, logger } from '../utils'
+import { getClsTypeByDecorator, getGlobalTypeByDecorator } from '../utils'
 import { inject, lazyInject } from './direct'
 
-export function getClsTypeByDecorator(
-  type: any, target: any, key: string
-) {
-  if (!type && Reflect && Reflect.getMetadata) {
-    type = Reflect.getMetadata('design:type', target, key)
-  }
-  return type
-}
-
-export function getGlobalTypeByDecorator(
-  type: any, target: any, key: string
-) {
-  return getGlobalType(getClsTypeByDecorator(type, target, key))
-}
+/** Obsolete, for compatible */
+export { getClsTypeByDecorator, getGlobalTypeByDecorator }
 
 export class Decorators {
   private _funcContext = false
