@@ -1,4 +1,4 @@
-import { getGlobalType } from '../utils'
+import { getGlobalType } from '../utils/getGlobalType'
 
 export function getClsTypeByDecorator(
   type: any, target: any, key: string
