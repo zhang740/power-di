@@ -1,4 +1,4 @@
-import { getGlobalType, getSuperClassInfo, isClass, getMetadata, getInjects } from './utils'
+import { getGlobalType, getSuperClassInfo, isClass, getInjects } from './utils'
 import { logger } from '../utils'
 
 export class Config {
