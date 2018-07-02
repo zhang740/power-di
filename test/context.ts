@@ -356,3 +356,16 @@ test('lazyInject redefined.', t => {
 
   t.true(context.get(BClass).tClass.a() === 1)
 })
+
+test('clear.', t => {
+  const context = new IocContext
+
+  class TestClass {
+    a() { return 1 }
+  }
+  context.register(TestClass)
+  t.true(context.get(TestClass).a() === 1)
+
+  context.clear()
+  t.true(context.get(TestClass) === undefined)
+})

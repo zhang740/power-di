@@ -59,6 +59,10 @@ export class IocContext {
     return this.components.delete(getGlobalType(keyOrType))
   }
 
+  public clear() {
+    this.components.clear()
+  }
+
   public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType)
 
