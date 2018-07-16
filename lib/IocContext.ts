@@ -171,7 +171,9 @@ export class IocContext {
 
           case 'lazyInject':
             const { always, subClass } = inject
-            let defaultValue: any = instance[key]
+
+            const descriptor = Object.getOwnPropertyDescriptor(instance, key)
+            let defaultValue: any = descriptor && descriptor.value
             Object.defineProperty(instance, key, {
               configurable: true,
               get: function () {
