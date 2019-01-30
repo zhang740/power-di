@@ -273,3 +273,23 @@ test('lazyInject decorator, setter.', t => {
   t.true(test.testService !== oldService)
   t.true(test.testService === newService)
 })
+
+test('multi level inject.', t => {
+  class A {
+    echo() {
+      return 'a'
+    }
+  }
+  class B {
+    @lazyInject()
+    a: A
+  }
+  class C {
+    @lazyInject()
+    b: B
+  }
+
+  const ctx = new IocContext({ autoRegister: true })
+  const c = ctx.get(C)
+  t.is(c.b.a.echo(), 'a')
+})
