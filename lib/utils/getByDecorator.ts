@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import { getGlobalType } from './getGlobalType'
 
 export function getClsTypeByDecorator(

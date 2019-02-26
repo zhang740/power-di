@@ -187,22 +187,6 @@ test('lazyInject decorator, subclass.', t => {
   t.true(test.testServiceErr === undefined)
 })
 
-
-test('lazyInject decorator, defaultValue.', t => {
-
-  class NRService { }
-  const defaultValue = new NRService()
-
-  @register()
-  class LITestService {
-    @lazyInject()
-    public testService: NRService = defaultValue
-  }
-
-  const test = context.get<LITestService>(LITestService)
-  t.true(test.testService === defaultValue)
-})
-
 test('lazyInject decorator, defaultValue.', t => {
 
   class NRService { }
@@ -247,8 +231,6 @@ test('inject decorator, setter.', t => {
   t.true(test.testService !== oldService)
   t.true(test.testService === newService)
 })
-
-
 
 test('lazyInject decorator, setter.', t => {
 

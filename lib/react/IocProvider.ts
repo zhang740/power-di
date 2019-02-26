@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as PropTypes from 'prop-types'
 import { IocContext } from '../IocContext'
 
 export interface PropsDefine {
@@ -6,7 +7,7 @@ export interface PropsDefine {
 }
 export class IocProvider extends React.Component<PropsDefine, {}> {
   public static childContextTypes: any = {
-    iocContext: React.PropTypes.any
+    iocContext: PropTypes.any
   }
 
   private iocContext: IocContext

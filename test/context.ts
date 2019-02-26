@@ -75,8 +75,6 @@ test('register component by string.', t => {
   const data2 = 'test_str'
   context.register(data2, 'string_key_value2')
   t.true(context.get('string_key_value2') === data2)
-
-  t.true(!context.register('123123'))
 })
 
 test('register not allowed.', t => {

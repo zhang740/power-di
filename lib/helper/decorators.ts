@@ -1,5 +1,3 @@
-import 'reflect-metadata'
-
 import { IocContext, RegisterOptions, KeyType, RegKeyType } from '../IocContext'
 import { getClsTypeByDecorator, getGlobalTypeByDecorator } from '../utils'
 import { inject, lazyInject } from './direct'

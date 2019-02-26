@@ -4,7 +4,7 @@ import { create } from 'react-test-renderer'
 import { IocContext } from '../lib/IocContext'
 import { IocProvider, Component } from '../lib/react'
 
-test('react only reactcomponent.', t => {
+test('react only react component.', t => {
   const context = IocContext.DefaultInstance
   class NRServiceDI { }
   context.register(NRServiceDI)
