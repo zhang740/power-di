@@ -3,32 +3,32 @@ export enum OutLevel {
 }
 
 export class Logger {
-  private outLevel = OutLevel.Warn
+  private outLevel = OutLevel.Warn;
   public setOutLevel(level: OutLevel) {
-    this.outLevel = level
+    this.outLevel = level;
   }
 
   error(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Error) {
-      console.error(message, ...optionalParams)
+      console.error(message, ...optionalParams);
     }
   }
   info(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Info) {
-      console.info(message, ...optionalParams)
+      console.info(message, ...optionalParams);
     }
   }
   log(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Log) {
-      console.log(message, ...optionalParams)
+      console.log(message, ...optionalParams);
     }
   }
   warn(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Warn) {
-      console.warn(message, ...optionalParams)
+      console.warn(message, ...optionalParams);
     }
   }
 }
 
-const logger = new Logger
-export default logger
+const logger = new Logger;
+export default logger;
