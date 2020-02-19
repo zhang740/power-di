@@ -1,19 +1,13 @@
-import * as React from 'react'
-import * as PropTypes from 'prop-types'
-import { IocContext } from '../IocContext'
+import * as React from 'react';
+import { Context } from './context';
+import { IocContext } from '../IocContext';
 
 
-export class Component<P, S> extends React.Component<P, S> {
-  public static contextTypes = {
-    iocContext: PropTypes.any
-  }
-  private iocContext: IocContext
-  protected GetComponent<T>(type: any): T {
-    return this.iocContext && this.iocContext.get<T>(type)
-  }
+export abstract class Component<P, S> extends React.Component<P, S> {
+  static contextType = Context;
 
-  constructor(props: P, context: any) {
-    super(props, context)
-    this.iocContext = (context && context.iocContext) || IocContext.DefaultInstance
+  constructor(props: P, context: IocContext) {
+    super(props, context);
+    context.inject(this);
   }
 }
