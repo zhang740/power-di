@@ -1,27 +1,26 @@
-import test from 'ava'
-import { getDecorators, lazyInject } from '../lib/helper'
-import { getRefMap } from '../lib/utils/getRefMap'
-const { register } = getDecorators()
+import test from 'ava';
+import { getRefMap } from '../lib/utils/getRefMap';
+import { inject, injectable } from '../lib';
 
 test('getRefMap, base', t => {
-  @register()
+  @injectable()
   class A { }
 
-  @register()
+  @injectable()
   class B {
-    @lazyInject()
-    private a: A
+    @inject()
+    private a: A;
   }
 
   class C {
-    @lazyInject()
-    private a: A
+    @inject()
+    private a: A;
 
-    @lazyInject()
-    private b: B
+    @inject()
+    private b: B;
   }
 
-  const data = getRefMap(C)
+  const data = getRefMap(C);
   t.deepEqual(data, {
     'C': {
       'count': 0,
@@ -40,31 +39,31 @@ test('getRefMap, base', t => {
         { 'prop': 'a', 'type': 'A' }
       ]
     }
-  })
-})
+  });
+});
 
 test('getRefMap, super class', t => {
 
   class Base { }
 
-  @register()
+  @injectable()
   class D extends Base { }
 
-  @register()
+  @injectable()
   class E extends Base {
-    @lazyInject()
-    private a: D
+    @inject()
+    private a: D;
   }
 
   class F extends Base {
-    @lazyInject()
-    private a: D
+    @inject()
+    private a: D;
 
-    @lazyInject()
-    private b: E
+    @inject()
+    private b: E;
   }
 
-  const data = getRefMap(F)
+  const data = getRefMap(F);
   t.deepEqual(data, {
     'F': {
       'count': 0,
@@ -83,8 +82,8 @@ test('getRefMap, super class', t => {
         { 'prop': 'a', 'type': 'D' }
       ]
     }
-  })
-})
+  });
+});
 
 test('getRefMap, extends', t => {
 
@@ -92,18 +91,18 @@ test('getRefMap, extends', t => {
   class InjClsB { }
 
   class BaseCls {
-    @lazyInject()
-    a: InjClsA
+    @inject()
+    a: InjClsA;
   }
 
   class SubCls extends BaseCls {
-    @lazyInject()
-    b: InjClsB
+    @inject()
+    b: InjClsB;
   }
 
-  const map = {}
-  getRefMap(BaseCls, map)
-  getRefMap(SubCls, map)
+  const map = {};
+  getRefMap(BaseCls, map);
+  getRefMap(SubCls, map);
 
   t.deepEqual(map, {
     'BaseCls': {
@@ -136,5 +135,5 @@ test('getRefMap, extends', t => {
       'count': 1,
       'deps': []
     }
-  })
-})
+  });
+});

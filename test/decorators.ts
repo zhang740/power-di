@@ -1,329 +1,294 @@
-import test from 'ava'
-import { IocContext } from '../lib/IocContext'
-import { logger, OutLevel } from '../lib/utils'
-import { getDecorators, Decorators } from '../lib/helper'
-const {
-  register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
-} = getDecorators()
-
-logger.setOutLevel(OutLevel.Error)
-
-const context = IocContext.DefaultInstance
+import test from 'ava';
+import { IocContext, NotfoundTypeError } from '../lib/IocContext';
+import { logger, OutLevel } from '../lib/utils';
+import { inject, injectable, imports } from '../lib';
+import { classLoader } from '../lib/class/ClassLoader';
 
 test('decorator, custom IocContext.', t => {
-  const context = new IocContext()
-  const { register, lazyInject } = new Decorators(context)
-  @register()
+  const context = new IocContext();
+
+  @injectable()
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject()
-    public testService: NRService
+    @inject()
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(test.testService instanceof NRService)
-})
+  const test = context.get(LITestService);
+  t.true(test.testService instanceof NRService);
+});
 
 test('decorator, function IocContext.', t => {
-  const context = new IocContext
-  const { register, lazyInject } = new Decorators(() => context)
-  @register()
+  const context = new IocContext;
+
+  @injectable()
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject()
-    public testService: NRService
+    @inject()
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(test.testService instanceof NRService)
-})
+  const test = context.get(LITestService);
+  t.true(test.testService instanceof NRService);
+});
 
 test('decorator, default IocContext.', t => {
-  const { register, lazyInject } = new Decorators(context)
-  @register()
+  @injectable()
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject()
-    public testService: NRService
+    @inject()
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(test.testService instanceof NRService)
-})
+  const test = IocContext.DefaultInstance.get(LITestService);
+  t.true(test.testService instanceof NRService);
+});
 
-test('register decorator.', t => {
-  @register()
-  class DTestService { }
-  t.true(context.get(DTestService) instanceof DTestService)
-})
+// default context, register decorators
+const context = new IocContext();
 
 test('inject decorator.', t => {
-  @register()
+  @injectable()
   class DTestService { }
+  @injectable()
   class ITestService {
-    @inject()
-    public testService: DTestService
+    @inject({ lazy: false })
+    public testService: DTestService;
 
-    @inject({ type: DTestService })
-    public testService2: DTestService
+    @inject({ type: DTestService, lazy: false })
+    public testService2: DTestService;
   }
 
-  const test = new ITestService
-  t.true(test.testService instanceof DTestService)
-  t.true(test.testService2 instanceof DTestService)
-})
+  const test = context.get(ITestService);
+  t.true(test.testService instanceof DTestService);
+  t.true(test.testService2 instanceof DTestService);
+});
 
 test('inject decorator, no data.', t => {
   class NRService { }
+  @injectable()
   class ITestService {
-    @inject()
-    public testService: NRService
+    @inject({ lazy: false, optional: true })
+    public testService: NRService;
   }
 
-  const test = new ITestService
-  t.true(!test.testService)
-})
+  t.true(!context.get(ITestService).testService);
+});
+
+test('inject decorator, must have instance.', t => {
+  class NRService { }
+  @injectable()
+  class ITestService {
+    @inject({ lazy: false })
+    public testService: NRService;
+  }
+
+  t.throws(() => !context.get(ITestService).testService, err => {
+    return err instanceof NotfoundTypeError;
+  });
+});
 
 test('lazyInject decorator.', t => {
-  @register()
+  @injectable()
   class DTestService { }
+  @injectable()
   class LITestService {
-    @lazyInject()
-    public testService: DTestService
+    @inject()
+    public testService: DTestService;
 
-    @lazyInject({ type: DTestService })
-    public testService2: DTestService
+    @inject({ type: DTestService })
+    public testService2: DTestService;
   }
 
-  const test = new LITestService
-  t.true(test.testService instanceof DTestService)
-  t.true(test.testService2 instanceof DTestService)
-})
-
-test('lazyInject decorator, extends.', t => {
-  @register()
-  class DTestService { }
-  class LITestServiceBase {
-    @lazyInject()
-    public testService: DTestService
-  }
-  class LITestService extends LITestServiceBase {
-    @lazyInject()
-    public testService2: DTestService
-  }
-
-  const test = new LITestService
-  t.true(test.testService instanceof DTestService)
-  t.true(test.testService2 instanceof DTestService)
-})
+  const test = context.get(LITestService);
+  t.true(test.testService instanceof DTestService);
+  t.true(test.testService2 instanceof DTestService);
+});
 
 test('lazyInject decorator, no data.', t => {
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject()
-    public testService: NRService
+    @inject({ optional: true })
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(!test.testService)
-})
+  const test = context.get<LITestService>(LITestService);
+  t.true(!test.testService);
+});
 
 test('lazyInject decorator, no data, then have.', t => {
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject()
-    public testService: NRService
+    @inject({ optional: true })
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(!test.testService)
+  const test = context.get<LITestService>(LITestService);
+  t.true(!test.testService);
 
-  context.register(NRService)
-  t.true(test.testService instanceof NRService)
-})
+  context.register(NRService);
+  t.true(test.testService instanceof NRService);
+});
 
 test('lazyInject decorator, always option true.', t => {
-  @register()
+  @injectable()
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject({ always: true })
-    public testService: NRService
+    @inject({ always: true })
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(test.testService instanceof NRService)
-  context.remove(NRService)
-  t.true(!test.testService)
-})
+  const test = context.get(LITestService);
+  t.true(test.testService instanceof NRService);
+  t.true(test.testService === test.testService);
+
+  const old = test.testService;
+  context.remove(NRService);
+  t.true(test.testService !== old);
+});
 
 test('lazyInject decorator, always option false.', t => {
-  @register()
+  @injectable()
   class NRService { }
+  @injectable()
   class LITestService {
-    @lazyInject({ always: false })
-    public testService: NRService
+    @inject({ always: false })
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(test.testService instanceof NRService)
-  context.remove(NRService)
-  t.true(test.testService instanceof NRService)
-})
+  const test = context.get<LITestService>(LITestService);
+  t.true(test.testService instanceof NRService);
+  context.remove(NRService);
+  t.true(test.testService instanceof NRService);
+});
 
-test('lazyInject decorator, subclass.', t => {
+test('lazyInject decorator, imports.', t => {
   class A { }
-  @register(undefined, { regInSuperClass: true })
+  @injectable()
   class B extends A { }
-  @registerSubClass()
+  @injectable()
   class C extends A { }
-  @append(A)
-  class D { }
+  @injectable()
   class LITestService {
-    @lazyInject({ type: A, subClass: true })
-    public testService: A[]
-    @lazyInjectSubClass({ type: A })
-    public testService2: A[]
+    @inject()
+    public b: B;
 
-    @lazyInjectSubClass()
-    public testServiceErr: A[]
+    @imports({ type: A })
+    public testService: A[];
+
+    @imports({ type: A })
+    public testServiceAgain: A[];
   }
 
-  const test = new LITestService
-  t.true(test.testService.length === 3)
-  t.true(test.testService[0] instanceof B)
-  t.true(test.testService[1] instanceof C)
-  t.true(test.testService[2] instanceof D)
-  t.true(test.testService2.length === 3)
-  t.true(test.testService2[0] instanceof B)
-  t.true(test.testService2[1] instanceof C)
-  t.true(test.testService2[2] instanceof D)
-  t.true(test.testServiceErr === undefined)
-})
+  t.throws(() => {
+    @injectable()
+    class LITestService {
+      @imports({ type: A })
+      public testService: A; // need Array
+    }
+  });
 
-test('lazyInject decorator, defaultValue.', t => {
+  const test = context.get(LITestService);
+  t.true(test.b instanceof B);
+  t.true(test.testService.length === 2);
+  t.true(test.testService[0] instanceof B);
+  t.true(test.testService[1] instanceof C);
+  t.true(test.testServiceAgain.length === 2);
+  t.true(test.testService === test.testServiceAgain);
+  t.deepEqual(test.testService, test.testServiceAgain);
+});
+
+test('lazyInject decorator, defaultValue, auto optional.', t => {
 
   class NRService { }
-  const defaultValue = new NRService()
+  const defaultValue = new NRService();
 
   class LITestService {
-    @lazyInject()
-    public testService: NRService = defaultValue
+    @inject()
+    public testService: NRService = defaultValue;
   }
 
-  const test = new LITestService
-  t.true(test.testService === defaultValue)
+  const context = new IocContext;
+  context.register(LITestService);
 
-  const value2 = new NRService()
-  test.testService = value2
-  t.true(test.testService === value2)
-})
+  const test = context.get<LITestService>(LITestService);
+  t.true(test.testService === defaultValue);
 
-test('constructor inject.', t => {
-  @register()
-  class OtherClass { }
-  @register()
-  class AClass {
-    constructor(
-      public other: OtherClass
-    ) { }
-  }
-  const a = context.get(AClass)
-
-  t.true(a.other instanceof OtherClass)
-})
-
-
-test('constructor inject, use normal type.', t => {
-  @register()
-  class OtherClass { }
-  @register()
-  class AClass {
-    constructor(
-      public other: OtherClass,
-      public nodata: Object,
-    ) { }
-  }
-  const a = context.get(AClass)
-
-  t.true(a.other instanceof OtherClass)
-  t.true(a.nodata === null)
-})
+  const value2 = new NRService();
+  test.testService = value2;
+  t.true(test.testService === value2);
+});
 
 test('inject decorator, setter.', t => {
-  @register()
+
   class NRService { }
 
-  @register()
   class LITestService {
-    @inject()
-    public testService: NRService
+    @inject({ lazy: false })
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(!!test.testService)
-  const oldService = test.testService
+  const context = new IocContext;
+  context.register(NRService);
+  context.register(LITestService);
 
-  const newService = new NRService
-  test.testService = newService
+  const test = context.get<LITestService>(LITestService);
+  t.true(!!test.testService);
+  const oldService = test.testService;
 
-  t.true(test.testService !== oldService)
-  t.true(test.testService === newService)
-})
+  const newService = new NRService;
+  test.testService = newService;
 
-test('inject decorator, setter direct.', t => {
-  @register()
-  class NRService { }
-
-  @register()
-  class LITestService {
-    @inject()
-    public testService: NRService
-  }
-
-  const test = new LITestService
-
-  const newService = new NRService
-  test.testService = newService
-
-  t.true(test.testService === newService)
-})
+  t.true(test.testService !== oldService);
+  t.true(test.testService === newService);
+});
 
 test('lazyInject decorator, setter.', t => {
 
-  @register()
   class NRService { }
 
-  @register()
   class LITestService {
-    @lazyInject()
-    public testService: NRService
+    @inject()
+    public testService: NRService;
   }
 
-  const test = new LITestService
-  t.true(!!test.testService)
-  const oldService = test.testService
+  const context = new IocContext;
+  context.register(NRService);
+  context.register(LITestService);
 
-  const newService = new NRService
-  test.testService = newService
+  const test = context.get<LITestService>(LITestService);
+  t.true(!!test.testService);
+  const oldService = test.testService;
 
-  t.true(test.testService !== oldService)
-  t.true(test.testService === newService)
-})
+  const newService = new NRService;
+  test.testService = newService;
 
-test('lazyInject decorator, setter direct.', t => {
-  @register()
-  class NRService { }
+  t.true(test.testService !== oldService);
+  t.true(test.testService === newService);
+});
 
-  @register()
-  class LITestService {
-    @lazyInject()
-    public testService: NRService
+test('multi level inject.', t => {
+  class A {
+    echo() {
+      return 'a';
+    }
+  }
+  class B {
+    @inject()
+    a: A;
+  }
+  class C {
+    @inject()
+    b: B;
   }
 
-  const test = new LITestService
-
-  const newService = new NRService
-  test.testService = newService
-
-  t.true(test.testService === newService)
-})
+  const ctx = new IocContext({ autoRegisterSelf: true });
+  const c = ctx.get(C);
+  t.is(c.b.a.echo(), 'a');
+});

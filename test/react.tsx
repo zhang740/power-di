@@ -1,41 +1,48 @@
-import test from 'ava'
-import * as React from 'react'
-import { create } from 'react-test-renderer'
-import { IocContext } from '../lib/IocContext'
-import { IocProvider, Component } from '../lib/react'
+import test from 'ava';
+import * as React from 'react';
+import { create } from 'react-test-renderer';
+import { IocContext } from '../lib/IocContext';
+import { IocProvider, Component } from '../lib/react';
+import { inject } from '../lib';
 
 test('react only react component.', t => {
-  const context = IocContext.DefaultInstance
+  const context = IocContext.DefaultInstance;
   class NRServiceDI { }
-  context.register(NRServiceDI)
+  context.register(NRServiceDI);
 
   class TestComponent extends Component<{}, {}> {
-    componentWillMount() {
-      t.true(this.GetComponent(NRServiceDI) instanceof NRServiceDI)
+    @inject()
+    service: NRServiceDI;
+
+    componentDidMount() {
+      t.true(this.service instanceof NRServiceDI);
     }
 
     render(): any {
-      return null
+      return null;
     }
   }
 
   create(
     <TestComponent />
-  )
-})
+  );
+});
 
 test('react IocProvider.', t => {
-  const context = IocContext.DefaultInstance
+  const context = IocContext.DefaultInstance;
   class NRServiceDI { }
-  context.register(NRServiceDI)
+  context.register(NRServiceDI);
 
   class TestComponent extends Component<{}, {}> {
-    componentWillMount() {
-      t.true(this.GetComponent(NRServiceDI) instanceof NRServiceDI)
+    @inject()
+    service: NRServiceDI;
+
+    componentDidMount() {
+      t.true(this.service instanceof NRServiceDI);
     }
 
     render(): any {
-      return null
+      return null;
     }
   }
 
@@ -43,21 +50,24 @@ test('react IocProvider.', t => {
     <IocProvider>
       <TestComponent />
     </IocProvider>
-  )
-})
+  );
+});
 
 test('react IocProvider with context.', t => {
-  const context = new IocContext
+  const context = new IocContext;
   class NRService { }
-  context.register(NRService)
+  context.register(NRService);
 
   class TestComponent extends Component<{}, {}> {
-    componentWillMount() {
-      t.true(this.GetComponent(NRService) instanceof NRService)
+    @inject()
+    service: NRService;
+
+    componentDidMount() {
+      t.true(this.service instanceof NRService);
     }
 
     render(): any {
-      return null
+      return null;
     }
   }
 
@@ -65,5 +75,5 @@ test('react IocProvider with context.', t => {
     <IocProvider context={context}>
       <TestComponent />
     </IocProvider>
-  )
-})
+  );
+});

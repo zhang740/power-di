@@ -16,89 +16,84 @@ npm i power-di --save
 
 ### a simple example
 ```ts
-import { IocContext } from 'power-di'
+import { IocContext } from 'power-di';
 
 class AService { }
 
 // default instance, you can also new IocContext to get a instance.
-const context = IocContext.DefaultInstance
-context.register(AService)
-const aService = context.get(AService) // a instance of AService
+const context = IocContext.DefaultInstance;
+context.register(AService);
+const aService = context.get(AService); // a instance of AService
 ```
 
 ### inject with key
 ```ts
 class AService { }
 
-const context = IocContext.DefaultInstance
-context.register(AService, 'XService') // key need a string or class, e.g super class or whatever class.
-context.get('XService')
+const context = IocContext.DefaultInstance;
+context.register(AService, 'XService'); // key need a string or class, e.g super class or whatever class.
+context.get('XService');
 ```
 
 ### use with decorators
 ```ts
-import { getDecorators } from '../helper'
-const {
-    register, append, inject, lazyInject, registerSubClass, lazyInjectSubClass
-} = getDecorators() // you can provider a iocContext for this method.
+const context = new IocContext();
 
-@register()
-class AService { }
+@injectable()
+class NRService { }
 
-class SomeClass {
-    @inject() // set right now
-    private aService: AService
-
-    @lazyInject() // set when using
-    private bService: AService
+@injectable()
+class LITestService {
+  @inject()
+  public testService: NRService;
 }
 
-context.get(AService)
+const test = context.get(LITestService);
 ```
 
 ### use in react
 ```tsx
-import { IocProvider, Component } from 'power-di/react'
-
-@register()
-class AService { }
+const context = new IocContext;
+class NRService { }
+context.register(NRService);
 
 class TestComponent extends Component<{}, {}> {
-    componentWillMount() {
-        this.GetComponent(AService)
-    }
+  @inject()
+  service: NRService;
 
-    render(): any {
-        return null
-    }
+  componentDidMount() {
+    t.true(this.service instanceof NRService);
+  }
+
+  render(): any {
+    return null;
+  }
 }
 
-// parent component, the IocProvider is not necessary.
-<IocProvider context={context}>
+create(
+  <IocProvider context={context}>
     <TestComponent />
-</IocProvider>
+  </IocProvider>
+);
 ```
 
 ### collect some kind of object
 ```ts
 class A { }
 
-@register(undefined, { regInSuperClass: true })
+@injectable()
 class B extends A { }
 
-@registerSubClass() // the abbreviation of above
+@injectable()
 class C extends A { }
 
-@append(A)
-class D { }
-
+@injectable()
 class LITestService {
-    @lazyInject({ type: A, subClass: true }) // need type when inject subClass, Reflect cannot get the type.
-    public testService1: A[] // [b, c, d], the type is A[] or any[] (D may be not instance of A)
-
-    @lazyInjectSubClass({ type: A }) // need type when inject subClass, Reflect cannot get the type.
-    public testService2: A[] // the abbreviation of above
+  @imports({ type: A })
+  public testService: A[];
 }
+
+const test = context.get(LITestService); // test.testService as LITestService[];
 ```
 
 #### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/test)

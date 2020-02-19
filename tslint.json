@@ -1,5 +1,10 @@
 {
   "rules": {
+    "curly": [
+      true,
+      "ignore-same-line"
+    ],
+    "forin": true,
     "class-name": true,
     "comment-format": [
       true,
@@ -32,10 +37,7 @@
       "single",
       "jsx-double"
     ],
-    "semicolon": [
-      true,
-      "never"
-    ],
+    "semicolon": true,
     "typedef-whitespace": [
       true,
       {
