@@ -10,19 +10,19 @@ export function isClass(target: any) {
 
 /**
  * getGlobalType
- * @param classOrString class or string.
+ * @param key class, string or symbol.
  * @param prefix the prefix of type.
  */
-export function getGlobalType(classOrString: any, prefix: string = ''): string {
-  if (!classOrString) throw new Error('no class or string.');
-  if (typeof classOrString === 'string') {
-    return classOrString;
+export function getGlobalType(key: any, prefix: string = ''): string {
+  if (!key) throw new Error('no key.');
+  if (['string', 'symbol'].includes(typeof key)) {
+    return key;
   }
-  if (classOrString.hasOwnProperty('__type')) {
-    return classOrString['__type'];
+  if (key.hasOwnProperty('__type')) {
+    return key['__type'];
   }
   let type: string;
-  const info = classOrString.toString().match(/\w+/g);
+  const info = key.toString().match(/\w+/g);
   if (info[0] !== 'class' && !(info[0] === 'function' && info.length > 1)) { // Only for compatible with es5 class
     throw new Error('data MUST be a class or string.');
   }
@@ -31,7 +31,7 @@ export function getGlobalType(classOrString: any, prefix: string = ''): string {
     type = type + '_' + _uid++;
   }
   _globalTypes[type] = true;
-  Object.defineProperty(classOrString, '__type', {
+  Object.defineProperty(key, '__type', {
     configurable: false,
     enumerable: false,
     writable: false,
