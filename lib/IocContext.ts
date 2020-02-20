@@ -176,6 +176,7 @@ export class IocContext {
               defaultValue,
               onError: (err) => {
                 if (!allowOptional) {
+                  err.message += `\n\tSource: ${classType.name || classType}.${key.toString()}`;
                   throw err;
                 }
               }
@@ -201,6 +202,7 @@ export class IocContext {
                 onError: (err) => {
                   hasErr = true;
                   if (!allowOptional) {
+                    err.message += `\n\tSource: ${classType.name || classType}.${key.toString()}`;
                     throw err;
                   }
                 }

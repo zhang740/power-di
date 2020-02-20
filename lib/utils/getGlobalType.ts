@@ -1,3 +1,5 @@
+import { getSuperClassInfo } from './getSuperClassInfo';
+
 let _uid = 0;
 
 const _globalTypes: { [key: string]: boolean } = {};
@@ -38,28 +40,6 @@ export function getGlobalType(key: any, prefix: string = ''): string {
     value: type
   });
   return type;
-}
-
-export interface TypeInfo {
-  type: string;
-  class: Function;
-}
-
-export function getSuperClassInfo(classType: Function) {
-  if (!isClass(classType)) {
-    throw new Error('need a classType.');
-  }
-  const superClasses: TypeInfo[] = [];
-  let tmpType = Object.getPrototypeOf(classType);
-  while (isClass(tmpType)) {
-    const type = getGlobalType(tmpType);
-    superClasses.push({
-      type,
-      class: tmpType
-    });
-    tmpType = Object.getPrototypeOf(tmpType);
-  }
-  return superClasses;
 }
 
 export function isExtendOf(classType: Function, superClassType: Function) {
