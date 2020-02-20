@@ -1,3 +1,9 @@
+2.0.1 / 2020-02-20
+==================
+
+  * update: detail inject error log.
+  * update: support symbol key.
+
 2.0.0 / 2020-02-19
 ==================
 
