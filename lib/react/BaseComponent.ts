@@ -3,7 +3,7 @@ import { Context } from './context';
 import { IocContext } from '../IocContext';
 
 
-export abstract class Component<P, S> extends React.Component<P, S> {
+export abstract class Component<P = {}, S = {}> extends React.Component<P, S> {
   static contextType = Context;
 
   constructor(props: P, context: IocContext) {
