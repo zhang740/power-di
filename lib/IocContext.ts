@@ -99,22 +99,21 @@ export class IocContext {
   public getImports<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, { cache }: {
     cache?: boolean;
   } = {}): GetReturnType<T, KeyOrType>[] {
-    const key = getGlobalType(keyOrType);
-    if (this.has(key)) {
-      return this.get(key);
-    } else {
-      const type = keyOrType as any;
-      const data = classLoader.getImplementClasses(type).map(cls => {
-        if (this.has(cls)) {
-          return this.get(cls);
-        }
-        return this.genValueFactory(cls)();
-      });
-      if (cache) {
-        this.register(data, key);
-      }
-      return data;
+    const type = keyOrType as any;
+    if (cache && this.has(type)) {
+      return this.get(type);
     }
+    const data = classLoader.getImplementClasses(type).map(cls => {
+      if (this.has(cls)) {
+        return this.get(cls);
+      }
+      this.register(cls);
+      return this.get(cls);
+    });
+    if (cache) {
+      this.register(data, type);
+    }
+    return data;
   }
 
   public has(keyOrType: KeyType): boolean {
@@ -248,7 +247,7 @@ export class IocContext {
     return obj instanceof Function || ['string', 'symbol'].includes(typeof obj);
   }
 
-  private genValueFactory(data: any, options: RegisterOptions = DefaultRegisterOption) {
+  private genValueFactory(data: any, options: RegisterOptions) {
     const dataIsFunction = data instanceof Function;
     const dataIsClass = dataIsFunction && isClass(data);
 

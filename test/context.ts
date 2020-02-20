@@ -161,6 +161,15 @@ test('getSubClasses, with classLoader.', t => {
   t.true(cls.length === 2);
   t.true(cls[0] instanceof BClass);
   t.true(cls[1] instanceof CClass);
+
+  const cls2 = context.getImports(AClass);
+  t.true(cls !== cls2);
+  t.true(cls[0] === cls2[0]);
+
+  const cls3 = context.getImports(AClass, { cache: true });
+  const cls4 = context.getImports(AClass, { cache: true });
+  t.true(cls3 === cls4);
+  t.true(cls3[0] === cls4[0]);
 });
 
 test('new constructor.', t => {
