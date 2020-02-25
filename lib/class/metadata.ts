@@ -12,10 +12,15 @@ export interface InjectMetadataType {
   optional?: boolean;
 }
 
+export interface PostConstructMetadataType {
+  key: string | symbol;
+}
+
 export class MetadataType {
   injectable: boolean;
   classInfo: ClassInfo = {};
   injects: InjectMetadataType[] = [];
+  postConstruct: PostConstructMetadataType[] = [];
 }
 
 export function getMetadata(type: ClassType): MetadataType {
@@ -31,11 +36,11 @@ export function getMetadata(type: ClassType): MetadataType {
   return metadata.value;
 }
 
-export function getInjects(type: ClassType): InjectMetadataType[] {
-  const injects = getMetadata(type).injects;
+export function getMetadataField<T extends keyof MetadataType>(type: ClassType, key: T): MetadataType[T] {
+  const field = getMetadata(type)[key];
   const superType = Object.getPrototypeOf(type);
-  if (superType) {
-    return injects.concat(getInjects(superType));
+  if (superType && Array.isArray(field)) {
+    return field.concat(getMetadataField(superType, key)) as any;
   }
-  return injects;
+  return field;
 }

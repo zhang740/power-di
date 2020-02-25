@@ -1,5 +1,5 @@
 import { getGlobalType } from './getGlobalType';
-import { getInjects } from '../class/metadata';
+import { getMetadataField } from '../class/metadata';
 
 export interface RefMapType {
   [key: string]: RefMetadataType;
@@ -24,7 +24,7 @@ export function getRefMap(clsType: any, initMaps = {}) {
       deps: [],
     };
 
-    getInjects(clsType).forEach(inj => {
+    getMetadataField(clsType, 'injects').forEach(inj => {
       scan(inj.typeCls);
       maps[inj.globalType].count++;
 

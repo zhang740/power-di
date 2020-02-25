@@ -1,7 +1,7 @@
 import { getGlobalType, isClass } from './utils';
 import { logger } from '../utils';
 import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
-import { getInjects, getMetadata } from './class/metadata';
+import { getMetadata, getMetadataField } from './class/metadata';
 import { classLoader } from './class/ClassLoader';
 import { guard } from './utils/guard';
 
@@ -159,7 +159,7 @@ export class IocContext {
   public inject(instance: any) {
     const iocSelf = this;
     const classType = instance.constructor;
-    getInjects(classType)
+    getMetadataField(classType, 'injects')
       .forEach(inject => {
         const { key, typeCls, optional } = inject;
 
@@ -254,12 +254,13 @@ export class IocContext {
     return () => {
       if (dataIsFunction && options.autoNew) {
         if (dataIsClass) {
+          const ClsType = data;
           let args: any[] = [this];
           if (this.config.constructorInject && Reflect && Reflect.getMetadata) {
-            const paramTypes = Reflect.getMetadata('design:paramtypes', data);
+            const paramTypes = Reflect.getMetadata('design:paramtypes', ClsType);
             if (paramTypes) {
               args = paramTypes.map((type: any) => {
-                if (type === data ||
+                if (type === ClsType ||
                   type === undefined ||
                   type === null ||
                   type === Number ||
@@ -276,11 +277,15 @@ export class IocContext {
               });
             }
           }
-          const value = new data(...args);
+          const value = new ClsType(...args);
           this.inject(value);
+          getMetadataField(ClsType, 'postConstruct').forEach(post => {
+            value[post.key]();
+          });
           return value;
         } else {
-          return data(this);
+          const func = data;
+          return func(this);
         }
       } else {
         return data;

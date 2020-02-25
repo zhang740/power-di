@@ -1,7 +1,7 @@
 import test from 'ava';
 import { IocContext, NotfoundTypeError } from '../lib/IocContext';
 import { logger, OutLevel } from '../lib/utils';
-import { inject, injectable, imports } from '../lib';
+import { inject, injectable, imports, postConstruct } from '../lib';
 import { classLoader } from '../lib/class/ClassLoader';
 
 test('decorator, custom IocContext.', t => {
@@ -291,4 +291,39 @@ test('multi level inject.', t => {
   const ctx = new IocContext({ autoRegisterSelf: true });
   const c = ctx.get(C);
   t.is(c.b.a.echo(), 'a');
+});
+
+test('postConstruct.', t => {
+  @injectable()
+  class A {
+    @postConstruct()
+    init() {
+      t.pass();
+    }
+  }
+
+  const ioc = new IocContext;
+  ioc.get(A);
+});
+
+
+test('postConstruct, after inject.', t => {
+  @injectable()
+  class B {
+    id = 1;
+  }
+
+  @injectable()
+  class A {
+    @inject()
+    b: B;
+
+    @postConstruct()
+    init() {
+      t.true(this.b.id === 1);
+    }
+  }
+
+  const ioc = new IocContext;
+  ioc.get(A);
 });
