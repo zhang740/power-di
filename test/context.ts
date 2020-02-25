@@ -26,6 +26,15 @@ test('register component by class.', t => {
   const context = new IocContext;
   context.register(TestService);
   t.true(context.get(TestService) instanceof TestService);
+
+  // test for tip of type.
+  class A { }
+  context.register(A);
+  abstract class B { }
+  context.register(B);
+  t.true(context.get(A) instanceof A);
+  t.true(context.get(B) instanceof B);
+  t.false(context.get<A>(B) instanceof A);
 });
 
 test('register component by create function.', t => {

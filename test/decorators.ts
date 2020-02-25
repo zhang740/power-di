@@ -169,7 +169,7 @@ test('lazyInject decorator, always option false.', t => {
 });
 
 test('lazyInject decorator, imports.', t => {
-  class A { }
+  abstract class A { }
   @injectable()
   class B extends A { }
   @injectable()
