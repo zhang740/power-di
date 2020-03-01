@@ -1,3 +1,8 @@
+2.2.0 / 2020-03-01
+==================
+
+  * update: support conflictHandler for inject when have multi implement class.
+
 2.1.1 / 2020-02-25
 ==================
 
