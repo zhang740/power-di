@@ -1,8 +1,7 @@
 import { getGlobalType, isClass } from './utils';
-import { logger } from '../utils';
 import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
 import { getMetadata, getMetadataField } from './class/metadata';
-import { classLoader } from './class/ClassLoader';
+import { classLoader, TypeWithInfo } from './class/ClassLoader';
 import { guard } from './utils/guard';
 
 export class Config {
@@ -12,7 +11,10 @@ export class Config {
   constructorInject?: boolean = true;
   /** use class loader for autowired default */
   useClassLoader?: boolean = true;
+  /** when implement class not found */
   notFoundHandler?: (type: KeyType) => any;
+  /** when have multi implement class */
+  conflictHandler?: (type: KeyType, implCls: TypeWithInfo[], sourceCls?: TypeWithInfo) => ClassType | undefined;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -35,6 +37,7 @@ export interface Store {
 }
 export class IocContext {
   private static defaultInstance: IocContext;
+  private classLoader = classLoader;
   private components = new Map<string, Store>();
   public static get DefaultInstance() {
     return this.defaultInstance ||
@@ -42,8 +45,9 @@ export class IocContext {
   }
 
   constructor(
-    private config = new Config
+    private config?: Config
   ) {
+    this.config = Object.assign({}, new Config, config);
   }
 
   public remove(keyOrType: KeyType) {
@@ -54,7 +58,9 @@ export class IocContext {
     this.components.clear();
   }
 
-  public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType): GetReturnType<T, KeyOrType> {
+  public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, opt?: {
+    sourceCls: ClassType,
+  }): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
 
     if (this.components.has(key)) {
@@ -70,16 +76,26 @@ export class IocContext {
 
     if (this.config.useClassLoader) {
       const type = keyOrType as any;
-      const classes = classLoader.getImplementClasses(type);
+      const classes = this.classLoader.getImplementClasses(type);
       switch (classes.length) {
         case 1:
-          this.register(classes[0], type);
+          this.register(classes[0].type, type);
           return this.get(type);
 
         case 0:
           break;
 
         default:
+          if (this.config.conflictHandler) {
+            const one = this.config.conflictHandler(type, classes, opt?.sourceCls ? {
+              type: opt.sourceCls,
+              info: classLoader.getClassInfo(opt.sourceCls),
+            } : undefined);
+            if (one) {
+              this.register(one, type);
+              return this.get(type);
+            }
+          }
           throw new MultiImplementError(type, key);
       }
     }
@@ -103,12 +119,12 @@ export class IocContext {
     if (cache && this.has(type)) {
       return this.get(type);
     }
-    const data = classLoader.getImplementClasses(type).map(cls => {
-      if (this.has(cls)) {
-        return this.get(cls);
+    const data = this.classLoader.getImplementClasses(type).map(clsInfo => {
+      if (this.has(clsInfo.type)) {
+        return this.get(clsInfo.type);
       }
-      this.register(cls);
-      return this.get(cls);
+      this.register(clsInfo.type);
+      return this.get(clsInfo.type);
     });
     if (cache) {
       this.register(data, type);
@@ -171,7 +187,9 @@ export class IocContext {
           Object.defineProperty(instance, key, {
             configurable: true,
             writable: true,
-            value: guard(() => this.get(typeCls), {
+            value: guard(() => this.get(typeCls, {
+              sourceCls: classType
+            }), {
               defaultValue,
               onError: (err) => {
                 if (!allowOptional) {
@@ -192,7 +210,7 @@ export class IocContext {
               const data = guard(() => {
                 switch (inject.type) {
                   case 'lazyInject':
-                    return iocSelf.get(typeCls);
+                    return iocSelf.get(typeCls, { sourceCls: classType });
                   case 'imports':
                     return iocSelf.getImports(typeCls, { cache: !always });
                 }

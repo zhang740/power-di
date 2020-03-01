@@ -344,6 +344,37 @@ test('multi implement, use classLoader.', t => {
   });
 });
 
+test('multi implement, conflictHandler.', t => {
+  abstract class IService { }
+  @injectable()
+  class A extends IService { }
+  @injectable()
+  class B extends IService { }
+  @injectable()
+  class C {
+    @inject({ lazy: false })
+    b1: IService;
+    @inject()
+    b2: IService;
+  }
+
+  const context = new IocContext({
+    conflictHandler: (type, implCls, sourceCls) => {
+      if (type === IService) {
+        return sourceCls?.type === C ?
+          implCls.find(info => info.type === B).type :
+          implCls.find(info => info.info.name === 'A').type;
+      }
+    }
+  });
+
+  t.true(context.get(IService) instanceof A);
+  context.remove(IService);
+  t.true(context.get(C).b1 instanceof B);
+  context.remove(IService);
+  t.true(context.get(C).b2 instanceof B);
+});
+
 test('child context.', t => {
   const parent = new IocContext();
   parent.register(5, 'TEST');

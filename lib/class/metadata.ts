@@ -18,7 +18,10 @@ export interface PostConstructMetadataType {
 
 export class MetadataType {
   injectable: boolean;
-  classInfo: ClassInfo = {};
+  classInfo: ClassInfo = {
+    extends: [],
+    implements: [],
+  };
   injects: InjectMetadataType[] = [];
   postConstruct: PostConstructMetadataType[] = [];
 }

@@ -1,8 +1,6 @@
 import test from 'ava';
 import { IocContext, NotfoundTypeError } from '../lib/IocContext';
-import { logger, OutLevel } from '../lib/utils';
-import { inject, injectable, imports, postConstruct } from '../lib';
-import { classLoader } from '../lib/class/ClassLoader';
+import { inject, classInfo, injectable, imports, postConstruct } from '../lib';
 
 test('decorator, custom IocContext.', t => {
   const context = new IocContext();
@@ -170,15 +168,12 @@ test('lazyInject decorator, always option false.', t => {
 
 test('lazyInject decorator, imports.', t => {
   abstract class A { }
-  @injectable()
+  @classInfo()
   class B extends A { }
-  @injectable()
+  @classInfo()
   class C extends A { }
   @injectable()
   class LITestService {
-    @inject()
-    public b: B;
-
     @imports({ type: A })
     public testService: A[];
 
@@ -187,7 +182,6 @@ test('lazyInject decorator, imports.', t => {
   }
 
   t.throws(() => {
-    @injectable()
     class LITestService {
       @imports({ type: A })
       public testService: A; // need Array
@@ -195,7 +189,6 @@ test('lazyInject decorator, imports.', t => {
   });
 
   const test = context.get(LITestService);
-  t.true(test.b instanceof B);
   t.true(test.testService.length === 2);
   t.true(test.testService[0] instanceof B);
   t.true(test.testService[1] instanceof C);
