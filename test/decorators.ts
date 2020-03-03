@@ -299,7 +299,6 @@ test('postConstruct.', t => {
   ioc.get(A);
 });
 
-
 test('postConstruct, after inject.', t => {
   @injectable()
   class B {
@@ -319,4 +318,22 @@ test('postConstruct, after inject.', t => {
 
   const ioc = new IocContext;
   ioc.get(A);
+});
+
+test('class inject use interface.', t => {
+  abstract class AInterface { }
+  const BInterface = Symbol('BInterface');
+  interface BInterface { }
+
+  @classInfo({ implements: [AInterface] })
+  @injectable()
+  class A implements AInterface { }
+
+  @injectable()
+  @classInfo({ implements: [BInterface] })
+  class B implements BInterface { }
+
+  const ioc = new IocContext;
+  t.true(ioc.get(AInterface) instanceof A);
+  t.true(ioc.get(BInterface) instanceof B);
 });

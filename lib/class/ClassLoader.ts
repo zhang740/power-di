@@ -19,6 +19,11 @@ class ClassLoader {
   private classInfoMap: Map<ClassType, ClassInfo> = new Map();
   private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map();
 
+  /** has class */
+  hasClass(type: ClassType) {
+    return this.classInfoMap.has(type);
+  }
+
   /** register class */
   registerClass(type: ClassType) {
     if (this.classInfoMap.has(type)) {
