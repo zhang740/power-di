@@ -2,7 +2,7 @@ import test from 'ava';
 import * as React from 'react';
 import { create } from 'react-test-renderer';
 import { IocContext } from '../lib/IocContext';
-import { IocProvider, Component } from '../lib/react';
+import { IocProvider, Component, PureComponent } from '../lib/react';
 import { inject } from '../lib';
 
 test('react only react component.', t => {
@@ -33,7 +33,7 @@ test('react IocProvider.', t => {
   class NRServiceDI { }
   context.register(NRServiceDI);
 
-  class TestComponent extends Component<{}, {}> {
+  class TestComponent extends Component {
     @inject()
     service: NRServiceDI;
 
@@ -58,7 +58,7 @@ test('react IocProvider with context.', t => {
   class NRService { }
   context.register(NRService);
 
-  class TestComponent extends Component<{}, {}> {
+  class TestComponent extends PureComponent {
     @inject()
     service: NRService;
 
