@@ -1,3 +1,9 @@
+2.2.2 / 2020-03-03
+==================
+
+  * fix: injectable work with classInfo.
+  * rename: readme.
+
 2.2.1 / 2020-03-03
 ==================
 
