@@ -32,6 +32,7 @@ export interface RegisterOptions {
 }
 export interface Store {
   inited: boolean;
+  factory: any;
   value: any;
   options: RegisterOptions;
 }
@@ -59,12 +60,13 @@ export class IocContext {
   }
 
   public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, opt?: {
-    sourceCls: ClassType,
+    forceNew?: boolean,
+    sourceCls?: ClassType,
   }): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
 
     if (this.components.has(key)) {
-      return this.returnValue(this.components.get(key));
+      return this.returnValue(this.components.get(key), opt?.forceNew);
     }
 
     if (this.config.notFoundHandler) {
@@ -80,7 +82,7 @@ export class IocContext {
       switch (classes.length) {
         case 1:
           this.register(classes[0].type, type);
-          return this.get(type);
+          return this.get(type, opt);
 
         case 0:
           break;
@@ -93,7 +95,7 @@ export class IocContext {
             } : undefined);
             if (one) {
               this.register(one, type);
-              return this.get(type);
+              return this.get(type, opt);
             }
           }
           throw new MultiImplementError(type, key);
@@ -106,7 +108,7 @@ export class IocContext {
     );
     if (canAutoRegister) {
       this.register(keyOrType);
-      return this.get(keyOrType);
+      return this.get(keyOrType, opt);
     }
 
     throw new NotfoundTypeError(keyOrType, key);
@@ -141,7 +143,8 @@ export class IocContext {
     const data = this.components.get(key);
     if (data) {
       data.inited = false;
-      data.value = this.genValueFactory(newData, options || data.options);
+      data.factory = this.genValueFactory(newData, options || data.options);
+      data.value = undefined;
     } else if (force) {
       this.register(newData, keyOrType, options);
     } else {
@@ -177,18 +180,20 @@ export class IocContext {
     const classType = instance.constructor;
     getMetadataField(classType, 'injects')
       .forEach(inject => {
-        const { key, typeCls, optional } = inject;
+        const { key, typeCls, optional, singleton } = inject;
 
         const descriptor = Object.getOwnPropertyDescriptor(instance, key);
         let defaultValue: any = descriptor && descriptor.value;
         const allowOptional = optional || defaultValue !== undefined;
+
 
         if ('inject' === inject.type) {
           Object.defineProperty(instance, key, {
             configurable: true,
             writable: true,
             value: guard(() => this.get(typeCls, {
-              sourceCls: classType
+              sourceCls: classType,
+              ...singleton ? {} : { forceNew: true }
             }), {
               defaultValue,
               onError: (err) => {
@@ -210,7 +215,10 @@ export class IocContext {
               const data = guard(() => {
                 switch (inject.type) {
                   case 'lazyInject':
-                    return iocSelf.get(typeCls, { sourceCls: classType });
+                    return iocSelf.get(typeCls, {
+                      sourceCls: classType,
+                      ...singleton ? {} : { forceNew: true }
+                    });
                   case 'imports':
                     return iocSelf.getImports(typeCls, { cache: !always });
                 }
@@ -255,7 +263,8 @@ export class IocContext {
   private newStore(data: any, options: RegisterOptions) {
     return {
       inited: false,
-      value: this.genValueFactory(data, options),
+      factory: this.genValueFactory(data, options),
+      value: undefined,
       options,
       subClasses: []
     } as Store;
@@ -311,16 +320,16 @@ export class IocContext {
     };
   }
 
-  private returnValue(data: Store) {
-    if (data.options.singleton) {
+  private returnValue(data: Store, forceNew = false) {
+    if (data.options.singleton && !forceNew) {
       return data.inited ? data.value :
         (
           data.inited = true,
-          data.value = data.value(),
+          data.value = data.factory(),
           data.value
         );
     } else {
-      return data.value();
+      return data.factory();
     }
   }
 }

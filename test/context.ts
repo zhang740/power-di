@@ -399,3 +399,30 @@ test('constructor inject', t => {
   const context = new IocContext();
   t.true(context.get(B).a instanceof A);
 });
+
+test('no singleton inject', t => {
+  let count = 0;
+  @injectable()
+  class A {
+    id = count++;
+  }
+  @injectable()
+  class B {
+    @inject()
+    a1: A;
+    @inject()
+    a2: A;
+    @inject({ singleton: false })
+    a3: A;
+    @inject({ singleton: false, lazy: false })
+    a4: A;
+  }
+
+  const context = new IocContext();
+  const b = context.get(B);
+  t.true(b.a1 === b.a1);
+  t.true(b.a1 === b.a2);
+  t.true(b.a1 !== b.a3);
+  t.true(b.a3 === b.a3);
+  t.true(b.a1 !== b.a4);
+});

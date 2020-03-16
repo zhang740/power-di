@@ -5,10 +5,12 @@ import { KeyType } from '../utils/types';
 /**
  * inject
  */
-export function inject({ type, lazy = true, always = false, optional = false }: {
+export function inject({ type, lazy = true, always = false, optional = false, singleton = true }: {
   type?: KeyType;
   /** lazy inject @default true */
   lazy?: boolean;
+  /** single instance. @default true */
+  singleton?: boolean;
   /** always read from context. need lazy. @default false */
   always?: boolean;
   /** allow notfound. @default false */
@@ -22,6 +24,7 @@ export function inject({ type, lazy = true, always = false, optional = false }: 
       always,
       typeCls: getClsTypeByDecorator(type, target, key),
       optional,
+      singleton,
     });
   };
 }
