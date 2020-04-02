@@ -1,3 +1,8 @@
+2.2.4 / 2020-04-02
+==================
+
+  * update: support custom classLoader for context.
+
 2.2.3 / 2020-03-16
 ==================
 
