@@ -1,7 +1,7 @@
 import { getGlobalType, isClass } from './utils';
 import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
 import { getMetadata, getMetadataField } from './class/metadata';
-import { classLoader, TypeWithInfo } from './class/ClassLoader';
+import { classLoader, TypeWithInfo, ClassLoader } from './class/ClassLoader';
 import { guard } from './utils/guard';
 
 export class Config {
@@ -9,8 +9,8 @@ export class Config {
   autoRegisterSelf?: boolean = false;
   /** constructor inject, MUST in TypeScript with emitDecoratorMetadata and use decorator with class, default: true */
   constructorInject?: boolean = true;
-  /** use class loader for autowired default */
-  useClassLoader?: boolean = true;
+  /** use class loader for autowired default: true */
+  useClassLoader?: boolean | ClassLoader = true;
   /** when implement class not found */
   notFoundHandler?: (type: KeyType) => any;
   /** when have multi implement class */
@@ -38,7 +38,7 @@ export interface Store {
 }
 export class IocContext {
   private static defaultInstance: IocContext;
-  private classLoader = classLoader;
+  readonly classLoader = classLoader;
   private components = new Map<string, Store>();
   public static get DefaultInstance() {
     return this.defaultInstance ||
@@ -46,9 +46,12 @@ export class IocContext {
   }
 
   constructor(
-    private config?: Config
+    private config: Config = {}
   ) {
     this.config = Object.assign({}, new Config, config);
+    if (config.useClassLoader instanceof ClassLoader) {
+      this.classLoader = config.useClassLoader;
+    }
   }
 
   public remove(keyOrType: KeyType) {

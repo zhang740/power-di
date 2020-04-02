@@ -136,7 +136,7 @@ test('replace component.', t => {
 });
 
 import { TestService as TS2 } from './base';
-import { classLoader } from '../lib/class/ClassLoader';
+import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 test('difference class with same class name.', t => {
   const context = new IocContext;
   context.register(TestService);
@@ -425,4 +425,18 @@ test('no singleton inject', t => {
   t.true(b.a1 !== b.a3);
   t.true(b.a3 === b.a3);
   t.true(b.a1 !== b.a4);
+});
+
+test('custom classLoader.', t => {
+  const context = new IocContext({
+    useClassLoader: new ClassLoader()
+  });
+
+  abstract class IA { }
+  @classInfo()
+  class A extends IA { }
+  t.throws(() => context.get(IA));
+
+  context.classLoader.registerClass(A);
+  t.true(context.get(IA) instanceof A);
 });

@@ -91,12 +91,12 @@ test('unregisterClass', t => {
   t.deepEqual(classLoader.getImplementClasses(A), []);
 });
 
-test('getClassesByInfo', t => {
+test('filterClasses', t => {
   class A { }
   @classInfo()
   class B extends A { }
 
-  t.deepEqual(classLoader.getClassesByInfo(info => info.type === B), [{
+  t.deepEqual(classLoader.filterClasses(info => info.type === B), [{
     info: {
       name: 'B',
       extends: [A],
@@ -104,4 +104,26 @@ test('getClassesByInfo', t => {
     },
     type: B
   }]);
+});
+
+test('classAll', t => {
+  class A { }
+  class B extends A { }
+  classLoader.registerClass(B);
+  t.deepEqual(classLoader.getClassInfo(B), {
+    name: 'B',
+    extends: [A],
+    implements: [],
+  });
+  t.deepEqual(classLoader.getImplementClasses(A), [{
+    type: B,
+    info: {
+      name: 'B',
+      extends: [A],
+      implements: [],
+    },
+  }]);
+  classLoader.clearAll();
+  t.deepEqual(classLoader.getClassInfo(B), undefined);
+  t.deepEqual(classLoader.getImplementClasses(A), []);
 });

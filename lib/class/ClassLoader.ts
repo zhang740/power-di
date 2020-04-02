@@ -15,7 +15,7 @@ export class DuplicateRegistrationError extends Error {
   }
 }
 
-class ClassLoader {
+export class ClassLoader {
   private classInfoMap: Map<ClassType, ClassInfo> = new Map();
   private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map();
 
@@ -71,8 +71,8 @@ class ClassLoader {
     return this.classInfoMap.get(type);
   }
 
-  /** get classes by info */
-  getClassesByInfo(pattern: (info: TypeWithInfo) => boolean) {
+  /** filter classes by info */
+  filterClasses(pattern: (info: TypeWithInfo) => boolean) {
     const classes: TypeWithInfo[] = [];
     this.classInfoMap.forEach((info, type) => {
       const typeWithInfo = { type, info };
@@ -86,6 +86,12 @@ class ClassLoader {
   /** classes of extends/implements type */
   getImplementClasses(type: ExtendAndInterface) {
     return this.getImplCacheByType(type);
+  }
+
+  clearAll() {
+    this.classInfoMap.clear();
+    this.implementCacheMap.clear();
+    return this;
   }
 
   private getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {
