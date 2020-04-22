@@ -440,3 +440,25 @@ test('custom classLoader.', t => {
   context.classLoader.registerClass(A);
   t.true(context.get(IA) instanceof A);
 });
+
+
+test('createInstanceHook.', t => {
+  class AClass {
+    test: string;
+  }
+  const context = new IocContext();
+  context.register(AClass);
+
+  context.setConfig({
+    createInstanceHook: inst => {
+      t.true(inst instanceof AClass);
+      if (inst instanceof AClass) {
+        inst.test = 'xxx';
+      }
+      return inst;
+    }
+  });
+
+  const a = context.get(AClass);
+  t.true(a.test === 'xxx');
+});

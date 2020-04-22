@@ -320,6 +320,25 @@ test('postConstruct, after inject.', t => {
   ioc.get(A);
 });
 
+test('postConstruct, without get.', t => {
+  let count = 0;
+  @injectable()
+  class A {
+    constructor() {
+      count++;
+    }
+    @postConstruct()
+    init() {
+      count++;
+    }
+  }
+
+  const a = new A();
+  const ioc = new IocContext;
+  ioc.inject(a);
+  t.true(count === 2);
+});
+
 test('class inject use interface.', t => {
   abstract class AInterface { }
   const BInterface = Symbol('BInterface');
@@ -336,4 +355,17 @@ test('class inject use interface.', t => {
   const ioc = new IocContext;
   t.true(ioc.get(AInterface) instanceof A);
   t.true(ioc.get(BInterface) instanceof B);
+});
+
+
+test('throw error when inject Object/undefined.', t => {
+  interface AInterface { }
+  const AInterface = Symbol('AInterface');
+
+  t.throws(() => {
+    class Test {
+      @inject()
+      a: AInterface;
+    }
+  });
 });

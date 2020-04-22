@@ -15,6 +15,8 @@ export class Config {
   notFoundHandler?: (type: KeyType) => any;
   /** when have multi implement class */
   conflictHandler?: (type: KeyType, implCls: TypeWithInfo[], sourceCls?: TypeWithInfo) => ClassType | undefined;
+  /** create instance hook, return value will replace instance */
+  createInstanceHook?: (inst: any) => any;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -52,6 +54,10 @@ export class IocContext {
     if (config.useClassLoader instanceof ClassLoader) {
       this.classLoader = config.useClassLoader;
     }
+  }
+
+  public setConfig(config: Partial<Config>) {
+    Object.assign(this.config, config);
   }
 
   public remove(keyOrType: KeyType) {
@@ -254,6 +260,9 @@ export class IocContext {
           });
         }
       });
+    getMetadataField(classType, 'postConstruct').forEach(post => {
+      instance[post.key]();
+    });
   }
 
   public createChildContext(config = this.config) {
@@ -309,9 +318,6 @@ export class IocContext {
           }
           const value = new ClsType(...args);
           this.inject(value);
-          getMetadataField(ClsType, 'postConstruct').forEach(post => {
-            value[post.key]();
-          });
           return value;
         } else {
           const func = data;
@@ -324,16 +330,18 @@ export class IocContext {
   }
 
   private returnValue(data: Store, forceNew = false) {
+    let instance = undefined;
     if (data.options.singleton && !forceNew) {
-      return data.inited ? data.value :
+      instance = data.inited ? data.value :
         (
           data.inited = true,
           data.value = data.factory(),
           data.value
         );
     } else {
-      return data.factory();
+      instance = data.factory();
     }
+    return this.config.createInstanceHook ? this.config.createInstanceHook(instance) : instance;
   }
 }
 

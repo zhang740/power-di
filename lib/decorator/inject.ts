@@ -17,12 +17,16 @@ export function inject({ type, lazy = true, always = false, optional = false, si
   optional?: boolean;
 } = {}): PropertyDecorator {
   return (target, key) => {
+    const typeCls = getClsTypeByDecorator(type, target, key);
+    if (typeCls === undefined || typeCls === Object) {
+      throw new Error(`CANNOT inject undefined! source: ${target.constructor.name}.${key.toString()}`);
+    }
     getMetadata(target.constructor).injects.push({
       key,
       globalType: getGlobalTypeByDecorator(type, target, key),
       type: lazy ? 'lazyInject' : 'inject',
       always,
-      typeCls: getClsTypeByDecorator(type, target, key),
+      typeCls,
       optional,
       singleton,
     });
