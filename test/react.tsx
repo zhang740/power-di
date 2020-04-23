@@ -3,7 +3,7 @@ import * as React from 'react';
 import { create } from 'react-test-renderer';
 import { IocContext } from '../lib/IocContext';
 import { IocProvider, Component, PureComponent } from '../lib/react';
-import { inject } from '../lib';
+import { inject, postConstruct } from '../lib';
 
 test('react only react component.', t => {
   const context = IocContext.DefaultInstance;
@@ -63,6 +63,83 @@ test('react IocProvider with context.', t => {
     service: NRService;
 
     componentDidMount() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('react has componentWillMount.', t => {
+  const context = new IocContext;
+  class NRService { }
+  context.register(NRService);
+
+  class TestComponent extends Component {
+    @inject()
+    service: NRService;
+
+    componentWillMount() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+
+test('react has componentWillMount, PureComponent.', t => {
+  const context = new IocContext;
+  class NRService { }
+  context.register(NRService);
+
+  class TestComponent extends PureComponent {
+    @inject()
+    service: NRService;
+
+    componentWillMount() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('react postConstruct.', t => {
+  const context = new IocContext;
+  class NRService { }
+  context.register(NRService);
+
+  class TestComponent extends Component {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
       t.true(this.service instanceof NRService);
     }
 
