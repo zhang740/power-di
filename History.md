@@ -1,3 +1,8 @@
+2.2.8 / 2020-04-23
+==================
+
+  * update: inject compatible with postConstruct.
+
 2.2.7 / 2020-04-23
 ==================
 
