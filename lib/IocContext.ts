@@ -195,7 +195,6 @@ export class IocContext {
         let defaultValue: any = descriptor && descriptor.value;
         const allowOptional = optional || defaultValue !== undefined;
 
-
         if ('inject' === inject.type) {
           Object.defineProperty(instance, key, {
             configurable: true,
@@ -260,6 +259,10 @@ export class IocContext {
           });
         }
       });
+  }
+
+  public runPostConstruct(instance: any) {
+    const classType = instance.constructor;
     getMetadataField(classType, 'postConstruct').forEach(post => {
       instance[post.key]();
     });
@@ -318,6 +321,7 @@ export class IocContext {
           }
           const value = new ClsType(...args);
           this.inject(value);
+          this.runPostConstruct(value);
           return value;
         } else {
           const func = data;

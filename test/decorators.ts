@@ -336,6 +336,7 @@ test('postConstruct, without get.', t => {
   const a = new A();
   const ioc = new IocContext;
   ioc.inject(a);
+  ioc.runPostConstruct(a);
   t.true(count === 2);
 });
 
