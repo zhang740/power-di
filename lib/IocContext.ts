@@ -184,7 +184,9 @@ export class IocContext {
     this.components.set(dataType, store);
   }
 
-  public inject(instance: any) {
+  public inject(instance: any, opt = {
+    autoRunPostConstruct: true,
+  }) {
     const iocSelf = this;
     const classType = instance.constructor;
     getMetadataField(classType, 'injects')
@@ -259,6 +261,9 @@ export class IocContext {
           });
         }
       });
+    if (opt.autoRunPostConstruct) {
+      this.runPostConstruct(instance);
+    }
   }
 
   public runPostConstruct(instance: any) {
@@ -321,7 +326,6 @@ export class IocContext {
           }
           const value = new ClsType(...args);
           this.inject(value);
-          this.runPostConstruct(value);
           return value;
         } else {
           const func = data;

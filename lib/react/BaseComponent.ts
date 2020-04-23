@@ -11,7 +11,7 @@ export abstract class Component<P = {}, S = {}> extends React.Component<P, S> {
   constructor(props: P, context: IocContext) {
     super(props, context);
 
-    context.inject(this);
+    context.inject(this, { autoRunPostConstruct: false });
 
     const oriWillMount = this.componentWillMount;
     this.componentWillMount = () => {
@@ -29,7 +29,7 @@ export abstract class PureComponent<P = {}, S = {}> extends React.PureComponent<
   constructor(props: P, context: IocContext) {
     super(props, context);
 
-    context.inject(this);
+    context.inject(this, { autoRunPostConstruct: false });
 
     const oriWillMount = this.componentWillMount;
     this.componentWillMount = () => {
