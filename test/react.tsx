@@ -2,8 +2,9 @@ import test from 'ava';
 import * as React from 'react';
 import { create } from 'react-test-renderer';
 import { IocContext } from '../lib/IocContext';
-import { IocProvider, Component, PureComponent } from '../lib/react';
+import { IocProvider, Component, PureComponent, BaseConsumerComponent } from '../lib/react';
 import { inject, postConstruct } from '../lib';
+import { iocConsumer } from '../lib/react/IocConsumer';
 
 test('react only react component.', t => {
   const context = IocContext.DefaultInstance;
@@ -135,6 +136,60 @@ test('react postConstruct.', t => {
   context.register(NRService);
 
   class TestComponent extends Component {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('react consumer.', t => {
+  const context = new IocContext;
+  class NRService { }
+  context.register(NRService);
+
+  @iocConsumer()
+  class TestComponent extends React.Component {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('react consumer, manual extends.', t => {
+  const context = new IocContext;
+  class NRService { }
+  context.register(NRService);
+
+  @iocConsumer({ manualExtendsBaseClass: true })
+  class TestComponent extends BaseConsumerComponent {
     @inject()
     service: NRService;
 
