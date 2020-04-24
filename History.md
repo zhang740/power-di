@@ -1,3 +1,8 @@
+2.2.9 / 2020-04-24
+==================
+
+  * update: support react with consumer decorator.
+
 2.2.8 / 2020-04-23
 ==================
 
