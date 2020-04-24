@@ -4,7 +4,7 @@ import { create } from 'react-test-renderer';
 import { IocContext } from '../lib/IocContext';
 import { IocProvider, Component, PureComponent, BaseConsumerComponent } from '../lib/react';
 import { inject, postConstruct } from '../lib';
-import { iocConsumer } from '../lib/react/IocConsumer';
+import { iocConsumer } from '../react';
 
 test('react only react component.', t => {
   const context = IocContext.DefaultInstance;
