@@ -19,7 +19,7 @@ test('register component error case.', t => {
   t.throws(() => context.register({}));
   t.throws(() => context.register({}, 123123 as any));
   t.throws(() => context.register({}, INJECTTYPE.test as any));
-  t.throws(() => context.get('TEST'), err => err instanceof NotfoundTypeError);
+  t.throws(() => context.get('TEST'), { instanceOf: NotfoundTypeError });
 });
 
 test('register component by class.', t => {
@@ -117,7 +117,7 @@ test('remove component.', t => {
   context.register(TestService);
   t.true(context.get(TestService) instanceof TestService);
   context.remove(TestService);
-  t.throws(() => context.get(TestService), err => err instanceof NotfoundTypeError);
+  t.throws(() => context.get(TestService), { instanceOf: NotfoundTypeError });
 });
 
 test('replace component.', t => {
@@ -145,14 +145,14 @@ test('difference class with same class name.', t => {
   t.true(context.get(TS2) instanceof TS2);
 });
 
-test('subcomponent.', t => {
+test('subComponent.', t => {
   class SubClass extends TestService { }
 
   const context = new IocContext;
   context.register(SubClass, TestService);
   t.true(context.get(TestService) instanceof SubClass);
   t.true(context.get(TestService) instanceof TestService);
-  t.throws(() => context.get(SubClass), err => err instanceof NotfoundTypeError);
+  t.throws(() => context.get(SubClass), { instanceOf: NotfoundTypeError });
 });
 
 test('getSubClasses, with classLoader.', t => {
@@ -199,18 +199,6 @@ test('new constructor.', t => {
   t.true(count === 1);
 });
 
-test('class init, with ioc instance.', t => {
-  class TestService {
-    constructor(ioc: IocContext) {
-      t.true(ioc instanceof IocContext);
-    }
-  }
-
-  const context = new IocContext;
-  context.register(TestService);
-  context.get(TestService);
-});
-
 test('inject instance.', t => {
   const context = new IocContext;
 
@@ -245,26 +233,31 @@ test('inject instance, notfound.', t => {
 
   const bclass = new BClass;
   context.inject(bclass);
-  t.throws(() => bclass.aclass, err => err instanceof NotfoundTypeError);
+  t.throws(() => bclass.aclass, { instanceOf: NotfoundTypeError });
 });
 
-test('inject instance, notfoundhandler.', t => {
+test('inject instance, notfoundHandler.', t => {
   class AClass {
+  }
+  class A2Class {
   }
 
   class BClass {
     @inject()
     aclass: AClass;
+    @inject()
+    a2class: A2Class;
   }
 
   const context = new IocContext({
     notFoundHandler: (type) => {
-      return type === AClass && new AClass;
+      return type === AClass ? new AClass : undefined;
     }
   });
   const bclass = new BClass;
   context.inject(bclass);
   t.true(bclass.aclass instanceof AClass);
+  t.throws(() => bclass.a2class);
 });
 
 test('inject instance, string.', t => {
@@ -281,7 +274,6 @@ test('inject instance, string.', t => {
   context.inject(bclass);
   t.true(bclass.aclass.a === 123);
 });
-
 
 test('lazyInject redefined.', t => {
   const context = new IocContext;
@@ -317,7 +309,7 @@ test('clear.', t => {
   t.true(context.get(TestClass).a() === 1);
 
   context.clear();
-  t.throws(() => context.get(TestClass), err => err instanceof NotfoundTypeError);
+  t.throws(() => context.get(TestClass), { instanceOf: NotfoundTypeError });
 });
 
 test('multi implement, use classLoader.', t => {
@@ -325,9 +317,7 @@ test('multi implement, use classLoader.', t => {
 
   abstract class IService { }
 
-  t.throws(() => context.get(IService), err => {
-    return err instanceof NotfoundTypeError;
-  });
+  t.throws(() => context.get(IService), { instanceOf: NotfoundTypeError });
 
   @injectable()
   class A extends IService { }
@@ -339,9 +329,7 @@ test('multi implement, use classLoader.', t => {
   @injectable()
   class B extends IService { }
 
-  t.throws(() => context.get(IService), err => {
-    return err instanceof MultiImplementError;
-  });
+  t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
 });
 
 test('multi implement, conflictHandler.', t => {
@@ -375,6 +363,22 @@ test('multi implement, conflictHandler.', t => {
   t.true(context.get(C).b2 instanceof B);
 });
 
+test('multi implement, conflictHandler, err.', t => {
+  abstract class IService { }
+  @injectable()
+  class A extends IService { }
+  @injectable()
+  class B extends IService { }
+
+  const context = new IocContext({
+    conflictHandler: (type, implCls, sourceCls) => {
+      return undefined;
+    }
+  });
+
+  t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
+});
+
 test('child context.', t => {
   const parent = new IocContext();
   parent.register(5, 'TEST');
@@ -398,6 +402,18 @@ test('constructor inject', t => {
 
   const context = new IocContext();
   t.true(context.get(B).a instanceof A);
+});
+
+test('no constructor inject', t => {
+  @injectable()
+  class A { }
+  @injectable()
+  class B {
+    constructor(public a: A, public count: Number) { }
+  }
+
+  const context = new IocContext({ constructorInject: false });
+  t.deepEqual(context.get(B).a, undefined);
 });
 
 test('no singleton inject', t => {
@@ -439,6 +455,17 @@ test('custom classLoader.', t => {
 
   context.classLoader.registerClass(A);
   t.true(context.get(IA) instanceof A);
+});
+
+test('without classLoader', t => {
+  const context = new IocContext({
+    useClassLoader: false,
+  });
+
+  abstract class IA { }
+  @classInfo()
+  class A extends IA { }
+  t.throws(() => context.get(IA), { instanceOf: NotfoundTypeError });
 });
 
 

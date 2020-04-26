@@ -1,5 +1,6 @@
 import { ClassInfo } from './ClassInfo';
 import { ClassType } from '../utils/types';
+import { IocContext } from '../IocContext';
 
 export const metaSymbol = Symbol('power-di-metadata');
 export interface InjectMetadataType {
@@ -17,6 +18,22 @@ export interface PostConstructMetadataType {
   key: string | symbol;
 }
 
+export interface FunctionContext<T extends Object = {}, K = {}> {
+  readonly ioc: IocContext;
+  readonly inst: K;
+  readonly functionName: string;
+  data: Partial<T>;
+  args: any[];
+  ret: any;
+  err: Error;
+}
+
+export interface AspectPoint<T = any> {
+  before?: (context: FunctionContext<T>) => void;
+  after?: (context: FunctionContext<T>) => void;
+  error?: (context: FunctionContext<T>) => void;
+}
+
 export class MetadataType {
   injectable: boolean;
   classInfo: ClassInfo = {
@@ -25,6 +42,7 @@ export class MetadataType {
   };
   injects: InjectMetadataType[] = [];
   postConstruct: PostConstructMetadataType[] = [];
+  aspects: { key: string | symbol; point: AspectPoint; }[] = [];
 }
 
 export function getMetadata(type: ClassType): MetadataType {

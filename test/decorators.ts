@@ -1,6 +1,8 @@
 import test from 'ava';
 import { IocContext, NotfoundTypeError } from '../lib/IocContext';
-import { inject, classInfo, injectable, imports, postConstruct } from '../lib';
+import { inject, classInfo, injectable, imports, postConstruct, aspect } from '../lib';
+import { FunctionContext } from '../lib/class/metadata';
+import * as co from 'co';
 
 test('decorator, custom IocContext.', t => {
   const context = new IocContext();
@@ -84,8 +86,8 @@ test('inject decorator, must have instance.', t => {
     public testService: NRService;
   }
 
-  t.throws(() => !context.get(ITestService).testService, err => {
-    return err instanceof NotfoundTypeError;
+  t.throws(() => !context.get(ITestService).testService, {
+    instanceOf: NotfoundTypeError
   });
 });
 
@@ -368,4 +370,259 @@ test('throw error when inject Object/undefined.', t => {
       a: AInterface;
     }
   });
+});
+
+test('aspect', t => {
+  let aspectFnCtx: FunctionContext;
+  function aAspect(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect<{ before: string }>({
+        before: ctx => {
+          ctx.data.before = 'before';
+        },
+        after: ctx => {
+          t.deepEqual(ctx.data.before, 'before');
+          aspectFnCtx = ctx;
+        }
+      })(target, key, desc);
+    };
+  }
+
+  @injectable()
+  class A {
+    @aspect()
+    a() {
+      return 'oka';
+    }
+
+    @aAspect()
+    b(x: string) {
+      return 'okb' + x;
+    }
+  }
+
+  const context = new IocContext();
+  const a = context.get(A);
+  t.deepEqual(a.a(), 'oka');
+
+  t.deepEqual(a.b('!'), 'okb!');
+  t.true(aspectFnCtx.ioc instanceof IocContext);
+  t.true(aspectFnCtx.inst instanceof A);
+  t.deepEqual(aspectFnCtx.functionName, 'b');
+  t.deepEqual(aspectFnCtx.data, { before: 'before' });
+  t.deepEqual(aspectFnCtx.args, ['!']);
+  t.deepEqual(aspectFnCtx.ret, 'okb!');
+});
+
+test('aspect, promise', async t => {
+  let aspectFnCtx: FunctionContext;
+  function aAspect(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect<{ before: string }>({
+        before: ctx => {
+          ctx.data.before = 'before';
+        },
+        after: ctx => {
+          t.deepEqual(ctx.data.before, 'before');
+          aspectFnCtx = ctx;
+        }
+      })(target, key, desc);
+    };
+  }
+
+  @injectable()
+  class A {
+    @aspect()
+    async a() {
+      return 'oka';
+    }
+
+    @aAspect()
+    async b(x: string) {
+      return 'okb' + x;
+    }
+  }
+
+  const context = new IocContext();
+  const a = context.get(A);
+  t.deepEqual(await a.a(), 'oka');
+
+  t.deepEqual(await a.b('!'), 'okb!');
+  t.true(aspectFnCtx.ioc instanceof IocContext);
+  t.true(aspectFnCtx.inst instanceof A);
+  t.deepEqual(aspectFnCtx.functionName, 'b');
+  t.deepEqual(aspectFnCtx.data, { before: 'before' });
+  t.deepEqual(aspectFnCtx.args, ['!']);
+  t.deepEqual(aspectFnCtx.ret, 'okb!');
+});
+
+test('aspect, generator', async t => {
+  let aspectFnCtx: FunctionContext;
+  function aAspect(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect<{ before: string }>({
+        before: ctx => {
+          ctx.data.before = 'before';
+        },
+        after: ctx => {
+          t.deepEqual(ctx.data.before, 'before');
+          aspectFnCtx = ctx;
+        }
+      })(target, key, desc);
+    };
+  }
+
+  @injectable()
+  class A {
+    @aspect()
+    * a() {
+      return 'oka';
+    }
+
+    @aAspect()
+    * b(x: string) {
+      return 'okb' + x;
+    }
+  }
+
+  const context = new IocContext();
+  const a = context.get(A);
+  await co(function* () {
+    t.deepEqual(yield a.a(), 'oka');
+
+    t.deepEqual(yield a.b('!'), 'okb!');
+    t.true(aspectFnCtx.ioc instanceof IocContext);
+    t.true(aspectFnCtx.inst instanceof A);
+    t.deepEqual(aspectFnCtx.functionName, 'b');
+    t.deepEqual(aspectFnCtx.data, { before: 'before' });
+    t.deepEqual(aspectFnCtx.args, ['!']);
+    t.deepEqual(aspectFnCtx.ret, 'okb!');
+  });
+});
+
+test('aspect, error', t => {
+  let aspectFnCtx: FunctionContext;
+  function aAspect(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect({
+        error: ctx => {
+          aspectFnCtx = ctx;
+        }
+      })(target, key, desc);
+    };
+  }
+  function ignoreErr(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect({
+        error: ctx => {
+          ctx.err = undefined;
+        }
+      })(target, key, desc);
+    };
+  }
+
+  @injectable()
+  class A {
+    @aAspect()
+    a() {
+      throw new Error();
+    }
+    @ignoreErr()
+    b() {
+      throw new Error();
+    }
+  }
+
+  const context = new IocContext();
+  const a = context.get(A);
+
+  t.throws(() => a.a());
+  t.true(aspectFnCtx.err instanceof Error);
+  t.notThrows(() => a.b());
+});
+
+test('aspect, error, promise', async t => {
+  let aspectFnCtx: FunctionContext;
+  function aAspect(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect({
+        error: ctx => {
+          aspectFnCtx = ctx;
+        }
+      })(target, key, desc);
+    };
+  }
+  function ignoreErr(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect({
+        error: ctx => {
+          ctx.err = undefined;
+        }
+      })(target, key, desc);
+    };
+  }
+
+  @injectable()
+  class A {
+    @aAspect()
+    async a() {
+      throw new Error();
+    }
+    @ignoreErr()
+    async b() {
+      throw new Error();
+    }
+  }
+
+  const context = new IocContext();
+  const a = context.get(A);
+
+  await t.throwsAsync(() => a.a());
+  t.true(aspectFnCtx.err instanceof Error);
+  await t.notThrowsAsync(() => a.b());
+});
+
+test('aspect, error, generator', async t => {
+  let aspectFnCtx: FunctionContext;
+  function aAspect(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect({
+        error: ctx => {
+          aspectFnCtx = ctx;
+        }
+      })(target, key, desc);
+    };
+  }
+  function ignoreErr(): MethodDecorator {
+    return (target, key, desc) => {
+      return aspect({
+        error: ctx => {
+          ctx.err = undefined;
+        }
+      })(target, key, desc);
+    };
+  }
+
+  @injectable()
+  class A {
+    @aAspect()
+    * a() {
+      throw new Error();
+    }
+    @ignoreErr()
+    * b() {
+      throw new Error();
+    }
+  }
+
+  const context = new IocContext();
+  const a = context.get(A);
+
+  await t.throwsAsync(() => co(function* () {
+    return yield a.a();
+  }));
+  t.true(aspectFnCtx.err instanceof Error);
+  await t.notThrowsAsync(() => co(function* () {
+    return yield a.b();
+  }));
 });

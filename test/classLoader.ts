@@ -66,7 +66,7 @@ test('has interface', t => {
 test('cannot register twice', t => {
   class A { }
   classLoader.registerClass(A);
-  t.throws(() => classLoader.registerClass(A), err => err instanceof DuplicateRegistrationError);
+  t.throws(() => classLoader.registerClass(A), { instanceOf: DuplicateRegistrationError });
 });
 
 test('unregisterClass', t => {
@@ -89,6 +89,8 @@ test('unregisterClass', t => {
   classLoader.unregisterClass(B);
   t.deepEqual(classLoader.getClassInfo(B), undefined);
   t.deepEqual(classLoader.getImplementClasses(A), []);
+
+  t.notThrows(() => classLoader.unregisterClass(B));
 });
 
 test('filterClasses', t => {

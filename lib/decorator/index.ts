@@ -3,3 +3,4 @@ export * from './inject';
 export * from './injectable';
 export * from './imports';
 export * from './postConstruct';
+export * from './aspect';

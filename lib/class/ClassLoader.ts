@@ -57,6 +57,7 @@ export class ClassLoader {
       [...info.extends, ...info.implements].forEach(ext => {
         const cache = this.getImplCacheByType(ext);
         const index = cache.findIndex(c => c.type === type);
+        /* istanbul ignore else */
         if (index >= 0) {
           cache.splice(index, 1);
         }

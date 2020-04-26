@@ -3,6 +3,7 @@ import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
 import { getMetadata, getMetadataField } from './class/metadata';
 import { classLoader, TypeWithInfo, ClassLoader } from './class/ClassLoader';
 import { guard } from './utils/guard';
+import { genAspectWrapper } from './decorator/aspect';
 
 export class Config {
   /** auto register class self, when class not found. default: false */
@@ -16,7 +17,7 @@ export class Config {
   /** when have multi implement class */
   conflictHandler?: (type: KeyType, implCls: TypeWithInfo[], sourceCls?: TypeWithInfo) => ClassType | undefined;
   /** create instance hook, return value will replace instance */
-  createInstanceHook?: (inst: any) => any;
+  createInstanceHook?: (inst: any, ioc: IocContext) => any;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -80,7 +81,7 @@ export class IocContext {
 
     if (this.config.notFoundHandler) {
       const data = this.config.notFoundHandler(keyOrType as any);
-      if (data) {
+      if (data !== undefined) {
         return data;
       }
     }
@@ -102,7 +103,7 @@ export class IocContext {
               type: opt.sourceCls,
               info: classLoader.getClassInfo(opt.sourceCls),
             } : undefined);
-            if (one) {
+            if (one !== undefined) {
               this.register(one, type);
               return this.get(type, opt);
             }
@@ -147,14 +148,14 @@ export class IocContext {
     return this.components.has(getGlobalType(keyOrType));
   }
 
-  public replace(keyOrType: KeyType, newData: any, options?: RegisterOptions, force = false) {
+  public replace(keyOrType: KeyType, newData: any, options?: RegisterOptions, registerIfNotExist = false) {
     const key = getGlobalType(keyOrType);
     const data = this.components.get(key);
     if (data) {
       data.inited = false;
       data.factory = this.genValueFactory(newData, options || data.options);
       data.value = undefined;
-    } else if (force) {
+    } else if (registerIfNotExist) {
       this.register(newData, keyOrType, options);
     } else {
       throw new Error(`the key:[${key}] is not register.`);
@@ -189,6 +190,7 @@ export class IocContext {
   }) {
     const iocSelf = this;
     const classType = instance.constructor;
+
     getMetadataField(classType, 'injects')
       .forEach(inject => {
         const { key, typeCls, optional, singleton } = inject;
@@ -261,6 +263,16 @@ export class IocContext {
           });
         }
       });
+
+    getMetadataField(classType, 'aspects').forEach(aspect => {
+      const oriFn = instance[aspect.key];
+      const newFn = genAspectWrapper(this, aspect.point, oriFn);
+      Object.defineProperty(instance, aspect.key, {
+        configurable: true,
+        value: newFn
+      });
+    });
+
     if (opt.autoRunPostConstruct) {
       this.runPostConstruct(instance);
     }
@@ -302,7 +314,7 @@ export class IocContext {
       if (dataIsFunction && options.autoNew) {
         if (dataIsClass) {
           const ClsType = data;
-          let args: any[] = [this];
+          let args: any[] = [];
           if (this.config.constructorInject && Reflect && Reflect.getMetadata) {
             const paramTypes = Reflect.getMetadata('design:paramtypes', ClsType);
             if (paramTypes) {
@@ -349,7 +361,7 @@ export class IocContext {
     } else {
       instance = data.factory();
     }
-    return this.config.createInstanceHook ? this.config.createInstanceHook(instance) : instance;
+    return this.config.createInstanceHook ? this.config.createInstanceHook(instance, this) : instance;
   }
 }
 
