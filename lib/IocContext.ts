@@ -338,7 +338,7 @@ export class IocContext {
           }
           const value = new ClsType(...args);
           this.inject(value);
-          return value;
+          return this.config.createInstanceHook ? this.config.createInstanceHook(value, this) : value;
         } else {
           const func = data;
           return func(this);
@@ -350,18 +350,16 @@ export class IocContext {
   }
 
   private returnValue(data: Store, forceNew = false) {
-    let instance = undefined;
     if (data.options.singleton && !forceNew) {
-      instance = data.inited ? data.value :
+      return data.inited ? data.value :
         (
           data.inited = true,
           data.value = data.factory(),
           data.value
         );
     } else {
-      instance = data.factory();
+      return data.factory();
     }
-    return this.config.createInstanceHook ? this.config.createInstanceHook(instance, this) : instance;
   }
 }
 
