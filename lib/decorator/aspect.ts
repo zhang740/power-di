@@ -85,7 +85,7 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
   return newFn;
 }
 
-export function aspect<T = {}>(point: AspectPoint<T> = {}): MethodDecorator {
+export function aspect<T = {}, K = {}>(point: AspectPoint<T, K> = {}): MethodDecorator {
   return (target, key) => {
     getMetadata(target.constructor).aspects.push({
       key,
