@@ -1,3 +1,9 @@
+2.3.2 / 2020-05-06
+==================
+
+  * update: typings for classLoader.
+  * update: aspect typing.
+
 2.3.1 / 2020-04-28
 ==================
 
