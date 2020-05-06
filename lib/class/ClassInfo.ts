@@ -1,4 +1,4 @@
-import { ClassType } from '../utils/types';
+import { KeyType } from '../utils/types';
 
 /** class info */
 export interface ClassInfo {
@@ -11,7 +11,7 @@ export interface ClassInfo {
   /** class qualified name */
   qualifiedName?: string;
   /** super classes */
-  extends?: ClassType[];
+  extends?: KeyType[];
   /** implement interfaces */
-  implements?: (ClassType | symbol)[];
+  implements?: KeyType[];
 }

@@ -1,5 +1,5 @@
 import { ClassInfo } from './ClassInfo';
-import { ClassType } from '../utils/types';
+import { KeyType, ClassType } from '../utils/types';
 import { IocContext } from '../IocContext';
 
 export const metaSymbol = Symbol('power-di-metadata');
@@ -7,7 +7,7 @@ export interface InjectMetadataType {
   type: 'inject' | 'lazyInject' | 'imports';
   key: string | symbol;
   globalType: string;
-  typeCls: ClassType;
+  typeCls: KeyType;
   singleton?: boolean;
   /** with lazyInject */
   always?: boolean;
@@ -28,10 +28,10 @@ export interface FunctionContext<T extends Object = {}, K = {}> {
   err: Error;
 }
 
-export interface AspectPoint<T = any> {
-  before?: (context: FunctionContext<T>) => void;
-  after?: (context: FunctionContext<T>) => void;
-  error?: (context: FunctionContext<T>) => void;
+export interface AspectPoint<T = {}, K = {}> {
+  before?: (context: FunctionContext<T, K>) => void;
+  after?: (context: FunctionContext<T, K>) => void;
+  error?: (context: FunctionContext<T, K>) => void;
 }
 
 export class MetadataType {

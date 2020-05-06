@@ -1,9 +1,9 @@
-import { ClassType } from '../utils/types';
+import { ClassType, KeyType } from '../utils/types';
 import { ClassInfo } from './ClassInfo';
 import { getMetadata } from './metadata';
 import { getSuperClassInfo } from '../utils';
 
-type ExtendAndInterface = ClassType | symbol;
+type ExtendAndInterface = KeyType;
 export interface TypeWithInfo {
   type: ClassType;
   info: ClassInfo;
@@ -41,10 +41,13 @@ export class ClassLoader {
 
     // add cache
     [...info.extends, ...info.implements].forEach(ext => {
-      this.getImplCacheByType(ext).push({
-        type,
-        info,
-      });
+      const impls = this.getImplCacheByType(ext);
+      if (impls.every(impl => impl.type !== type)) {
+        impls.push({
+          type,
+          info,
+        });
+      }
     });
     return this;
   }

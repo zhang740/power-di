@@ -129,3 +129,17 @@ test('classAll', t => {
   t.deepEqual(classLoader.getClassInfo(B), undefined);
   t.deepEqual(classLoader.getImplementClasses(A), []);
 });
+
+test('double in impl and extends', t => {
+  abstract class Base { }
+  @classInfo({ implements: [Base] })
+  class A extends Base { }
+
+  t.deepEqual(classLoader.getImplementClasses(Base), [{
+    type: A, info: {
+      name: 'A',
+      extends: [Base],
+      implements: [Base],
+    }
+  }]);
+});
