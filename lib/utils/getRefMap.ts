@@ -1,4 +1,4 @@
-import { getGlobalType } from './getGlobalType';
+import { getGlobalType, symbolString } from './getGlobalType';
 import { getMetadataField } from '../class/metadata';
 
 export interface RefMapType {
@@ -14,7 +14,7 @@ export function getRefMap(clsType: any, initMaps = {}) {
   const maps: RefMapType = initMaps;
 
   function scan(clsType: any) {
-    const type = getGlobalType(clsType);
+    const type = symbolString(getGlobalType(clsType));
     if (maps[type]) {
       return;
     }
@@ -25,12 +25,13 @@ export function getRefMap(clsType: any, initMaps = {}) {
     };
 
     getMetadataField(clsType, 'injects').forEach(inj => {
+      const globalType = symbolString(inj.globalType);
       scan(inj.typeCls);
-      maps[inj.globalType].count++;
+      maps[globalType].count++;
 
       refs.deps.push({
         prop: inj.key,
-        type: inj.globalType,
+        type: globalType,
       });
     });
   }

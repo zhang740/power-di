@@ -1,4 +1,4 @@
-import { getGlobalType, isClass } from './utils';
+import { getGlobalType, isClass, symbolString } from './utils';
 import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
 import { getMetadata, getMetadataField } from './class/metadata';
 import { classLoader, TypeWithInfo, ClassLoader } from './class/ClassLoader';
@@ -42,7 +42,7 @@ export interface Store {
 export class IocContext {
   private static defaultInstance: IocContext;
   readonly classLoader = classLoader;
-  private components = new Map<string, Store>();
+  private components = new Map<string | symbol, Store>();
   public static get DefaultInstance() {
     return this.defaultInstance ||
       (this.defaultInstance = new IocContext(), this.defaultInstance);
@@ -158,7 +158,7 @@ export class IocContext {
     } else if (registerIfNotExist) {
       this.register(newData, keyOrType, options);
     } else {
-      throw new Error(`the key:[${key}] is not register.`);
+      throw new NoRegistryError(key);
     }
   }
 
@@ -175,7 +175,7 @@ export class IocContext {
     const dataType = (key && getGlobalType(key)) || (data && getGlobalType(data));
 
     if (this.components.has(dataType)) {
-      throw new Error(`the key:[${dataType}] is already register.`);
+      throw new AlreadyRegistryError(dataType);
     }
     options = {
       ...DefaultRegisterOption,
@@ -363,14 +363,27 @@ export class IocContext {
   }
 }
 
+
 export class MultiImplementError extends Error {
-  constructor(type: ClassType, key: string) {
-    super(`Has multi Classes of implement type: ${type.name}(${key})`);
+  constructor(type: ClassType, key: string | symbol) {
+    super(`Has multi Classes of implement type: ${type.name}(${symbolString(key)})`);
   }
 }
 
 export class NotfoundTypeError extends Error {
-  constructor(type: any, key: string) {
-    super(`Notfound type: ${type.name || type}(${key})`);
+  constructor(type: any, key: string | symbol) {
+    super(`Notfound type: ${type.name || type}(${symbolString(key)})`);
+  }
+}
+
+export class NoRegistryError extends Error {
+  constructor(key: string | symbol) {
+    super(`the key:[${symbolString(key)}] is already register.`);
+  }
+}
+
+export class AlreadyRegistryError extends Error {
+  constructor(key: string | symbol) {
+    super(`the key:[${symbolString(key)}] is already register.`);
   }
 }

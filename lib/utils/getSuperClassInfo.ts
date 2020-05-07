@@ -1,7 +1,7 @@
 import { isClass, getGlobalType } from './getGlobalType';
 
 export interface TypeInfo {
-  type: string;
+  type: string | symbol;
   class: Function;
 }
 

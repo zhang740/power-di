@@ -15,7 +15,7 @@ export function isClass(target: any) {
  * @param key class, string or symbol.
  * @param prefix the prefix of type.
  */
-export function getGlobalType(key: any, prefix: string = ''): string {
+export function getGlobalType(key: any, prefix: string = ''): string | symbol {
   if (!key) throw new Error('no key.');
   if (['string', 'symbol'].includes(typeof key)) {
     return key;
@@ -48,4 +48,8 @@ export function isExtendOf(classType: Function, superClassType: Function) {
   }
   const type = getGlobalType(superClassType);
   return !!getSuperClassInfo(classType).find(cls => cls.type === type);
+}
+
+export function symbolString(key: string | symbol) {
+  return typeof key === 'symbol' ? key.toString() : key;
 }

@@ -6,7 +6,7 @@ export const metaSymbol = Symbol('power-di-metadata');
 export interface InjectMetadataType {
   type: 'inject' | 'lazyInject' | 'imports';
   key: string | symbol;
-  globalType: string;
+  globalType: string | symbol;
   typeCls: KeyType;
   singleton?: boolean;
   /** with lazyInject */

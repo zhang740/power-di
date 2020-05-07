@@ -1,5 +1,5 @@
 import test from 'ava';
-import { getGlobalType, getSuperClassInfo, isExtendOf } from '../lib/utils';
+import { getGlobalType, getSuperClassInfo, isExtendOf, symbolString } from '../lib/utils';
 
 test('getGlobalType, error.', t => {
   t.throws(() => getGlobalType(undefined));
@@ -48,4 +48,9 @@ test('isExtendOf', t => {
   t.false(isExtendOf(C, A));
   t.throws(() => isExtendOf(A, 1 as any));
   t.throws(() => isExtendOf(1 as any, A));
+});
+
+test('symbolString', t => {
+  const sym = Symbol('TestSymbol');
+  t.deepEqual(symbolString(sym), 'Symbol(TestSymbol)');
 });
