@@ -57,6 +57,7 @@
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.3.4",
+    "@types/co": "^4.6.2",
     "@types/node": "^11.9.5",
     "@types/react": "^16.x",
     "@types/react-test-renderer": "^16.x",
