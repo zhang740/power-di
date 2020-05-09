@@ -49,7 +49,7 @@ export class IocContext {
   }
 
   constructor(
-    private config: Config = {}
+    readonly config: Readonly<Config> = {}
   ) {
     this.config = Object.assign({}, new Config, config);
     if (config.useClassLoader instanceof ClassLoader) {
