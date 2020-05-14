@@ -1,3 +1,10 @@
+2.3.5 / 2020-05-14
+==================
+
+  * update: getGlobalType allow function.
+  * update: ci
+  * fix: ci
+
 2.3.4 / 2020-05-09
 ==================
 
