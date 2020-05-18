@@ -489,3 +489,22 @@ test('createInstanceHook.', t => {
   const a = context.get(AClass);
   t.true(a.test === 'xxx');
 });
+
+test('use the same instance between interface and impl when get.', t => {
+  abstract class Base { }
+  @injectable()
+  class A extends Base { }
+
+  @injectable()
+  class Test {
+    @inject()
+    a: A;
+    @inject()
+    base: Base;
+  }
+
+  const context = new IocContext();
+  const test = context.get(Test);
+
+  t.deepEqual(test.a, test.base);
+});

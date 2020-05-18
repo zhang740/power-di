@@ -91,8 +91,10 @@ export class IocContext {
       const classes = this.classLoader.getImplementClasses(type);
       switch (classes.length) {
         case 1:
-          this.register(classes[0].type, type);
-          return this.get(type, opt);
+          if (!this.has(classes[0].type)) {
+            this.register(classes[0].type);
+          }
+          return this.get(classes[0].type as any, opt);
 
         case 0:
           break;
