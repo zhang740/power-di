@@ -1,3 +1,8 @@
+2.3.6 / 2020-05-18
+==================
+
+  * use the same instance between interface and impl when get.
+
 2.3.5 / 2020-05-14
 ==================
 
