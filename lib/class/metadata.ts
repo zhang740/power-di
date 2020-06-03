@@ -18,6 +18,10 @@ export interface PostConstructMetadataType {
   key: string | symbol;
 }
 
+export interface PreDestroyMetadataType {
+  key: string | symbol;
+}
+
 export interface FunctionContext<T extends Object = {}, K = {}> {
   readonly ioc: IocContext;
   readonly inst: K;
@@ -42,6 +46,7 @@ export class MetadataType {
   };
   injects: InjectMetadataType[] = [];
   postConstruct: PostConstructMetadataType[] = [];
+  preDestroy: PreDestroyMetadataType[] = [];
   aspects: { key: string | symbol; point: AspectPoint; }[] = [];
 }
 

@@ -25,11 +25,11 @@ export class ClassLoader {
   }
 
   /** register class */
-  registerClass(type: ClassType) {
+  registerClass(type: ClassType, info?: ClassInfo) {
     if (this.classInfoMap.has(type)) {
       throw new DuplicateRegistrationError(type);
     }
-    const info = getMetadata(type).classInfo;
+    info = info || getMetadata(type).classInfo;
     if (!info.name) {
       info.name = type.name;
     }

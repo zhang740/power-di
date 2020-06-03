@@ -3,6 +3,7 @@ import { IocContext, NotfoundTypeError } from '../lib/IocContext';
 import { inject, classInfo, injectable, imports, postConstruct, aspect } from '../lib';
 import { FunctionContext } from '../lib/class/metadata';
 import * as co from 'co';
+import { preDestroy } from '../lib/decorator/preDestroy';
 
 test('decorator, custom IocContext.', t => {
   const context = new IocContext();
@@ -341,6 +342,40 @@ test('postConstruct, without get.', t => {
   t.true(count === 2);
 });
 
+test('postConstruct, parent and subClass.', t => {
+  let count = 0;
+
+  class A {
+    @postConstruct()
+    init() {
+      t.fail();
+    }
+  }
+
+  @injectable()
+  class B extends A {
+    @postConstruct()
+    init() {
+      count++;
+    }
+  }
+
+  const ioc = new IocContext;
+  ioc.get(B);
+  t.is(count, 1);
+
+  @injectable()
+  class C extends B {
+    @postConstruct()
+    init2() {
+      count++;
+    }
+  }
+
+  ioc.get(C);
+  t.is(count, 3);
+});
+
 test('class inject use interface.', t => {
   abstract class AInterface { }
   const BInterface = Symbol('BInterface');
@@ -358,7 +393,6 @@ test('class inject use interface.', t => {
   t.true(ioc.get(AInterface) instanceof A);
   t.true(ioc.get(BInterface) instanceof B);
 });
-
 
 test('throw error when inject Object/undefined.', t => {
   interface AInterface { }
@@ -625,4 +659,66 @@ test('aspect, error, generator', async t => {
   await t.notThrowsAsync(() => co(function* () {
     return yield a.b();
   }));
+});
+
+test('preDestroy.', t => {
+  let count = 0;
+  @injectable()
+  class A {
+    @preDestroy()
+    destroy() {
+      count++;
+    }
+  }
+
+  const ioc = new IocContext;
+  ioc.register(A);
+  ioc.clear();
+  t.is(count, 0);
+
+  t.true(ioc.get(A) instanceof A);
+  ioc.remove(A);
+  t.is(count, 1);
+  t.false(ioc.has(A));
+
+  t.true(ioc.get(A) instanceof A);
+  ioc.clear();
+  t.is(count, 2);
+  t.false(ioc.has(A));
+});
+
+test('preDestroy, parent and subClass.', t => {
+  let count = 0;
+
+  class A {
+    @preDestroy()
+    destroy() {
+      t.fail();
+    }
+  }
+
+  @injectable()
+  class B extends A {
+    @preDestroy()
+    destroy() {
+      count++;
+    }
+  }
+
+  const ioc = new IocContext;
+  ioc.get(B);
+  ioc.clear();
+  t.is(count, 1);
+
+  @injectable()
+  class C extends B {
+    @preDestroy()
+    destroy2() {
+      count++;
+    }
+  }
+
+  ioc.get(C);
+  ioc.clear();
+  t.is(count, 3);
 });

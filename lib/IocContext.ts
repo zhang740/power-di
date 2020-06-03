@@ -39,6 +39,8 @@ export interface Store {
   value: any;
   options: RegisterOptions;
 }
+
+/** ioc context */
 export class IocContext {
   private static defaultInstance: IocContext;
   readonly classLoader = classLoader;
@@ -57,20 +59,43 @@ export class IocContext {
     }
   }
 
+  /**
+   * merge config
+   * @param config new partial config
+   */
   public setConfig(config: Partial<Config>) {
     Object.assign(this.config, config);
   }
 
+  /**
+   * remove instance of key
+   * @param keyOrType key
+   */
   public remove(keyOrType: KeyType) {
-    return this.components.delete(getGlobalType(keyOrType));
+    const key = getGlobalType(keyOrType);
+    if (this.components.has(key)) {
+      this.preDestroyInstance(this.components.get(key));
+    }
+    return this.components.delete(key);
   }
 
+  /** clear all */
   public clear() {
+    [...this.components.values()].forEach(ele => {
+      this.preDestroyInstance(ele);
+    });
     this.components.clear();
   }
 
+  /**
+   * get instance of key
+   * @param keyOrType key
+   * @param opt
+   */
   public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, opt?: {
+    /** always get new instance */
     forceNew?: boolean,
+    /** source of invoke cls */
     sourceCls?: ClassType,
   }): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
@@ -126,7 +151,13 @@ export class IocContext {
     throw new NotfoundTypeError(keyOrType, key);
   }
 
+  /**
+   * get instances for key
+   * @param keyOrType key (super class or interface, use `@classInfo`)
+   * @param param1
+   */
   public getImports<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, { cache }: {
+    /** peer cache */
     cache?: boolean;
   } = {}): GetReturnType<T, KeyOrType>[] {
     const type = keyOrType as any;
@@ -146,6 +177,10 @@ export class IocContext {
     return data;
   }
 
+  /**
+   * instance of key in context
+   * @param keyOrType key
+   */
   public has(keyOrType: KeyType): boolean {
     return this.components.has(getGlobalType(keyOrType));
   }
@@ -164,6 +199,12 @@ export class IocContext {
     }
   }
 
+  /**
+   * register key
+   * @param data value of key (maybe instance, class, factory function or value)
+   * @param key key
+   * @param options register option
+   */
   public register(data: any, key?: RegKeyType, options = DefaultRegisterOption) {
     if (key) {
       if (!this.canBeKey(key)) {
@@ -187,6 +228,11 @@ export class IocContext {
     this.components.set(dataType, store);
   }
 
+  /**
+   * complete instance inject
+   * @param instance
+   * @param opt
+   */
   public inject(instance: any, opt = {
     autoRunPostConstruct: true,
   }) {
@@ -282,16 +328,36 @@ export class IocContext {
 
   public runPostConstruct(instance: any) {
     const classType = instance.constructor;
-    getMetadataField(classType, 'postConstruct').forEach(post => {
-      instance[post.key]();
-    });
+    Array.from(new Set(getMetadataField(classType, 'postConstruct')
+      .map(p => p.key))).forEach(key => {
+        instance[key]();
+      });
   }
 
+  /**
+   * create child context, inherit this context
+   * @param config notFoundHandler is no useful
+   */
   public createChildContext(config = this.config) {
     return new IocContext({
       ...config,
       notFoundHandler: type => this.get(type)
     });
+  }
+
+  /**
+   * run preDestroy method of instance
+   * @param store instance store
+   */
+  private preDestroyInstance(store: Store) {
+    if (!store.inited) {
+      return;
+    }
+    const inst = store.value;
+    Array.from(new Set(getMetadataField(inst.constructor, 'preDestroy')
+      .map(p => p.key))).forEach(key => {
+        inst[key]();
+      });
   }
 
   private newStore(data: any, options: RegisterOptions) {
@@ -300,7 +366,6 @@ export class IocContext {
       factory: this.genValueFactory(data, options),
       value: undefined,
       options,
-      subClasses: []
     } as Store;
   }
 
@@ -360,6 +425,7 @@ export class IocContext {
           data.value
         );
     } else {
+      // TODO use WeakMap collection for destroy
       return data.factory();
     }
   }
