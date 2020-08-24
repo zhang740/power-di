@@ -51,6 +51,25 @@ class LITestService {
 const test = context.get(LITestService);
 ```
 
+### collect impl or extends of some interface/base class
+```ts
+class A { }
+
+@classInfo()
+class B extends A { }
+
+@classInfo()
+class C extends A { }
+
+@injectable()
+class LITestService {
+  @imports({ type: A })
+  public testService: A[];
+}
+
+const test = context.get(LITestService); // test.testService as A[];
+```
+
 ### use in react
 ```tsx
 const context = new IocContext;
@@ -77,23 +96,7 @@ create(
 );
 ```
 
-### collect some kind of object
-```ts
-class A { }
-
-@classInfo()
-class B extends A { }
-
-@classInfo()
-class C extends A { }
-
-@injectable()
-class LITestService {
-  @imports({ type: A })
-  public testService: A[];
-}
-
-const test = context.get(LITestService); // test.testService as A[];
-```
+## Class Loader
+Power DI introduced the concept of class loader. We can customize the find rule of ioc.
 
 #### [See the test case for details.](https://github.com/zhang740/power-di/tree/master/test)
