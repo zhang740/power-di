@@ -1,3 +1,9 @@
+2.3.10 / 2020-08-26
+==================
+
+  * feat: add class metadata transformer.
+  * doc: ClassLoader.
+
 2.3.9 / 2020-06-09
 ==================
 
