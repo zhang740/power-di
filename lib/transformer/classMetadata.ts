@@ -43,7 +43,7 @@ export function before(
     }
 
     // 处理 class
-    if (['injectable', 'extension', 'contribution'].includes(`${getDecoratorName(node)}`)) {
+    if (['injectable', 'plugin', 'extension', 'contribution'].includes(`${getDecoratorName(node)}`)) {
       return processClassInfo(node, pkg, sf, typeChecker);
     }
 

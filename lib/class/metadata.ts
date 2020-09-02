@@ -50,6 +50,10 @@ export class MetadataType {
   aspects: { key: string | symbol; point: AspectPoint; }[] = [];
 }
 
+/**
+ * get metadata of class
+ * @param type type of class
+ */
 export function getMetadata(type: ClassType): MetadataType {
   const metadata = Object.getOwnPropertyDescriptor(type, metaSymbol);
   if (!metadata || !metadata.value) {
@@ -63,6 +67,11 @@ export function getMetadata(type: ClassType): MetadataType {
   return metadata.value;
 }
 
+/**
+ * get the field of class metadata
+ * @param type type of class
+ * @param key field
+ */
 export function getMetadataField<T extends keyof MetadataType>(type: ClassType, key: T): MetadataType[T] {
   const field = getMetadata(type)[key];
   const superType = Object.getPrototypeOf(type);

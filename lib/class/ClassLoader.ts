@@ -33,11 +33,15 @@ export class ClassLoader {
     if (!info.name) {
       info.name = type.name;
     }
-    if (!info.extends.length) {
+    if (!info.extends?.length) {
       const superClasses = getSuperClassInfo(type);
       info.extends = superClasses.map(c => c.class);
     }
     this.classInfoMap.set(type, info);
+
+    if (!info.implements) {
+      info.implements = [];
+    }
 
     // add cache
     [...info.extends, ...info.implements].forEach(ext => {

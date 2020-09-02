@@ -63,6 +63,17 @@ test('has interface', t => {
   }]);
 });
 
+test('register with info', t => {
+  class A { }
+  classLoader.registerClass(A, {});
+
+  t.deepEqual(classLoader.getClassInfo(A), {
+    name: 'A',
+    extends: [],
+    implements: [],
+  });
+});
+
 test('cannot register twice', t => {
   class A { }
   classLoader.registerClass(A);
