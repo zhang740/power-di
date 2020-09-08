@@ -248,6 +248,9 @@ function hasField(config: ts.Expression | undefined, fieldName: string) {
 }
 
 function fixedImport(escapedText: string | ts.__String, sourceFile: ts.SourceFile) {
+  // IFoo<IBar> => IFoo
+  escapedText = `${escapedText}`.split('<')[0];
+
   sourceFile.statements
     .filter(n => ts.isImportDeclaration(n))
     .forEach((im: ts.ImportDeclaration) => {
