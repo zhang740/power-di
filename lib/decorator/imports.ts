@@ -9,9 +9,9 @@ export function imports({ type, always = false }: {
   always?: boolean;
 }): PropertyDecorator {
   return (target, key) => {
-    if (getClsTypeByDecorator(undefined, target, key) !== Array) {
-      throw new Error(`${target.constructor.name}.${key.toString()}'s type need 'Array<T>' or 'T[]'.`);
-    }
+    // if (getClsTypeByDecorator(undefined, target, key) !== Array) {
+    //   throw new Error(`${target.constructor.name}.${key.toString()}'s type need 'Array<T>' or 'T[]'.`);
+    // }
     getMetadata(target.constructor).injects.push({
       key,
       globalType: getGlobalType(type),
