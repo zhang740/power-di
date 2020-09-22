@@ -1,3 +1,9 @@
+2.3.15 / 2020-09-22
+==================
+
+  * fix: need singleton between parent and child context.
+  * update: Class in ClassLoader is injectable, default.
+
 2.3.14 / 2020-09-08
 ==================
 
