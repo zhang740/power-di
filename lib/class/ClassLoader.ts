@@ -29,7 +29,9 @@ export class ClassLoader {
     if (this.classInfoMap.has(type)) {
       throw new DuplicateRegistrationError(type);
     }
-    info = info || getMetadata(type).classInfo;
+    const metadata = getMetadata(type);
+    metadata.injectable = true;
+    info = info || metadata.classInfo;
     if (!info.name) {
       info.name = type.name;
     }
