@@ -392,6 +392,23 @@ test('child context.', t => {
   t.true(parent.get('TEST') === 5);
 });
 
+test('child context, getImports.', t => {
+  class BaseCls { }
+  class TestCls extends BaseCls { }
+  const parent = new IocContext();
+  parent.classLoader.registerClass(TestCls);
+
+  const parentImpls = parent.getImports(BaseCls);
+  t.true(parentImpls[0] instanceof TestCls);
+
+  const child = parent.createChildContext();
+
+  const childImpls = child.getImports(BaseCls);
+  t.true(childImpls[0] instanceof TestCls);
+
+  t.true(parentImpls[0] === childImpls[0]);
+});
+
 test('constructor inject', t => {
   @injectable()
   class A { }
@@ -467,7 +484,6 @@ test('without classLoader', t => {
   class A extends IA { }
   t.throws(() => context.get(IA), { instanceOf: NotfoundTypeError });
 });
-
 
 test('createInstanceHook.', t => {
   class AClass {

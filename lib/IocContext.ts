@@ -92,16 +92,18 @@ export class IocContext {
    * @param keyOrType key
    * @param opt
    */
-  public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, opt?: {
+  public get<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, opt: {
     /** always get new instance */
     forceNew?: boolean,
     /** source of invoke cls */
     sourceCls?: ClassType,
-  }): GetReturnType<T, KeyOrType> {
+    /** use classLoader */
+    useClassLoader?: boolean,
+  } = {}): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
 
     if (this.components.has(key)) {
-      return this.returnValue(this.components.get(key), opt?.forceNew);
+      return this.returnValue(this.components.get(key), opt.forceNew);
     }
 
     if (this.config.notFoundHandler) {
@@ -111,7 +113,7 @@ export class IocContext {
       }
     }
 
-    if (this.config.useClassLoader) {
+    if (opt.useClassLoader || this.config.useClassLoader) {
       const type = keyOrType as any;
       const classes = this.classLoader.getImplementClasses(type);
       switch (classes.length) {
@@ -126,7 +128,7 @@ export class IocContext {
 
         default:
           if (this.config.conflictHandler) {
-            const one = this.config.conflictHandler(type, classes, opt?.sourceCls ? {
+            const one = this.config.conflictHandler(type, classes, opt.sourceCls ? {
               type: opt.sourceCls,
               info: classLoader.getClassInfo(opt.sourceCls),
             } : undefined);
@@ -165,11 +167,9 @@ export class IocContext {
       return this.get(type);
     }
     const data = this.classLoader.getImplementClasses(type).map(clsInfo => {
-      if (this.has(clsInfo.type)) {
-        return this.get(clsInfo.type);
-      }
-      this.register(clsInfo.type);
-      return this.get(clsInfo.type);
+      return this.get(clsInfo.type, {
+        useClassLoader: true
+      });
     });
     if (cache) {
       this.register(data, type);
