@@ -2,11 +2,15 @@ import { FunctionContext, AspectPoint, getMetadata } from '../class/metadata';
 import { IocContext } from '../IocContext';
 
 /* istanbul ignore next */
-const generatorFn = function* (): any { };
+const normalFn = function normalFn() { };
+/* istanbul ignore next */
+const generatorFn = function* () { };
 
+const normalFuncPrototype = Object.getPrototypeOf(normalFn);
 const generatorFuncPrototype = Object.getPrototypeOf(generatorFn);
 function isGeneratorFunction(fn: any) {
-  return typeof fn === 'function' && Object.getPrototypeOf(fn) === generatorFuncPrototype;
+  // if use some transformer, generator is polyfill maybe.
+  return typeof fn === 'function' && normalFuncPrototype !== generatorFuncPrototype && Object.getPrototypeOf(fn) === generatorFuncPrototype;
 }
 
 export type Throwable = Error | any;
