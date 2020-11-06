@@ -208,11 +208,11 @@ export class IocContext {
   public register(data: any, key?: RegKeyType, options = DefaultRegisterOption) {
     if (key) {
       if (!this.canBeKey(key)) {
-        throw new Error('key require a string or a class.');
+        throw new Error('key require string, symbol or class.');
       }
     } else {
       if (!this.canBeKey(data)) {
-        throw new Error('when data is not a class or string, require a key.');
+        throw new Error('when data is not string, symbol or class, require a key.');
       }
     }
     const dataType = (key && getGlobalType(key)) || (data && getGlobalType(data));
@@ -370,7 +370,7 @@ export class IocContext {
   }
 
   private canBeKey(obj: any) {
-    return obj instanceof Function || ['string', 'symbol'].includes(typeof obj);
+    return  ['function', 'string', 'symbol'].includes(typeof obj);
   }
 
   private genValueFactory(data: any, options: RegisterOptions) {
