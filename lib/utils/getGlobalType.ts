@@ -4,10 +4,11 @@ let _uid = 0;
 
 const _globalTypes: { [key: string]: boolean } = {};
 
-export function isClass(target: any) {
+export function isClass(target: any): target is Function {
   return target instanceof Function
     && (target.toString().match(/\w+/g)[0] === 'class' || target.toString().match(/\w+/g)[0] === 'function');
   // If browser, maybe no class
+  // getPrototypeOf a class, is not Function, not instanceof Function, but typeof 'function'
 }
 
 /**
