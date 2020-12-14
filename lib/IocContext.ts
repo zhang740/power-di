@@ -120,9 +120,7 @@ export class IocContext {
       const classes = this.classLoader.getImplementClasses(type);
       switch (classes.length) {
         case 1:
-          if (!this.has(classes[0].type)) {
-            this.register(classes[0].type);
-          }
+          // class loader is only responsible for matching and not for registration.
           return this.get(classes[0].type as any, opt);
 
         case 0:
