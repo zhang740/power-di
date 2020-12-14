@@ -1,3 +1,8 @@
+2.4.0 / 2020-12-14
+==================
+
+  * feat: child scope use independent API, parentContext
+
 2.3.18 / 2020-12-09
 ==================
 
