@@ -18,6 +18,8 @@ export class Config {
   conflictHandler?: (type: KeyType, implCls: TypeWithInfo[], sourceCls?: TypeWithInfo) => ClassType | undefined;
   /** create instance hook, return value will replace instance */
   createInstanceHook?: (inst: any, ioc: IocContext) => any;
+  /** parent ioc context */
+  parentContext?: IocContext;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -141,6 +143,10 @@ export class IocContext {
       }
     }
 
+    if (this.config.parentContext) {
+      return this.config.parentContext.get(keyOrType);
+    }
+
     const canAutoRegister = isClass(keyOrType) && (
       this.config.autoRegisterSelf ||
       getMetadata(keyOrType as any).injectable
@@ -156,7 +162,7 @@ export class IocContext {
   /**
    * get instances for key
    * @param keyOrType key (super class or interface, use `@classInfo`)
-   * @param param1
+   * @param opt
    */
   public getImports<T = undefined, KeyOrType = any>(keyOrType: KeyOrType, { cache }: {
     /** peer cache */
@@ -341,7 +347,7 @@ export class IocContext {
   public createChildContext(config = this.config) {
     return new IocContext({
       ...config,
-      notFoundHandler: type => this.get(type)
+      parentContext: this,
     });
   }
 
