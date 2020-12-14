@@ -1,3 +1,8 @@
+2.4.1 / 2020-12-14
+==================
+
+  * fix(context): class loader is not registered for matching class
+
 2.4.0 / 2020-12-14
 ==================
 
