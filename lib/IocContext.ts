@@ -133,8 +133,8 @@ export class IocContext {
               info: classLoader.getClassInfo(opt.sourceCls),
             } : undefined);
             if (one !== undefined) {
-              this.register(one, type);
-              return this.get(type, opt);
+              // class loader is only responsible for matching and not for registration.
+              return this.get(one as any, opt);
             }
           }
           throw new MultiImplementError(type, key);
@@ -374,7 +374,7 @@ export class IocContext {
   }
 
   private canBeKey(obj: any) {
-    return  ['function', 'string', 'symbol'].includes(typeof obj);
+    return ['function', 'string', 'symbol'].includes(typeof obj);
   }
 
   private genValueFactory(data: any, options: RegisterOptions) {
