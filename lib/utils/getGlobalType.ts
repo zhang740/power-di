@@ -5,15 +5,10 @@ let _uid = 0;
 const _globalTypes: { [key: string]: boolean } = {};
 
 export function isClass(target: any): target is Function {
-  const isCtorClass = target.constructor
-    && target.constructor.toString().substring(0, 5) === 'class';
-  if (target.prototype === undefined) {
-    return isCtorClass;
-  }
-  const isPrototypeCtorClass = target.prototype.constructor
-    && target.prototype.constructor.toString
-    && target.prototype.constructor.toString().substring(0, 5) === 'class';
-  return isCtorClass || isPrototypeCtorClass;
+  return target instanceof Function
+    && ['class', 'function'].includes(target.toString().match(/\w+/g)[0]);
+  // If browser, maybe no class
+  // getPrototypeOf a class, is not Function, not instanceof Function, but typeof 'function'
 }
 
 /**

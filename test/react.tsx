@@ -20,6 +20,7 @@ test('react only react component.', t => {
     }
 
     render(): any {
+      t.true(this.service instanceof NRServiceDI);
       return null;
     }
   }
