@@ -378,7 +378,7 @@ export class IocContext {
   }
 
   private genValueFactory(data: any, options: RegisterOptions) {
-    const dataIsFunction = data instanceof Function;
+    const dataIsFunction = typeof data === 'function';
     const dataIsClass = dataIsFunction && isClass(data);
 
     return () => {
@@ -450,12 +450,12 @@ export class NotfoundTypeError extends Error {
 
 export class NoRegistryError extends Error {
   constructor(key: string | symbol) {
-    super(`the key:[${symbolString(key)}] is already register.`);
+    super(`the key:[${symbolString(key)}] is no registry.`);
   }
 }
 
 export class AlreadyRegistryError extends Error {
   constructor(key: string | symbol) {
-    super(`the key:[${symbolString(key)}] is already register.`);
+    super(`the key:[${symbolString(key)}] is already registry.`);
   }
 }

@@ -1,5 +1,5 @@
 import test from 'ava';
-import { getGlobalType, getSuperClassInfo, isExtendOf, symbolString } from '../lib/utils';
+import { getGlobalType, getSuperClassInfo, isClass, isExtendOf, symbolString } from '../lib/utils';
 
 test('getGlobalType, error.', t => {
   t.throws(() => getGlobalType(undefined));
@@ -35,7 +35,7 @@ test('getSuperClassInfo.', t => {
   t.true(typeBs[0].class === A);
   t.throws(() => getSuperClassInfo(123 as any));
   t.throws(() => getSuperClassInfo('123' as any));
-  // t.throws(() => getSuperClassInfo(() => { }))
+  t.throws(() => getSuperClassInfo(() => { }));
 });
 
 test('isExtendOf', t => {
@@ -53,4 +53,20 @@ test('isExtendOf', t => {
 test('symbolString', t => {
   const sym = Symbol('TestSymbol');
   t.deepEqual(symbolString(sym), 'Symbol(TestSymbol)');
+});
+
+test('isClass', t => {
+  t.true(!isClass(1));
+  t.true(!isClass(Date));
+  t.true(!isClass(new Date));
+
+  function a() { }
+  t.true(!isClass(a));
+  t.true(!isClass(function () { }));
+
+  class B { }
+  class C extends B { }
+  t.true(isClass(B));
+  t.true(isClass(C));
+  t.true(isClass(class { }));
 });
