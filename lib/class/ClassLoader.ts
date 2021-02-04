@@ -16,8 +16,13 @@ export class DuplicateRegistrationError extends Error {
 }
 
 export class ClassLoader {
-  private classInfoMap: Map<ClassType, ClassInfo> = new Map();
-  private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map();
+  constructor(
+    /** @internal only for clone */
+    private classInfoMap: Map<ClassType, ClassInfo> = new Map(),
+    /** @internal only for clone */
+    private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map(),
+  ) {
+  }
 
   /** has class */
   hasClass(type: ClassType) {
@@ -102,6 +107,14 @@ export class ClassLoader {
     this.classInfoMap.clear();
     this.implementCacheMap.clear();
     return this;
+  }
+
+  /** return new instance from this */
+  clone() {
+    return new ClassLoader(
+      new Map(this.classInfoMap),
+      new Map(this.implementCacheMap),
+    );
   }
 
   private getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {

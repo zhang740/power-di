@@ -154,3 +154,32 @@ test('double in impl and extends', t => {
     }
   }]);
 });
+
+test('clone', t => {
+  class A { }
+  class B { }
+
+  classLoader.registerClass(A);
+
+  const newLoader = classLoader.clone();
+
+  t.true(classLoader !== newLoader);
+  t.deepEqual(classLoader.getClassInfo(A), {
+    name: 'A',
+    extends: [],
+    implements: [],
+  });
+  t.deepEqual(newLoader.getClassInfo(A), {
+    name: 'A',
+    extends: [],
+    implements: [],
+  });
+
+  newLoader.registerClass(B);
+  t.falsy(classLoader.getClassInfo(B));
+  t.deepEqual(newLoader.getClassInfo(B), {
+    name: 'B',
+    extends: [],
+    implements: [],
+  });
+});
