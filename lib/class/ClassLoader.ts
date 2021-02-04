@@ -117,6 +117,15 @@ export class ClassLoader {
     );
   }
 
+  /**
+   * init maps from instance
+   * @param classLoader source loader
+   */
+  initWith(classLoader: ClassLoader) {
+    this.classInfoMap = new Map(classLoader.classInfoMap);
+    this.implementCacheMap = new Map(classLoader.implementCacheMap);
+  }
+
   private getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {
     if (!this.implementCacheMap.has(type)) {
       this.implementCacheMap.set(type, []);

@@ -1,7 +1,7 @@
 import test from 'ava';
 import { classInfo, DuplicateRegistrationError } from '../lib';
 import { getMetadata } from '../lib/class/metadata';
-import { classLoader } from '../lib/class/ClassLoader';
+import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 
 test('class info', t => {
   @classInfo()
@@ -162,6 +162,37 @@ test('clone', t => {
   classLoader.registerClass(A);
 
   const newLoader = classLoader.clone();
+
+  t.true(classLoader !== newLoader);
+  t.deepEqual(classLoader.getClassInfo(A), {
+    name: 'A',
+    extends: [],
+    implements: [],
+  });
+  t.deepEqual(newLoader.getClassInfo(A), {
+    name: 'A',
+    extends: [],
+    implements: [],
+  });
+
+  newLoader.registerClass(B);
+  t.falsy(classLoader.getClassInfo(B));
+  t.deepEqual(newLoader.getClassInfo(B), {
+    name: 'B',
+    extends: [],
+    implements: [],
+  });
+});
+
+
+test('init with', t => {
+  class A { }
+  class B { }
+
+  classLoader.registerClass(A);
+
+  const newLoader = new ClassLoader();
+  newLoader.initWith(classLoader);
 
   t.true(classLoader !== newLoader);
   t.deepEqual(classLoader.getClassInfo(A), {
