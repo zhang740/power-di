@@ -1,3 +1,8 @@
+# 2.4.3 / 2021-02-04
+
+- fix: class judge
+- feat: classLoader add clone method
+
 # 2.4.2 / 2020-12-15
 
 - fix(context): class loader is not registered for matching class when conflict
