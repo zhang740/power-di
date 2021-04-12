@@ -137,6 +137,11 @@ export class IocContext {
               return this.get(one as any, opt);
             }
           }
+          // BaseClass has @injectable
+          if (isClass(keyOrType) && getMetadata(type).injectable) {
+            this.register(type);
+            return this.get(type, opt);
+          }
           throw new MultiImplementError(type, key);
       }
     }

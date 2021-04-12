@@ -379,6 +379,26 @@ test('multi implement, conflictHandler, err.', t => {
   t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
 });
 
+test('multi implement, no err.', t => {
+  @injectable()
+  class BaseService { }
+  @injectable()
+  class A extends BaseService { }
+  @injectable()
+  class B extends BaseService { }
+
+  const context = new IocContext();
+
+  t.true(context.get(BaseService) instanceof BaseService);
+
+  const childContext = context.createChildContext({
+    conflictHandler: (type, implCls, sourceCls) => {
+      return implCls.find(s => s.type === A).type;
+    }
+  });
+  t.true(childContext.get(BaseService) instanceof A);
+});
+
 test('child context.', t => {
   const parent = new IocContext();
   parent.register(5, 'TEST');
