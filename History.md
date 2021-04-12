@@ -1,3 +1,7 @@
+# 2.4.4 / 2021-04-12
+
+- feat: BaseClass can use injectable.
+
 # 2.4.3 / 2021-02-04
 
 - fix: class judge
