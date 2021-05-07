@@ -20,9 +20,8 @@ export class ClassLoader {
     /** @internal only for clone */
     private classInfoMap: Map<ClassType, ClassInfo> = new Map(),
     /** @internal only for clone */
-    private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map(),
-  ) {
-  }
+    private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map()
+  ) {}
 
   /** has class */
   hasClass(type: ClassType) {
@@ -113,7 +112,7 @@ export class ClassLoader {
   clone() {
     return new ClassLoader(
       new Map(this.classInfoMap),
-      new Map(this.implementCacheMap),
+      this.cloneImplCacheMap(this.implementCacheMap)
     );
   }
 
@@ -123,7 +122,11 @@ export class ClassLoader {
    */
   initWith(classLoader: ClassLoader) {
     this.classInfoMap = new Map(classLoader.classInfoMap);
-    this.implementCacheMap = new Map(classLoader.implementCacheMap);
+    this.implementCacheMap = this.cloneImplCacheMap(classLoader.implementCacheMap);
+  }
+
+  private cloneImplCacheMap(map: Map<KeyType, TypeWithInfo[]>) {
+    return new Map([...map.entries()].map(([k, v]) => [k, [...v]]));
   }
 
   private getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {

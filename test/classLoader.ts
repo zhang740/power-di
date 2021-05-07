@@ -5,7 +5,7 @@ import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 
 test('class info', t => {
   @classInfo()
-  class A { }
+  class A {}
 
   t.deepEqual(getMetadata(A).classInfo, {
     name: 'A',
@@ -15,10 +15,10 @@ test('class info', t => {
 });
 
 test('has super class', t => {
-  class Z { }
-  class A extends Z { }
+  class Z {}
+  class A extends Z {}
   @classInfo()
-  class B extends A { }
+  class B extends A {}
 
   t.deepEqual(classLoader.getClassInfo(B), {
     name: 'B',
@@ -26,27 +26,33 @@ test('has super class', t => {
     implements: [],
   });
 
-  t.deepEqual(classLoader.getImplementClasses(Z), [{
-    type: B, info: {
-      name: 'B',
-      extends: [A, Z],
-      implements: [],
-    }
-  }]);
-  t.deepEqual(classLoader.getImplementClasses(A), [{
-    type: B, info: {
-      name: 'B',
-      extends: [A, Z],
-      implements: [],
-    }
-  }]);
+  t.deepEqual(classLoader.getImplementClasses(Z), [
+    {
+      type: B,
+      info: {
+        name: 'B',
+        extends: [A, Z],
+        implements: [],
+      },
+    },
+  ]);
+  t.deepEqual(classLoader.getImplementClasses(A), [
+    {
+      type: B,
+      info: {
+        name: 'B',
+        extends: [A, Z],
+        implements: [],
+      },
+    },
+  ]);
 });
 
 test('has interface', t => {
   const A = Symbol('A');
-  interface A { }
+  interface A {}
   @classInfo({ implements: [A] })
-  class B implements A { }
+  class B implements A {}
 
   t.deepEqual(getMetadata(B).classInfo, {
     name: 'B',
@@ -54,17 +60,20 @@ test('has interface', t => {
     implements: [A],
   });
 
-  t.deepEqual(classLoader.getImplementClasses(A), [{
-    type: B, info: {
-      name: 'B',
-      extends: [],
-      implements: [A],
-    }
-  }]);
+  t.deepEqual(classLoader.getImplementClasses(A), [
+    {
+      type: B,
+      info: {
+        name: 'B',
+        extends: [],
+        implements: [A],
+      },
+    },
+  ]);
 });
 
 test('register with info', t => {
-  class A { }
+  class A {}
   classLoader.registerClass(A, {});
 
   t.deepEqual(classLoader.getClassInfo(A), {
@@ -75,28 +84,30 @@ test('register with info', t => {
 });
 
 test('cannot register twice', t => {
-  class A { }
+  class A {}
   classLoader.registerClass(A);
   t.throws(() => classLoader.registerClass(A), { instanceOf: DuplicateRegistrationError });
 });
 
 test('unregisterClass', t => {
-  class A { }
-  class B extends A { }
+  class A {}
+  class B extends A {}
   classLoader.registerClass(B);
   t.deepEqual(classLoader.getClassInfo(B), {
     name: 'B',
     extends: [A],
     implements: [],
   });
-  t.deepEqual(classLoader.getImplementClasses(A), [{
-    type: B,
-    info: {
-      name: 'B',
-      extends: [A],
-      implements: [],
+  t.deepEqual(classLoader.getImplementClasses(A), [
+    {
+      type: B,
+      info: {
+        name: 'B',
+        extends: [A],
+        implements: [],
+      },
     },
-  }]);
+  ]);
   classLoader.unregisterClass(B);
   t.deepEqual(classLoader.getClassInfo(B), undefined);
   t.deepEqual(classLoader.getImplementClasses(A), []);
@@ -105,59 +116,70 @@ test('unregisterClass', t => {
 });
 
 test('filterClasses', t => {
-  class A { }
+  class A {}
   @classInfo()
-  class B extends A { }
+  class B extends A {}
 
-  t.deepEqual(classLoader.filterClasses(info => info.type === B), [{
-    info: {
-      name: 'B',
-      extends: [A],
-      implements: [],
-    },
-    type: B
-  }]);
+  t.deepEqual(
+    classLoader.filterClasses(info => info.type === B),
+    [
+      {
+        info: {
+          name: 'B',
+          extends: [A],
+          implements: [],
+        },
+        type: B,
+      },
+    ]
+  );
 });
 
 test('classAll', t => {
-  class A { }
-  class B extends A { }
+  class A {}
+  class B extends A {}
   classLoader.registerClass(B);
   t.deepEqual(classLoader.getClassInfo(B), {
     name: 'B',
     extends: [A],
     implements: [],
   });
-  t.deepEqual(classLoader.getImplementClasses(A), [{
-    type: B,
-    info: {
-      name: 'B',
-      extends: [A],
-      implements: [],
+  t.deepEqual(classLoader.getImplementClasses(A), [
+    {
+      type: B,
+      info: {
+        name: 'B',
+        extends: [A],
+        implements: [],
+      },
     },
-  }]);
+  ]);
   classLoader.clearAll();
   t.deepEqual(classLoader.getClassInfo(B), undefined);
   t.deepEqual(classLoader.getImplementClasses(A), []);
 });
 
 test('double in impl and extends', t => {
-  abstract class Base { }
+  abstract class Base {}
   @classInfo({ implements: [Base] })
-  class A extends Base { }
+  class A extends Base {}
 
-  t.deepEqual(classLoader.getImplementClasses(Base), [{
-    type: A, info: {
-      name: 'A',
-      extends: [Base],
-      implements: [Base],
-    }
-  }]);
+  t.deepEqual(classLoader.getImplementClasses(Base), [
+    {
+      type: A,
+      info: {
+        name: 'A',
+        extends: [Base],
+        implements: [Base],
+      },
+    },
+  ]);
 });
 
 test('clone', t => {
-  class A { }
-  class B { }
+  class Base {}
+  class A extends Base {}
+  class B extends Base {}
 
   classLoader.registerClass(A);
 
@@ -166,28 +188,31 @@ test('clone', t => {
   t.true(classLoader !== newLoader);
   t.deepEqual(classLoader.getClassInfo(A), {
     name: 'A',
-    extends: [],
+    extends: [Base],
     implements: [],
   });
   t.deepEqual(newLoader.getClassInfo(A), {
     name: 'A',
-    extends: [],
+    extends: [Base],
     implements: [],
   });
+  t.deepEqual(classLoader.getImplementClasses(Base).length, 1);
+  t.deepEqual(newLoader.getImplementClasses(Base).length, 1);
 
   newLoader.registerClass(B);
   t.falsy(classLoader.getClassInfo(B));
   t.deepEqual(newLoader.getClassInfo(B), {
     name: 'B',
-    extends: [],
+    extends: [Base],
     implements: [],
   });
+  t.deepEqual(classLoader.getImplementClasses(Base).length, 1);
+  t.deepEqual(newLoader.getImplementClasses(Base).length, 2);
 });
 
-
 test('init with', t => {
-  class A { }
-  class B { }
+  class A {}
+  class B {}
 
   classLoader.registerClass(A);
 
