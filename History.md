@@ -1,3 +1,7 @@
+# 2.4.5 / 2021-05-07
+
+- fix: class loader impl cache is not independence
+
 # 2.4.4 / 2021-04-12
 
 - feat: BaseClass can use injectable.
