@@ -14,17 +14,24 @@ export function iocConsumer(opt: IocConsumerOpt = {}): ClassDecorator {
     const NewComp: any = opt.manualExtendsBaseClass ? Comp : createConsumerComponent(Comp);
 
     class IoCComponent extends React.PureComponent {
+      static displayName = `IoCComponent(${getDisplayName(Comp)})`;
+
       render() {
-        return <Context.Consumer>
-          {ctx => <NewComp {...Object.assign({}, this.props, {
-            [ContextSymbol]: ctx
-          })} />}
-        </Context.Consumer>;
+        return (
+          <Context.Consumer>
+            {ctx => (
+              <NewComp
+                {...Object.assign({}, this.props, {
+                  [ContextSymbol]: ctx,
+                })}
+              />
+            )}
+          </Context.Consumer>
+        );
       }
     }
 
-    (IoCComponent  as any).displayName = `IoCComponent(${getDisplayName(Comp)})`;
-    return IoCComponent  as any;
+    return IoCComponent as any;
   };
 }
 
