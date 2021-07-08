@@ -1,3 +1,8 @@
+# 2.4.6 / 2021-07-08
+
+- feat: react displayName (#5)
+- chore: update travis.
+
 # 2.4.5 / 2021-05-07
 
 - fix: class loader impl cache is not independence
