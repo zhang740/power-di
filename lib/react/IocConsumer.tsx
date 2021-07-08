@@ -12,7 +12,8 @@ export function iocConsumer(opt: IocConsumerOpt = {}): ClassDecorator {
 
   return function (Comp: any): void {
     const NewComp: any = opt.manualExtendsBaseClass ? Comp : createConsumerComponent(Comp);
-    return class IoCComponent extends React.PureComponent {
+
+    class IoCComponent extends React.PureComponent {
       render() {
         return <Context.Consumer>
           {ctx => <NewComp {...Object.assign({}, this.props, {
@@ -20,6 +21,13 @@ export function iocConsumer(opt: IocConsumerOpt = {}): ClassDecorator {
           })} />}
         </Context.Consumer>;
       }
-    } as any;
+    }
+
+    (IoCComponent  as any).displayName = `IoCComponent(${getDisplayName(Comp)})`;
+    return IoCComponent  as any;
   };
+}
+
+function getDisplayName(WrappedComponent: any) {
+  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
