@@ -15,19 +15,20 @@
     "dist"
   ],
   "scripts": {
-    "clean": "rimraf -- dist lib/**/*.js lib/**/*.js.map lib/**/*.d.ts",
+    "clean": "rm -rf es && rimraf -- dist lib/**/*.js lib/**/*.js.map lib/**/*.d.ts",
     "rmjsmap": "rimraf -- **/*.js.map ./*.js.map test/*.js.map scripts/*.js.map",
     "babel": "babel lib --out-dir lib",
     "build:dist": "webpack --progress",
     "test": "rimraf -- test/**/*.js && tsc && ava -v -s && npm run rmjsmap",
-    "test:prod": "tsc && npm run test && npm run babel && npm run es",
+    "test:prod": "npm run clean && tsc && npm run test",
     "coverage": "nyc npm test",
     "coverage:report": "nyc report --reporter=lcov",
     "coverage:upload": "cat ./coverage/lcov.info | coveralls",
     "report": "npm run coverage && npm run coverage:report",
     "reinstall": "rimraf -- node_modules && npm install",
-    "prepublish": "npm run clean && npm run test:prod",
+    "prepublish": "npm run test:prod && npm run clean && npm run es5",
     "postpublish": "node scripts/published.js",
+    "es5": "rimraf -- es && tsc -p tsconfig.es.json",
     "es": "rimraf -- es && tsc -p tsconfig.es.json"
   },
   "ava": {

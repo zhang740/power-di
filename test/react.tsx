@@ -184,6 +184,33 @@ test('react consumer.', t => {
   );
 });
 
+test('react consumer， PureComponent.', t => {
+  const context = new IocContext;
+  class NRService { }
+  context.register(NRService);
+
+  @iocConsumer({ pureComponent: true })
+  class TestComponent extends React.Component {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
 test('react consumer, manual extends.', t => {
   const context = new IocContext;
   class NRService { }

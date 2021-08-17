@@ -15,15 +15,7 @@
     "pretty": true,
     "outDir": "es"
   },
-  "include": [
-    "lib",
-    "react.ts",
-    "helper.ts",
-    "utils.ts"
-  ],
-  "exclude": [
-    "scripts",
-    "test"
-  ],
+  "include": ["lib/**/*.ts", "react.ts", "helper.ts", "utils.ts"],
+  "exclude": ["scripts", "test"],
   "compileOnSave": true
 }

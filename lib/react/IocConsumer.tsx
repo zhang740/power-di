@@ -56,5 +56,5 @@ export function iocConsumer(opt: IocConsumerOpt = {}): ClassDecorator {
 }
 
 function getDisplayName(WrappedComponent: any) {
-  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+  return WrappedComponent.displayName || WrappedComponent.name;
 }

@@ -544,3 +544,7 @@ test('use the same instance between interface and impl when get.', t => {
 
   t.deepEqual(test.a, test.base);
 });
+
+test('cannot serialize.', t => {
+  t.true(JSON.stringify(IocContext.DefaultInstance) === JSON.stringify({ type: 'power-di.IocContext', message: 'NoSerializable' }));
+});
