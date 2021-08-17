@@ -1,3 +1,7 @@
+# 2.4.9 / 2021-08-17
+
+- feat: down to es5
+
 # 2.4.7 / 2021-07-08
 
 - feat: pureComponent support config (#6)
