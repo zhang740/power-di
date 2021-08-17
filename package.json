@@ -1,6 +1,6 @@
 {
   "name": "power-di",
-  "version": "2.4.9",
+  "version": "2.4.10",
   "description": "A lightweight Dependency Injection library. Using es6 and other features, remove unnecessary concepts, easy and convenient to use.",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
@@ -28,7 +28,7 @@
     "reinstall": "rimraf -- node_modules && npm install",
     "prepublish": "npm run test:prod && npm run clean && npm run es5",
     "postpublish": "node scripts/published.js",
-    "es5": "rimraf -- es && tsc -p tsconfig.es.json",
+    "es5": "rimraf -- es && tsc -p tsconfig.es5.json",
     "es": "rimraf -- es && tsc -p tsconfig.es.json"
   },
   "ava": {
