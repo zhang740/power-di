@@ -126,7 +126,7 @@ export class ClassLoader {
   }
 
   private cloneImplCacheMap(map: Map<KeyType, TypeWithInfo[]>) {
-    return new Map([...map.entries()].map(([k, v]) => [k, [...v]]));
+    return new Map(Array.from(map.entries()).map(([k, v]) => [k, [...v]]));
   }
 
   private getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {

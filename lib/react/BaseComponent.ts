@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Context, ContextSymbol as ContextInProps } from './context';
-import { IocContext } from '../IocContext';
+import type { IocContext } from '../IocContext';
 
 function injectInstance(instance: any, context: IocContext) {
   context.inject(instance, { autoRunPostConstruct: false });
@@ -40,7 +40,10 @@ interface IocProps {
   [ContextInProps]?: IocContext;
 }
 
-export abstract class BaseConsumerComponent<P = {}, S = {}> extends React.Component<P & IocProps, S> {
+export abstract class BaseConsumerComponent<P = {}, S = {}> extends React.Component<
+  P & IocProps,
+  S
+> {
   constructor(props: IocProps, context: any) {
     super(props as any, context);
 
@@ -50,7 +53,6 @@ export abstract class BaseConsumerComponent<P = {}, S = {}> extends React.Compon
 
 export function createConsumerComponent(Comp: any) {
   return class ConsumerComponent extends Comp {
-
     constructor(props: IocProps, context: any) {
       super(props, context);
 

@@ -83,7 +83,7 @@ export class IocContext {
 
   /** clear all */
   public clear() {
-    [...this.components.values()].forEach(ele => {
+    Array.from(this.components.values()).forEach(ele => {
       this.preDestroyInstance(ele);
     });
     this.components.clear();
@@ -437,6 +437,10 @@ export class IocContext {
       // TODO use WeakMap collection for destroy
       return data.factory();
     }
+  }
+
+  toJSON() {
+    return { type: 'power-di.IocContext', message: 'NoSerializable' };
   }
 }
 
