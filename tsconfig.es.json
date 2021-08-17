@@ -14,8 +14,5 @@
     "sourceMap": true,
     "pretty": true,
     "outDir": "es"
-  },
-  "include": ["lib/**/*.ts", "react.ts", "helper.ts", "utils.ts"],
-  "exclude": ["scripts", "test"],
-  "compileOnSave": true
+  }
 }
