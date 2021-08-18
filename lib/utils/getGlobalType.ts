@@ -18,7 +18,8 @@ export function isClass(target: any): target is Function {
  */
 export function getGlobalType(key: any, prefix: string = ''): string | symbol {
   if (!key) throw new Error('no key.');
-  if (['string', 'symbol'].includes(typeof key)) {
+  // object for ie11 symbol
+  if (['string', 'symbol', 'object'].includes(typeof key)) {
     return key;
   }
   if (key.hasOwnProperty('__type')) {
