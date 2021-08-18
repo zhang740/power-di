@@ -1,3 +1,7 @@
+# 2.4.12 / 2021-08-18
+
+- update: ie11 symbol
+
 # 2.4.9 / 2021-08-17
 
 - feat: down to es5
