@@ -379,7 +379,12 @@ export class IocContext {
   }
 
   private canBeKey(obj: any) {
-    return ['function', 'string', 'symbol'].includes(typeof obj);
+    const type = typeof obj;
+    // ie11 symbol is object
+    if (type === 'object') {
+      return obj.toString() !== '[object Object]';
+    }
+    return ['function', 'string', 'symbol'].includes(type);
   }
 
   private genValueFactory(data: any, options: RegisterOptions) {
