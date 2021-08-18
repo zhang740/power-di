@@ -1,3 +1,7 @@
+# 2.4.13 / 2021-08-18
+
+- update: symbol
+
 # 2.4.12 / 2021-08-18
 
 - update: ie11 symbol
