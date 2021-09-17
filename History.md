@@ -1,3 +1,7 @@
+# 2.4.14 / 2021-09-17
+
+- feat: aspect support skipRunning.
+
 # 2.4.13 / 2021-08-18
 
 - update: symbol
