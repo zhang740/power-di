@@ -2,15 +2,19 @@ import { FunctionContext, AspectPoint, getMetadata } from '../class/metadata';
 import { IocContext } from '../IocContext';
 
 /* istanbul ignore next */
-const normalFn = function normalFn() { };
+const normalFn = function normalFn() {};
 /* istanbul ignore next */
-const generatorFn = function* () { };
+const generatorFn = function* () {};
 
 const normalFuncPrototype = Object.getPrototypeOf(normalFn);
 const generatorFuncPrototype = Object.getPrototypeOf(generatorFn);
 function isGeneratorFunction(fn: any) {
   // if use some transformer, generator is polyfill maybe.
-  return typeof fn === 'function' && normalFuncPrototype !== generatorFuncPrototype && Object.getPrototypeOf(fn) === generatorFuncPrototype;
+  return (
+    typeof fn === 'function' &&
+    normalFuncPrototype !== generatorFuncPrototype &&
+    Object.getPrototypeOf(fn) === generatorFuncPrototype
+  );
 }
 
 export type Throwable = Error | any;
@@ -37,7 +41,9 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
       const context = createContext(ioc, this, oriFn, args);
       try {
         run(point.before, context);
-        context.ret = yield oriFn.apply(this, context.args);
+        if (!context.skipRunning) {
+          context.ret = yield oriFn.apply(this, context.args);
+        }
         run(point.after, context);
         return context.ret;
       } catch (error) {
@@ -53,22 +59,23 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
       const context = createContext(ioc, this, oriFn, args);
       try {
         run(point.before, context);
-        context.ret = oriFn.apply(this, context.args);
+        if (!context.skipRunning) {
+          context.ret = oriFn.apply(this, context.args);
+        }
         if (context.ret instanceof Promise) {
-          context.ret = context.ret.then((ret) => {
+          context.ret = context.ret.then(ret => {
             context.ret = ret;
             run(point.after, context);
             return context.ret;
           });
           if (point.error) {
-            context.ret = (context.ret as Promise<any>)
-              .catch(error => {
-                context.err = error;
-                run(point.error, context);
-                if (context.err) {
-                  throw context.err;
-                }
-              });
+            context.ret = (context.ret as Promise<any>).catch(error => {
+              context.err = error;
+              run(point.error, context);
+              if (context.err) {
+                throw context.err;
+              }
+            });
           }
           return context.ret;
         } else {
@@ -93,7 +100,7 @@ export function aspect<T = {}, K = {}>(point: AspectPoint<T, K> = {}): MethodDec
   return (target, key) => {
     getMetadata(target.constructor).aspects.push({
       key,
-      point
+      point,
     });
   };
 }
