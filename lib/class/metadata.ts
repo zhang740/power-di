@@ -30,6 +30,7 @@ export interface FunctionContext<T extends Object = {}, K = {}> {
   args: any[];
   ret: any;
   err: Error;
+  skipRunning?: boolean;
 }
 
 export interface AspectPoint<T = {}, K = {}> {
@@ -47,7 +48,7 @@ export class MetadataType {
   injects: InjectMetadataType[] = [];
   postConstruct: PostConstructMetadataType[] = [];
   preDestroy: PreDestroyMetadataType[] = [];
-  aspects: { key: string | symbol; point: AspectPoint; }[] = [];
+  aspects: { key: string | symbol; point: AspectPoint }[] = [];
 }
 
 /**
@@ -60,7 +61,7 @@ export function getMetadata(type: ClassType): MetadataType {
     Object.defineProperty(type, metaSymbol, {
       enumerable: false,
       configurable: false,
-      value: new MetadataType,
+      value: new MetadataType(),
     });
     return getMetadata(type);
   }
@@ -72,7 +73,10 @@ export function getMetadata(type: ClassType): MetadataType {
  * @param type type of class
  * @param key field
  */
-export function getMetadataField<T extends keyof MetadataType>(type: ClassType, key: T): MetadataType[T] {
+export function getMetadataField<T extends keyof MetadataType>(
+  type: ClassType,
+  key: T
+): MetadataType[T] {
   const field = getMetadata(type)[key];
   const superType = Object.getPrototypeOf(type);
   if (superType && Array.isArray(field)) {
