@@ -376,11 +376,12 @@ export class IocContext {
 
   /**
    * create child context, inherit this context
-   * @param config notFoundHandler is no useful
+   * @param config
    */
-  public createChildContext(config = this.config) {
+  public createChildContext(config?: Config) {
     return new IocContext({
-      ...config,
+      ...this.config,
+      ...(config || {}),
       parentContext: this,
     });
   }
