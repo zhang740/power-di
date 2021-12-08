@@ -1,3 +1,8 @@
+# 2.4.15 / 2021-12-08
+
+- fix: inherit of createChildContext
+- chore: prettier
+
 # 2.4.14 / 2021-09-17
 
 - feat: aspect support skipRunning.
