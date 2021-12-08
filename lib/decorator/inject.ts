@@ -5,7 +5,13 @@ import { KeyType } from '../utils/types';
 /**
  * inject
  */
-export function inject({ type, lazy = true, always = false, optional = false, singleton = true }: {
+export function inject({
+  type,
+  lazy = true,
+  always = false,
+  optional = false,
+  singleton = true,
+}: {
   type?: KeyType;
   /** lazy inject @default true */
   lazy?: boolean;
@@ -19,7 +25,9 @@ export function inject({ type, lazy = true, always = false, optional = false, si
   return (target, key) => {
     const typeCls = getClsTypeByDecorator(type, target, key);
     if (typeCls === undefined || typeCls === Object) {
-      throw new Error(`CANNOT inject undefined! source: ${target.constructor.name}.${key.toString()}`);
+      throw new Error(
+        `CANNOT inject undefined! source: ${target.constructor.name}.${key.toString()}`
+      );
     }
     getMetadata(target.constructor).injects.push({
       key,

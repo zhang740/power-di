@@ -43,7 +43,9 @@ export function before(
     }
 
     // 处理 class
-    if (['injectable', 'plugin', 'extension', 'contribution'].includes(`${getDecoratorName(node)}`)) {
+    if (
+      ['injectable', 'plugin', 'extension', 'contribution'].includes(`${getDecoratorName(node)}`)
+    ) {
       return processClassInfo(node, pkg, sf, typeChecker);
     }
 
@@ -70,7 +72,7 @@ function processClassInfo(
     console.warn(
       '[power-di] class metadata transformer fail!',
       `@${getDecoratorName(node)} of class [${
-      clsNode.name.escapedText
+        clsNode.name.escapedText
       }] param is not a ObjectLiteral.`
     );
     return node;
@@ -93,27 +95,27 @@ function processClassInfo(
     ts.createPropertyAssignment('pkg', ts.createStringLiteral(pkg.name)),
     ts.createPropertyAssignment('version', ts.createStringLiteral(pkg.version)),
     impls &&
-    ts.createPropertyAssignment(
-      'implements',
-      ts.createArrayLiteral(impls.types.map(type => type.expression))
-    ),
+      ts.createPropertyAssignment(
+        'implements',
+        ts.createArrayLiteral(impls.types.map(type => type.expression))
+      ),
   ].filter(s => s);
 
   const config = oldArgObj
     ? ts.updateObjectLiteral(
-      oldArgObj,
-      ts.createNodeArray([
-        ...info,
-        ...oldArgObj.properties.filter(
-          p =>
-            p.name &&
-            ts.isIdentifier(p.name) &&
-            !['pkg', 'version', impls ? 'implements' : undefined]
-              .filter(s => s)
-              .includes(`${p.name.escapedText}`)
-        ),
-      ])
-    )
+        oldArgObj,
+        ts.createNodeArray([
+          ...info,
+          ...oldArgObj.properties.filter(
+            p =>
+              p.name &&
+              ts.isIdentifier(p.name) &&
+              !['pkg', 'version', impls ? 'implements' : undefined]
+                .filter(s => s)
+                .includes(`${p.name.escapedText}`)
+          ),
+        ])
+      )
     : ts.createObjectLiteral(ts.createNodeArray(info), false);
 
   return ts.updateDecorator(
@@ -159,10 +161,10 @@ function processInject(node: ts.Decorator, sourceFile: ts.SourceFile, typeChecke
     ? ts.isTypeReferenceNode(propertyNode.type)
       ? propertyNode.type
       : ts.isArrayTypeNode(propertyNode.type)
-        ? ts.isTypeReferenceNode(propertyNode.type.elementType)
-          ? propertyNode.type.elementType
-          : undefined
+      ? ts.isTypeReferenceNode(propertyNode.type.elementType)
+        ? propertyNode.type.elementType
         : undefined
+      : undefined
     : undefined;
   if (!refType) {
     return node;
@@ -229,8 +231,8 @@ function getDecoratorName(node: ts.Decorator) {
   return ts.isIdentifier(node.expression)
     ? node.expression.escapedText
     : ts.isCallExpression(node.expression) && ts.isIdentifier(node.expression.expression)
-      ? node.expression.expression.escapedText
-      : '';
+    ? node.expression.expression.escapedText
+    : '';
 }
 
 function getField(config: ts.Expression | undefined, fieldName: string) {

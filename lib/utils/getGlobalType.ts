@@ -5,8 +5,9 @@ let _uid = 0;
 const _globalTypes: { [key: string]: boolean } = {};
 
 export function isClass(target: any): target is Function {
-  return target instanceof Function
-    && ['class', 'function'].includes(target.toString().match(/\w+/g)[0]);
+  return (
+    target instanceof Function && ['class', 'function'].includes(target.toString().match(/\w+/g)[0])
+  );
   // If browser, maybe no class
   // getPrototypeOf a class, is not Function, not instanceof Function, but typeof 'function'
 }
@@ -27,7 +28,8 @@ export function getGlobalType(key: any, prefix: string = ''): string | symbol {
   }
   let type: string;
   const info = key.toString().match(/\w+/g);
-  if (!['class', 'function'].includes(info[0])) { // Only for compatible with es5 class
+  if (!['class', 'function'].includes(info[0])) {
+    // Only for compatible with es5 class
     throw new Error('data MUST be a class or string.');
   }
   type = prefix + info[1];
@@ -39,7 +41,7 @@ export function getGlobalType(key: any, prefix: string = ''): string | symbol {
     configurable: false,
     enumerable: false,
     writable: false,
-    value: type
+    value: type,
   });
   return type;
 }

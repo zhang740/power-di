@@ -1,4 +1,4 @@
-export function guard<T>(f: () => T, opt: { defaultValue?: T, onError?: (e: Error) => void } = {}) {
+export function guard<T>(f: () => T, opt: { defaultValue?: T; onError?: (e: Error) => void } = {}) {
   try {
     return f();
   } catch (error) {

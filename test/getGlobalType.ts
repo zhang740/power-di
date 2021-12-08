@@ -4,7 +4,7 @@ import { getGlobalType, getSuperClassInfo, isClass, isExtendOf, symbolString } f
 test('getGlobalType, error.', t => {
   t.throws(() => getGlobalType(undefined));
   t.throws(() => getGlobalType(123));
-  t.throws(() => getGlobalType(() => { }));
+  t.throws(() => getGlobalType(() => {}));
   // t.throws(() => getGlobalType(function () { }));
 });
 
@@ -13,19 +13,19 @@ test('getGlobalType, string.', t => {
 });
 
 test('getGlobalType, a class.', t => {
-  class A { }
+  class A {}
 
   const typeA = getGlobalType(A);
   t.true(typeA === 'A');
 
   // es5
-  function test() { }
+  function test() {}
   t.true(getGlobalType(test) === 'test');
 });
 
 test('getSuperClassInfo.', t => {
-  class A { }
-  class B extends A { }
+  class A {}
+  class B extends A {}
 
   const typeAs = getSuperClassInfo(A);
   const typeBs = getSuperClassInfo(B);
@@ -35,13 +35,13 @@ test('getSuperClassInfo.', t => {
   t.true(typeBs[0].class === A);
   t.throws(() => getSuperClassInfo(123 as any));
   t.throws(() => getSuperClassInfo('123' as any));
-  t.throws(() => getSuperClassInfo(() => { }));
+  t.throws(() => getSuperClassInfo(() => {}));
 });
 
 test('isExtendOf', t => {
-  class A { }
-  class B extends A { }
-  class C { }
+  class A {}
+  class B extends A {}
+  class C {}
 
   t.true(isExtendOf(B, A));
   t.false(isExtendOf(A, B));
@@ -60,16 +60,16 @@ test('isClass', t => {
   t.true(!isClass(''));
   t.true(!isClass(undefined));
   t.true(!isClass(null));
-  t.true(!isClass(new Date));
+  t.true(!isClass(new Date()));
 
   // FIXME: cannot judge
   // function a() { }
   // t.true(!isClass(a));
   // t.true(!isClass(function () { }));
 
-  class B { }
-  class C extends B { }
+  class B {}
+  class C extends B {}
   t.true(isClass(B));
   t.true(isClass(C));
-  t.true(isClass(class { }));
+  t.true(isClass(class {}));
 });

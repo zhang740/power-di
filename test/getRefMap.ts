@@ -4,7 +4,7 @@ import { inject, injectable } from '../lib';
 
 test('getRefMap, base', t => {
   @injectable()
-  class A { }
+  class A {}
 
   @injectable()
   class B {
@@ -22,32 +22,29 @@ test('getRefMap, base', t => {
 
   const data = getRefMap(C);
   t.deepEqual(data, {
-    'C': {
-      'count': 0,
-      'deps': [
-        { 'prop': 'a', 'type': 'A' },
-        { 'prop': 'b', 'type': 'B' }
-      ]
+    C: {
+      count: 0,
+      deps: [
+        { prop: 'a', type: 'A' },
+        { prop: 'b', type: 'B' },
+      ],
     },
-    'A': {
-      'count': 2,
-      'deps': []
+    A: {
+      count: 2,
+      deps: [],
     },
-    'B': {
-      'count': 1,
-      'deps': [
-        { 'prop': 'a', 'type': 'A' }
-      ]
-    }
+    B: {
+      count: 1,
+      deps: [{ prop: 'a', type: 'A' }],
+    },
   });
 });
 
 test('getRefMap, super class', t => {
-
-  class Base { }
+  class Base {}
 
   @injectable()
-  class D extends Base { }
+  class D extends Base {}
 
   @injectable()
   class E extends Base {
@@ -65,30 +62,27 @@ test('getRefMap, super class', t => {
 
   const data = getRefMap(F);
   t.deepEqual(data, {
-    'F': {
-      'count': 0,
-      'deps': [
-        { 'prop': 'a', 'type': 'D' },
-        { 'prop': 'b', 'type': 'E' }
-      ]
+    F: {
+      count: 0,
+      deps: [
+        { prop: 'a', type: 'D' },
+        { prop: 'b', type: 'E' },
+      ],
     },
-    'D': {
-      'count': 2,
-      'deps': []
+    D: {
+      count: 2,
+      deps: [],
     },
-    'E': {
-      'count': 1,
-      'deps': [
-        { 'prop': 'a', 'type': 'D' }
-      ]
-    }
+    E: {
+      count: 1,
+      deps: [{ prop: 'a', type: 'D' }],
+    },
   });
 });
 
 test('getRefMap, extends', t => {
-
-  class InjClsA { }
-  class InjClsB { }
+  class InjClsA {}
+  class InjClsB {}
 
   class BaseCls {
     @inject()
@@ -105,35 +99,35 @@ test('getRefMap, extends', t => {
   getRefMap(SubCls, map);
 
   t.deepEqual(map, {
-    'BaseCls': {
-      'count': 0,
-      'deps': [
+    BaseCls: {
+      count: 0,
+      deps: [
         {
-          'prop': 'a',
-          'type': 'InjClsA'
-        }
-      ]
+          prop: 'a',
+          type: 'InjClsA',
+        },
+      ],
     },
-    'InjClsA': {
-      'count': 2,
-      'deps': []
+    InjClsA: {
+      count: 2,
+      deps: [],
     },
-    'SubCls': {
-      'count': 0,
-      'deps': [
+    SubCls: {
+      count: 0,
+      deps: [
         {
-          'prop': 'b',
-          'type': 'InjClsB'
+          prop: 'b',
+          type: 'InjClsB',
         },
         {
-          'prop': 'a',
-          'type': 'InjClsA'
-        }
-      ]
+          prop: 'a',
+          type: 'InjClsA',
+        },
+      ],
     },
-    'InjClsB': {
-      'count': 1,
-      'deps': []
-    }
+    InjClsB: {
+      count: 1,
+      deps: [],
+    },
   });
 });
