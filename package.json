@@ -66,12 +66,25 @@
     "ava": "^3.7.1",
     "co": "^4.6.0",
     "coveralls": "^3.1.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.1.2",
     "nyc": "^15.0.1",
+    "prettier": "^2.5.1",
     "react": "^16.x",
     "react-test-renderer": "^16.x",
     "rimraf": "^3.0.2",
     "tslint": "5.13.0",
     "typescript": "^3",
     "webpack": "^4.29.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --allow-empty"
+    }
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,less}": [
+      "prettier --write"
+    ]
   }
 }

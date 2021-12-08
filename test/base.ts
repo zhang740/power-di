@@ -4,5 +4,4 @@ test('base test', t => {
   t.pass();
 });
 
-export class TestService {
-}
+export class TestService {}

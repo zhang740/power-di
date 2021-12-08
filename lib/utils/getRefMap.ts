@@ -7,7 +7,7 @@ export interface RefMapType {
 
 export interface RefMetadataType {
   count: number;
-  deps: { type: string, prop: string | Symbol }[];
+  deps: { type: string; prop: string | Symbol }[];
 }
 
 export function getRefMap(clsType: any, initMaps = {}) {
@@ -19,10 +19,10 @@ export function getRefMap(clsType: any, initMaps = {}) {
       return;
     }
 
-    const refs: RefMetadataType = maps[type] = {
+    const refs: RefMetadataType = (maps[type] = {
       count: 0,
       deps: [],
-    };
+    });
 
     getMetadataField(clsType, 'injects').forEach(inj => {
       const globalType = symbolString(inj.globalType);

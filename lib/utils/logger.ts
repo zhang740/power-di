@@ -1,5 +1,9 @@
 export enum OutLevel {
-  Log, Info, Warn, Error, None
+  Log,
+  Info,
+  Warn,
+  Error,
+  None,
 }
 
 export class Logger {
@@ -30,5 +34,5 @@ export class Logger {
   }
 }
 
-const logger = new Logger;
+const logger = new Logger();
 export default logger;

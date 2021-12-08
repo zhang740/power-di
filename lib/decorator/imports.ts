@@ -3,7 +3,10 @@ import { getMetadata } from '../class/metadata';
 import { KeyType } from '../utils/types';
 
 /** subClasses/implements inject */
-export function imports({ type, always = false }: {
+export function imports({
+  type,
+  always = false,
+}: {
   type: KeyType;
   /** always read from context. need lazy. @default false */
   always?: boolean;

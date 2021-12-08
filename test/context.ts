@@ -1,8 +1,14 @@
 import test from 'ava';
-import { IocContext, inject, NotfoundTypeError, injectable, MultiImplementError, classInfo } from '../lib';
+import {
+  IocContext,
+  inject,
+  NotfoundTypeError,
+  injectable,
+  MultiImplementError,
+  classInfo,
+} from '../lib';
 
-class TestService {
-}
+class TestService {}
 
 test('default instance.', t => {
   t.true(IocContext.DefaultInstance instanceof IocContext);
@@ -10,10 +16,10 @@ test('default instance.', t => {
 
 test('register component error case.', t => {
   enum INJECTTYPE {
-    test
+    test,
   }
 
-  const context = new IocContext;
+  const context = new IocContext();
   t.throws(() => context.register(undefined));
   t.throws(() => context.register(123123));
   t.throws(() => context.register({}));
@@ -23,14 +29,14 @@ test('register component error case.', t => {
 });
 
 test('register component by class.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService);
   t.true(context.get(TestService) instanceof TestService);
 
   // test for tip of type.
-  class A { }
+  class A {}
   context.register(A);
-  abstract class B { }
+  abstract class B {}
   context.register(B);
   t.true(context.get(A) instanceof A);
   t.true(context.get(B) instanceof B);
@@ -38,10 +44,14 @@ test('register component by class.', t => {
 });
 
 test('register component by create function.', t => {
-  const context = new IocContext;
-  context.register(() => {
-    t.fail();
-  }, 'test', { autoNew: false });
+  const context = new IocContext();
+  context.register(
+    () => {
+      t.fail();
+    },
+    'test',
+    { autoNew: false }
+  );
   context.register(() => {
     return { a: 5 };
   }, 'test2');
@@ -49,7 +59,7 @@ test('register component by create function.', t => {
 });
 
 test('register component mutli-instance.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService, undefined, { singleton: false });
   const dataA = context.get(TestService);
   t.true(dataA instanceof TestService);
@@ -59,7 +69,7 @@ test('register component mutli-instance.', t => {
 });
 
 test('register component no autonew.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService, undefined, { autoNew: false });
   const dataA = context.get(TestService);
   t.false(dataA instanceof TestService);
@@ -67,13 +77,13 @@ test('register component no autonew.', t => {
 });
 
 test('register 2nd with same key.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService);
   t.throws(() => context.register(TestService));
 });
 
 test('register component by string.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService, 'string_key');
   t.true(context.get('string_key') instanceof TestService);
 
@@ -87,12 +97,12 @@ test('register component by string.', t => {
 });
 
 test('register not allowed.', t => {
-  const context = new IocContext;
-  t.throws(() => context.register(new TestService));
+  const context = new IocContext();
+  t.throws(() => context.register(new TestService()));
 });
 
 test('auto register component by class.', t => {
-  class A { }
+  class A {}
   class B {
     @inject()
     a: A;
@@ -103,17 +113,16 @@ test('auto register component by class.', t => {
 });
 
 test('has component.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService);
   t.true(context.has(TestService));
 
-  class BTest {
-  }
+  class BTest {}
   t.false(context.has(BTest));
 });
 
 test('remove component.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService);
   t.true(context.get(TestService) instanceof TestService);
   context.remove(TestService);
@@ -121,8 +130,8 @@ test('remove component.', t => {
 });
 
 test('replace component.', t => {
-  class BClass { }
-  const context = new IocContext;
+  class BClass {}
+  const context = new IocContext();
   context.register(TestService);
   t.true(context.get(TestService) instanceof TestService);
 
@@ -138,7 +147,7 @@ test('replace component.', t => {
 import { TestService as TS2 } from './base';
 import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 test('difference class with same class name.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(TestService);
   context.register(TS2);
   t.true(context.get(TestService) instanceof TestService);
@@ -146,9 +155,9 @@ test('difference class with same class name.', t => {
 });
 
 test('subComponent.', t => {
-  class SubClass extends TestService { }
+  class SubClass extends TestService {}
 
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(SubClass, TestService);
   t.true(context.get(TestService) instanceof SubClass);
   t.true(context.get(TestService) instanceof TestService);
@@ -156,11 +165,11 @@ test('subComponent.', t => {
 });
 
 test('getSubClasses, with classLoader.', t => {
-  class AClass { }
-  class BClass extends AClass { }
-  class CClass extends AClass { }
+  class AClass {}
+  class BClass extends AClass {}
+  class CClass extends AClass {}
 
-  const context = new IocContext;
+  const context = new IocContext();
   t.true(!context.getImports(AClass).length);
 
   classLoader.registerClass(BClass);
@@ -183,27 +192,28 @@ test('getSubClasses, with classLoader.', t => {
 
 test('new constructor.', t => {
   let count = 0;
-  class OtherClass { }
+  class OtherClass {}
   class AClass {
     @inject()
     other: OtherClass;
 
-    constructor() { count++; }
+    constructor() {
+      count++;
+    }
   }
-  const context = new IocContext;
+  const context = new IocContext();
   context.register(AClass);
   context.register(OtherClass);
-  const a = new AClass;
+  const a = new AClass();
   context.inject(a);
   t.true(a.other instanceof OtherClass);
   t.true(count === 1);
 });
 
 test('inject instance.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
 
-  class AClass {
-  }
+  class AClass {}
 
   class BClass {
     @inject({ lazy: false })
@@ -214,33 +224,30 @@ test('inject instance.', t => {
 
   context.register(AClass);
 
-  const bclass = new BClass;
+  const bclass = new BClass();
   context.inject(bclass);
   t.true(bclass.aclass instanceof AClass);
   t.true(bclass.injectclass instanceof AClass);
 });
 
 test('inject instance, notfound.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
 
-  class AClass {
-  }
+  class AClass {}
 
   class BClass {
     @inject()
     aclass: AClass;
   }
 
-  const bclass = new BClass;
+  const bclass = new BClass();
   context.inject(bclass);
   t.throws(() => bclass.aclass, { instanceOf: NotfoundTypeError });
 });
 
 test('inject instance, notfoundHandler.', t => {
-  class AClass {
-  }
-  class A2Class {
-  }
+  class AClass {}
+  class A2Class {}
 
   class BClass {
     @inject()
@@ -250,18 +257,18 @@ test('inject instance, notfoundHandler.', t => {
   }
 
   const context = new IocContext({
-    notFoundHandler: (type) => {
-      return type === AClass ? new AClass : undefined;
-    }
+    notFoundHandler: type => {
+      return type === AClass ? new AClass() : undefined;
+    },
   });
-  const bclass = new BClass;
+  const bclass = new BClass();
   context.inject(bclass);
   t.true(bclass.aclass instanceof AClass);
   t.throws(() => bclass.a2class);
 });
 
 test('inject instance, string.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
 
   context.register({ a: 123 }, 'TEST_A');
 
@@ -270,16 +277,18 @@ test('inject instance, string.', t => {
     aclass: { a: number };
   }
 
-  const bclass = new BClass;
+  const bclass = new BClass();
   context.inject(bclass);
   t.true(bclass.aclass.a === 123);
 });
 
 test('lazyInject redefined.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
 
   class TestClass {
-    a() { return 1; }
+    a() {
+      return 1;
+    }
   }
 
   class AClass {
@@ -300,10 +309,12 @@ test('lazyInject redefined.', t => {
 });
 
 test('clear.', t => {
-  const context = new IocContext;
+  const context = new IocContext();
 
   class TestClass {
-    a() { return 1; }
+    a() {
+      return 1;
+    }
   }
   context.register(TestClass);
   t.true(context.get(TestClass).a() === 1);
@@ -315,29 +326,29 @@ test('clear.', t => {
 test('multi implement, use classLoader.', t => {
   const context = new IocContext();
 
-  abstract class IService { }
+  abstract class IService {}
 
   t.throws(() => context.get(IService), { instanceOf: NotfoundTypeError });
 
   @injectable()
-  class A extends IService { }
+  class A extends IService {}
 
   t.true(context.get(IService) instanceof IService);
   t.true(context.get(IService) instanceof A);
   context.remove(IService);
 
   @injectable()
-  class B extends IService { }
+  class B extends IService {}
 
   t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
 });
 
 test('multi implement, conflictHandler.', t => {
-  abstract class IService { }
+  abstract class IService {}
   @injectable()
-  class A extends IService { }
+  class A extends IService {}
   @injectable()
-  class B extends IService { }
+  class B extends IService {}
   @injectable()
   class C {
     @inject({ lazy: false })
@@ -349,11 +360,11 @@ test('multi implement, conflictHandler.', t => {
   const context = new IocContext({
     conflictHandler: (type, implCls, sourceCls) => {
       if (type === IService) {
-        return sourceCls?.type === C ?
-          implCls.find(info => info.type === B).type :
-          implCls.find(info => info.info.name === 'A').type;
+        return sourceCls?.type === C
+          ? implCls.find(info => info.type === B).type
+          : implCls.find(info => info.info.name === 'A').type;
       }
-    }
+    },
   });
 
   t.true(context.get(IService) instanceof A);
@@ -364,16 +375,16 @@ test('multi implement, conflictHandler.', t => {
 });
 
 test('multi implement, conflictHandler, err.', t => {
-  abstract class IService { }
+  abstract class IService {}
   @injectable()
-  class A extends IService { }
+  class A extends IService {}
   @injectable()
-  class B extends IService { }
+  class B extends IService {}
 
   const context = new IocContext({
     conflictHandler: (type, implCls, sourceCls) => {
       return undefined;
-    }
+    },
   });
 
   t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
@@ -381,11 +392,11 @@ test('multi implement, conflictHandler, err.', t => {
 
 test('multi implement, no err.', t => {
   @injectable()
-  class BaseService { }
+  class BaseService {}
   @injectable()
-  class A extends BaseService { }
+  class A extends BaseService {}
   @injectable()
-  class B extends BaseService { }
+  class B extends BaseService {}
 
   const context = new IocContext();
 
@@ -394,7 +405,7 @@ test('multi implement, no err.', t => {
   const childContext = context.createChildContext({
     conflictHandler: (type, implCls, sourceCls) => {
       return implCls.find(s => s.type === A).type;
-    }
+    },
   });
   t.true(childContext.get(BaseService) instanceof A);
 });
@@ -413,8 +424,8 @@ test('child context.', t => {
 });
 
 test('child context, getImports.', t => {
-  class BaseCls { }
-  class TestCls extends BaseCls { }
+  class BaseCls {}
+  class TestCls extends BaseCls {}
   const parent = new IocContext();
   parent.classLoader.registerClass(TestCls);
 
@@ -431,10 +442,10 @@ test('child context, getImports.', t => {
 
 test('constructor inject', t => {
   @injectable()
-  class A { }
+  class A {}
   @injectable()
   class B {
-    constructor(public a: A, public count: Number) { }
+    constructor(public a: A, public count: Number) {}
   }
 
   const context = new IocContext();
@@ -443,10 +454,10 @@ test('constructor inject', t => {
 
 test('no constructor inject', t => {
   @injectable()
-  class A { }
+  class A {}
   @injectable()
   class B {
-    constructor(public a: A, public count: Number) { }
+    constructor(public a: A, public count: Number) {}
   }
 
   const context = new IocContext({ constructorInject: false });
@@ -482,12 +493,12 @@ test('no singleton inject', t => {
 
 test('custom classLoader.', t => {
   const context = new IocContext({
-    useClassLoader: new ClassLoader()
+    useClassLoader: new ClassLoader(),
   });
 
-  abstract class IA { }
+  abstract class IA {}
   @classInfo()
-  class A extends IA { }
+  class A extends IA {}
   t.throws(() => context.get(IA));
 
   context.classLoader.registerClass(A);
@@ -499,9 +510,9 @@ test('without classLoader', t => {
     useClassLoader: false,
   });
 
-  abstract class IA { }
+  abstract class IA {}
   @classInfo()
-  class A extends IA { }
+  class A extends IA {}
   t.throws(() => context.get(IA), { instanceOf: NotfoundTypeError });
 });
 
@@ -519,7 +530,7 @@ test('createInstanceHook.', t => {
         inst.test = 'xxx';
       }
       return inst;
-    }
+    },
   });
 
   const a = context.get(AClass);
@@ -527,9 +538,9 @@ test('createInstanceHook.', t => {
 });
 
 test('use the same instance between interface and impl when get.', t => {
-  abstract class Base { }
+  abstract class Base {}
   @injectable()
-  class A extends Base { }
+  class A extends Base {}
 
   @injectable()
   class Test {
@@ -546,5 +557,8 @@ test('use the same instance between interface and impl when get.', t => {
 });
 
 test('cannot serialize.', t => {
-  t.true(JSON.stringify(IocContext.DefaultInstance) === JSON.stringify({ type: 'power-di.IocContext', message: 'NoSerializable' }));
+  t.true(
+    JSON.stringify(IocContext.DefaultInstance) ===
+      JSON.stringify({ type: 'power-di.IocContext', message: 'NoSerializable' })
+  );
 });

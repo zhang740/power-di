@@ -15,7 +15,7 @@ export function getSuperClassInfo(classType: Function) {
     const type = getGlobalType(tmpType);
     superClasses.push({
       type,
-      class: tmpType
+      class: tmpType,
     });
     tmpType = Object.getPrototypeOf(tmpType);
   }

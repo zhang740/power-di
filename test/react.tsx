@@ -8,7 +8,7 @@ import { iocConsumer } from '../react';
 
 test('react only react component.', t => {
   const context = IocContext.DefaultInstance;
-  class NRServiceDI { }
+  class NRServiceDI {}
   context.register(NRServiceDI);
 
   class TestComponent extends Component<{}, {}> {
@@ -25,14 +25,12 @@ test('react only react component.', t => {
     }
   }
 
-  create(
-    <TestComponent />
-  );
+  create(<TestComponent />);
 });
 
 test('react IocProvider.', t => {
   const context = IocContext.DefaultInstance;
-  class NRServiceDI { }
+  class NRServiceDI {}
   context.register(NRServiceDI);
 
   class TestComponent extends Component {
@@ -56,8 +54,8 @@ test('react IocProvider.', t => {
 });
 
 test('react IocProvider with context.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   class TestComponent extends PureComponent {
@@ -81,8 +79,8 @@ test('react IocProvider with context.', t => {
 });
 
 test('react has componentWillMount.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   class TestComponent extends Component {
@@ -105,10 +103,9 @@ test('react has componentWillMount.', t => {
   );
 });
 
-
 test('react has componentWillMount, PureComponent.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   class TestComponent extends PureComponent {
@@ -132,8 +129,8 @@ test('react has componentWillMount, PureComponent.', t => {
 });
 
 test('react postConstruct.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   class TestComponent extends Component {
@@ -158,8 +155,8 @@ test('react postConstruct.', t => {
 });
 
 test('react consumer.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   @iocConsumer()
@@ -185,8 +182,8 @@ test('react consumer.', t => {
 });
 
 test('react consumer， PureComponent.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   @iocConsumer({ pureComponent: true })
@@ -212,8 +209,8 @@ test('react consumer， PureComponent.', t => {
 });
 
 test('react consumer, manual extends.', t => {
-  const context = new IocContext;
-  class NRService { }
+  const context = new IocContext();
+  class NRService {}
   context.register(NRService);
 
   @iocConsumer({ manualExtendsBaseClass: true })

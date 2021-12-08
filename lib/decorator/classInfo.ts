@@ -8,9 +8,13 @@ export function classInfo(info: ClassInfo = {}): ClassDecorator {
     if (classLoader.hasClass(target)) {
       classLoader.unregisterClass(target);
     }
-    Object.assign(getMetadata(target).classInfo, {
-      // default value
-    } as ClassInfo, info);
+    Object.assign(
+      getMetadata(target).classInfo,
+      {
+        // default value
+      } as ClassInfo,
+      info
+    );
     classLoader.registerClass(target);
   };
 }
