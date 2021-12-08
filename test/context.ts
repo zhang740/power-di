@@ -440,6 +440,17 @@ test('child context, getImports.', t => {
   t.true(parentImpls[0] === childImpls[0]);
 });
 
+test('child context, inherit.', t => {
+  const parent = new IocContext({ autoRegisterSelf: true });
+  t.true(parent.config.autoRegisterSelf === true);
+
+  const child = parent.createChildContext();
+  t.true(child.config.autoRegisterSelf === true);
+
+  const child2 = parent.createChildContext({});
+  t.true(child2.config.autoRegisterSelf === true);
+});
+
 test('constructor inject', t => {
   @injectable()
   class A {}
