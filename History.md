@@ -1,3 +1,9 @@
+
+# 2.4.16 / 2022-02-09
+==================
+
+  * update: optimize isClass
+
 # 2.4.15 / 2021-12-08
 
 - fix: inherit of createChildContext
