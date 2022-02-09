@@ -34,18 +34,25 @@ export function before(
       return node;
     }
     // 处理注入 type
-    if (
-      ['inject', 'getContributions', 'getExtensions', 'getPlugins'].includes(
-        `${getDecoratorName(node)}`
-      )
-    ) {
+    const injectDecorators = pkg['power-di']?.decoratorNames?.inject || [
+      'inject',
+      'getContributions',
+      'getExtensions',
+      'getPlugins',
+    ];
+    if (injectDecorators.includes(`${getDecoratorName(node)}`)) {
       return processInject(node, sf, typeChecker);
     }
 
     // 处理 class
-    if (
-      ['injectable', 'plugin', 'extension', 'contribution'].includes(`${getDecoratorName(node)}`)
-    ) {
+    const classDecorators = pkg['power-di']?.decoratorNames?.class || [
+      'classInfo',
+      'injectable',
+      'contribution',
+      'extension',
+      'plugin',
+    ];
+    if (classDecorators.includes(`${getDecoratorName(node)}`)) {
       return processClassInfo(node, pkg, sf, typeChecker);
     }
 
@@ -200,8 +207,19 @@ function processInject(node: ts.Decorator, sourceFile: ts.SourceFile, typeChecke
   );
 }
 
-const pkgCache: { path: string; pkg: any }[] = [];
-function findPkg(filePath: string): any {
+type PkgJSONType = {
+  name: string;
+  version: string;
+  'power-di'?: {
+    decoratorNames?: {
+      inject?: string[];
+      class?: string[];
+    };
+  };
+};
+
+const pkgCache: { path: string; pkg: PkgJSONType }[] = [];
+function findPkg(filePath: string): PkgJSONType {
   if (filePath === '/') {
     return;
   }

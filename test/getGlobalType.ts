@@ -60,7 +60,9 @@ test('isClass', t => {
   t.true(!isClass(''));
   t.true(!isClass(undefined));
   t.true(!isClass(null));
+  t.true(!isClass({}));
   t.true(!isClass(new Date()));
+  t.true(!isClass(Symbol('TestSymbol')));
 
   // FIXME: cannot judge
   // function a() { }

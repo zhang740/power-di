@@ -80,7 +80,7 @@ export function getMetadataField<T extends keyof MetadataType>(
   const field = getMetadata(type)[key];
   const superType = Object.getPrototypeOf(type);
   if (superType && Array.isArray(field)) {
-    return field.concat(getMetadataField(superType, key)) as any;
+    return (field as any[]).concat(getMetadataField(superType, key)) as any;
   }
   return field;
 }
