@@ -25,12 +25,11 @@ export function getGlobalType(key: any, prefix: string = ''): string | symbol {
     return key['__type'];
   }
   let type: string;
-  const info = key.toString().match(/\w+/g);
-  if (!['class', 'function'].includes(info[0])) {
+  if (typeof key !== 'function' || !key.name) {
     // Only for compatible with es5 class
     throw new Error('data MUST be a class or string.');
   }
-  type = prefix + info[1];
+  type = prefix + key.name;
   if (_globalTypes[type]) {
     type = type + '_' + _uid++;
   }
