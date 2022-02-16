@@ -1,7 +1,7 @@
 import { ClassType, KeyType } from '../utils/types';
 import { ClassInfo } from './ClassInfo';
 import { getMetadata } from './metadata';
-import { getSuperClassInfo } from '../utils';
+import { getGlobalType, getSuperClassInfo } from '../utils';
 
 type ExtendAndInterface = KeyType;
 export interface TypeWithInfo {
@@ -17,10 +17,8 @@ export class DuplicateRegistrationError extends Error {
 
 export class ClassLoader {
   constructor(
-    /** @internal only for clone */
-    private classInfoMap: Map<ClassType, ClassInfo> = new Map(),
-    /** @internal only for clone */
-    private implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map()
+    protected classInfoMap: Map<ClassType, ClassInfo> = new Map(),
+    protected implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map()
   ) {}
 
   /** has class */
@@ -125,16 +123,17 @@ export class ClassLoader {
     this.implementCacheMap = this.cloneImplCacheMap(classLoader.implementCacheMap);
   }
 
-  private cloneImplCacheMap(map: Map<KeyType, TypeWithInfo[]>) {
+  protected cloneImplCacheMap(map: Map<KeyType, TypeWithInfo[]>) {
     return new Map(Array.from(map.entries()).map(([k, v]) => [k, [...v]]));
   }
 
-  private getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {
-    if (!this.implementCacheMap.has(type)) {
-      this.implementCacheMap.set(type, []);
+  protected getImplCacheByType(type: ExtendAndInterface): TypeWithInfo[] {
+    const key = getGlobalType(type);
+    if (!this.implementCacheMap.has(key)) {
+      this.implementCacheMap.set(key, []);
       return this.getImplCacheByType(type);
     }
-    return this.implementCacheMap.get(type);
+    return this.implementCacheMap.get(key);
   }
 }
 
