@@ -219,9 +219,7 @@ export class IocContext {
     const key = getGlobalType(keyOrType);
     const data = this.components.get(key);
     if (data) {
-      data.inited = false;
-      data.factory = this.genValueFactory(newData, options || data.options);
-      data.value = undefined;
+      this.components.set(key, this.newStore(newData, options || data.options));
     } else if (registerIfNotExist) {
       this.register(newData, keyOrType, options);
     } else {
@@ -403,10 +401,50 @@ export class IocContext {
   }
 
   private newStore(data: any, options: RegisterOptions) {
+    const dataIsFunction = typeof data === 'function';
+    const dataIsClass = dataIsFunction && isClass(data);
+    const needFactory = dataIsFunction && options.autoNew;
     return {
-      inited: false,
-      factory: this.genValueFactory(data, options),
-      value: undefined,
+      inited: needFactory ? false : true,
+      factory: needFactory
+        ? () => {
+            if (dataIsClass) {
+              const ClsType = data;
+              let args: any[] = [];
+              if (this.config.constructorInject && Reflect && Reflect.getMetadata) {
+                const paramTypes = Reflect.getMetadata('design:paramtypes', ClsType);
+                if (paramTypes) {
+                  args = paramTypes.map((type: any) => {
+                    if (
+                      type === ClsType ||
+                      type === undefined ||
+                      type === null ||
+                      type === Number ||
+                      type === Error ||
+                      type === Object ||
+                      type === String ||
+                      type === Boolean ||
+                      type === Array ||
+                      type === Function
+                    ) {
+                      return null;
+                    }
+                    return this.get(type);
+                  });
+                }
+              }
+              const value = new ClsType(...args);
+              this.inject(value);
+              return this.config.createInstanceHook
+                ? this.config.createInstanceHook(value, this)
+                : value;
+            } else {
+              const func = data;
+              return func(this);
+            }
+          }
+        : undefined,
+      value: needFactory ? undefined : data,
       options,
     } as Store;
   }
@@ -418,52 +456,6 @@ export class IocContext {
       return obj.toString() !== '[object Object]';
     }
     return ['function', 'string', 'symbol'].includes(type);
-  }
-
-  private genValueFactory(data: any, options: RegisterOptions) {
-    const dataIsFunction = typeof data === 'function';
-    const dataIsClass = dataIsFunction && isClass(data);
-
-    return () => {
-      if (dataIsFunction && options.autoNew) {
-        if (dataIsClass) {
-          const ClsType = data;
-          let args: any[] = [];
-          if (this.config.constructorInject && Reflect && Reflect.getMetadata) {
-            const paramTypes = Reflect.getMetadata('design:paramtypes', ClsType);
-            if (paramTypes) {
-              args = paramTypes.map((type: any) => {
-                if (
-                  type === ClsType ||
-                  type === undefined ||
-                  type === null ||
-                  type === Number ||
-                  type === Error ||
-                  type === Object ||
-                  type === String ||
-                  type === Boolean ||
-                  type === Array ||
-                  type === Function
-                ) {
-                  return null;
-                }
-                return this.get(type);
-              });
-            }
-          }
-          const value = new ClsType(...args);
-          this.inject(value);
-          return this.config.createInstanceHook
-            ? this.config.createInstanceHook(value, this)
-            : value;
-        } else {
-          const func = data;
-          return func(this);
-        }
-      } else {
-        return data;
-      }
-    };
   }
 
   private returnValue(data: Store, forceNew = false) {
