@@ -1,4 +1,4 @@
-import { getGlobalType, getClsTypeByDecorator } from '../utils';
+import { getGlobalType } from '../utils';
 import { getMetadata } from '../class/metadata';
 import { KeyType } from '../utils/types';
 

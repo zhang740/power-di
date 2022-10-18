@@ -37,7 +37,7 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
   let newFn: any;
 
   if (isGeneratorFunction(oriFn)) {
-    newFn = function* (...args: any[]) {
+    newFn = function* (...args: any[]): Generator {
       const context = createContext(ioc, this, oriFn, args);
       try {
         run(point.before, context);
