@@ -41,7 +41,7 @@ export function before(
       'getPlugins',
     ];
     if (injectDecorators.includes(`${getDecoratorName(node)}`)) {
-      return processInject(node, sf, typeChecker);
+      return processInject(ctx, node, sf, typeChecker);
     }
 
     // 处理 class
@@ -53,7 +53,7 @@ export function before(
       'plugin',
     ];
     if (classDecorators.includes(`${getDecoratorName(node)}`)) {
-      return processClassInfo(node, pkg, sf, typeChecker);
+      return processClassInfo(ctx, node, pkg, sf, typeChecker);
     }
 
     return node;
@@ -61,6 +61,7 @@ export function before(
 }
 
 function processClassInfo(
+  ctx: ts.TransformationContext,
   node: ts.Decorator,
   pkg: ReturnType<typeof findPkg>,
   sourceFile: ts.SourceFile,
@@ -95,23 +96,25 @@ function processClassInfo(
     impls.types.forEach(typeNode => {
       const type = typeChecker.getTypeFromTypeNode(typeNode);
       const symbol = type.getSymbol();
-      fixedImport(symbol?.name || typeNode.getText(), sourceFile);
+      fixedImport(ctx, symbol?.name || typeNode.getText(), sourceFile);
     });
 
+  const f = ctx.factory;
+
   const info = [
-    ts.createPropertyAssignment('pkg', ts.createStringLiteral(pkg.name)),
-    ts.createPropertyAssignment('version', ts.createStringLiteral(pkg.version)),
+    f.createPropertyAssignment('pkg', f.createStringLiteral(pkg.name)),
+    f.createPropertyAssignment('version', f.createStringLiteral(pkg.version)),
     impls &&
-      ts.createPropertyAssignment(
+      f.createPropertyAssignment(
         'implements',
-        ts.createArrayLiteral(impls.types.map(type => type.expression))
+        f.createArrayLiteralExpression(impls.types.map(type => type.expression))
       ),
   ].filter(s => s);
 
   const config = oldArgObj
-    ? ts.updateObjectLiteral(
+    ? f.updateObjectLiteralExpression(
         oldArgObj,
-        ts.createNodeArray([
+        f.createNodeArray([
           ...info,
           ...oldArgObj.properties.filter(
             p =>
@@ -123,17 +126,25 @@ function processClassInfo(
           ),
         ])
       )
-    : ts.createObjectLiteral(ts.createNodeArray(info), false);
+    : f.createObjectLiteralExpression(f.createNodeArray(info), false);
 
-  return ts.updateDecorator(
+  return f.updateDecorator(
     node,
-    ts.updateCall(decoratorFactory, decoratorFactory.expression, decoratorFactory.typeArguments, [
-      config,
-    ])
+    f.updateCallExpression(
+      decoratorFactory,
+      decoratorFactory.expression,
+      decoratorFactory.typeArguments,
+      [config]
+    )
   );
 }
 
-function processInject(node: ts.Decorator, sourceFile: ts.SourceFile, typeChecker: ts.TypeChecker) {
+function processInject(
+  ctx: ts.TransformationContext,
+  node: ts.Decorator,
+  sourceFile: ts.SourceFile,
+  typeChecker: ts.TypeChecker
+) {
   const propertyNode = node.parent;
   if (!ts.isPropertyDeclaration(propertyNode) || !ts.isCallExpression(node.expression)) {
     return node;
@@ -191,19 +202,27 @@ function processInject(node: ts.Decorator, sourceFile: ts.SourceFile, typeChecke
     }
   }
 
-  fixedImport(identifier.escapedText, sourceFile);
+  fixedImport(ctx, identifier.escapedText, sourceFile);
 
-  const info = [refType && ts.createPropertyAssignment('type', identifier)];
+  const f = ctx.factory;
+
+  const info = [refType && f.createPropertyAssignment('type', identifier)];
 
   const config = oldArgObj
-    ? ts.updateObjectLiteral(oldArgObj, ts.createNodeArray([...info, ...oldArgObj.properties]))
-    : ts.createObjectLiteral(ts.createNodeArray(info), false);
+    ? f.updateObjectLiteralExpression(
+        oldArgObj,
+        f.createNodeArray([...info, ...oldArgObj.properties])
+      )
+    : f.createObjectLiteralExpression(f.createNodeArray(info), false);
 
-  return ts.updateDecorator(
+  return f.updateDecorator(
     node,
-    ts.updateCall(decoratorFactory, decoratorFactory.expression, decoratorFactory.typeArguments, [
-      config,
-    ])
+    f.updateCallExpression(
+      decoratorFactory,
+      decoratorFactory.expression,
+      decoratorFactory.typeArguments,
+      [config]
+    )
   );
 }
 
@@ -267,7 +286,13 @@ function hasField(config: ts.Expression | undefined, fieldName: string) {
   return !!getField(config, fieldName);
 }
 
-function fixedImport(escapedText: string | ts.__String, sourceFile: ts.SourceFile) {
+function fixedImport(
+  ctx: ts.TransformationContext,
+  escapedText: string | ts.__String,
+  sourceFile: ts.SourceFile
+) {
+  // const f = ctx.factory;
+
   // IFoo<IBar> => IFoo
   escapedText = `${escapedText}`.split('<')[0];
 
@@ -279,7 +304,7 @@ function fixedImport(escapedText: string | ts.__String, sourceFile: ts.SourceFil
         return el.name.escapedText === escapedText;
       });
       if (el) {
-        im.flags = im.flags | ts.NodeFlags.Synthesized;
+        (im as any).flags = im.flags | ts.NodeFlags.Synthesized;
       }
     });
 }
