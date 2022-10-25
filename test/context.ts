@@ -410,47 +410,6 @@ test('multi implement, no err.', t => {
   t.true(childContext.get(BaseService) instanceof A);
 });
 
-test('child context.', t => {
-  const parent = new IocContext();
-  parent.register(5, 'TEST');
-  t.true(parent.get('TEST') === 5);
-
-  const child = parent.createChildContext();
-  t.true(child.get('TEST') === 5);
-
-  child.register(8, 'TEST');
-  t.true(child.get('TEST') === 8);
-  t.true(parent.get('TEST') === 5);
-});
-
-test('child context, getImports.', t => {
-  class BaseCls {}
-  class TestCls extends BaseCls {}
-  const parent = new IocContext();
-  parent.classLoader.registerClass(TestCls);
-
-  const parentImpls = parent.getImports(BaseCls);
-  t.true(parentImpls[0] instanceof TestCls);
-
-  const child = parent.createChildContext();
-
-  const childImpls = child.getImports(BaseCls);
-  t.true(childImpls[0] instanceof TestCls);
-
-  t.true(parentImpls[0] === childImpls[0]);
-});
-
-test('child context, inherit.', t => {
-  const parent = new IocContext({ autoRegisterSelf: true });
-  t.true(parent.config.autoRegisterSelf === true);
-
-  const child = parent.createChildContext();
-  t.true(child.config.autoRegisterSelf === true);
-
-  const child2 = parent.createChildContext({});
-  t.true(child2.config.autoRegisterSelf === true);
-});
-
 test('constructor inject', t => {
   @injectable()
   class A {}
