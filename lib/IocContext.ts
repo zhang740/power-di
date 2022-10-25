@@ -102,10 +102,12 @@ export class IocContext {
     opt: {
       /** always get new instance */
       forceNew?: boolean;
-      /** source of invoke cls */
-      sourceCls?: ClassType;
       /** use classLoader */
       useClassLoader?: boolean;
+      /** source of invoke cls */
+      sourceCls?: ClassType;
+      /** source of type */
+      sourceType?: KeyOrType;
     } = {}
   ): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
@@ -127,7 +129,10 @@ export class IocContext {
       switch (classes.length) {
         case 1:
           // class loader is only responsible for matching and not for registration.
-          return this.get(classes[0].type as any, opt);
+          return this.get(classes[0].type, {
+            ...opt,
+            sourceType: opt.sourceType || type,
+          });
 
         case 0:
           break;
@@ -159,7 +164,7 @@ export class IocContext {
     }
 
     if (this.config.parentContext) {
-      return this.config.parentContext.get(keyOrType);
+      return this.config.parentContext.get(opt.sourceType || keyOrType);
     }
 
     const canAutoRegister =
