@@ -532,3 +532,30 @@ test('cannot serialize.', t => {
       JSON.stringify({ type: 'power-di.IocContext', message: 'NoSerializable' })
   );
 });
+
+test('subclass override props.', t => {
+  @injectable()
+  class X {
+    name = 'x';
+  }
+  @injectable()
+  class Y {
+    name = 'y';
+  }
+
+  @injectable()
+  class Base {
+    @inject()
+    service: X;
+  }
+  @injectable()
+  class Test extends Base {
+    @inject()
+    service: Y;
+  }
+
+  const context = new IocContext();
+  context.register(Base);
+  t.deepEqual('x', context.get(Base).service.name, 'Base');
+  t.deepEqual('y', context.get(Test).service.name, 'Test');
+});

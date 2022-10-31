@@ -1,7 +1,7 @@
 import test from 'ava';
 import { IocContext, NotfoundTypeError } from '../lib/IocContext';
 import { inject, classInfo, injectable, imports, postConstruct, aspect } from '../lib';
-import { FunctionContext } from '../lib/class/metadata';
+import { FunctionContext, getMetadataField } from '../lib/class/metadata';
 import * as co from 'co';
 import { preDestroy } from '../lib/decorator/preDestroy';
 
@@ -767,4 +767,15 @@ test('preDestroy, parent and subClass.', t => {
   ioc.get(C);
   ioc.clear();
   t.is(count, 3);
+});
+
+test('metadata', t => {
+  @injectable()
+  class A {}
+  @injectable()
+  class B extends A {}
+
+  t.deepEqual(getMetadataField(A, 'injectable'), true);
+
+  t.deepEqual(getMetadataField(B, 'injectable'), true);
 });

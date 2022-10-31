@@ -116,12 +116,12 @@ test('getRefMap, extends', t => {
       count: 0,
       deps: [
         {
-          prop: 'b',
-          type: 'InjClsB',
-        },
-        {
           prop: 'a',
           type: 'InjClsA',
+        },
+        {
+          prop: 'b',
+          type: 'InjClsB',
         },
       ],
     },
