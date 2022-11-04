@@ -1,3 +1,7 @@
+# 2.4.24 / 2022-11-04
+
+- feat: select strategy of multiple when only one instance exist
+
 # 2.4.23 / 2022-11-04
 
 ==================
@@ -199,7 +203,7 @@
 
 # 2.2.5 / 2020-04-22
 
-- update: postContruct move in inject.
+- update: postConstruct move in inject.
 
 # 2.2.4 / 2020-04-02
 
