@@ -2,11 +2,17 @@ import test from 'ava';
 import * as React from 'react';
 import { create } from 'react-test-renderer';
 import { IocContext } from '../lib/IocContext';
-import { IocProvider, Component, PureComponent, BaseConsumerComponent } from '../lib/react';
+import {
+  IocProvider,
+  Component,
+  PureComponent,
+  useInstanceHook,
+  BaseConsumerComponent,
+} from '../lib/react';
 import { inject, postConstruct } from '../lib';
 import { iocConsumer } from '../react';
 
-test('react only react component.', t => {
+test('only component.', t => {
   const context = IocContext.DefaultInstance;
   class NRServiceDI {}
   context.register(NRServiceDI);
@@ -28,7 +34,7 @@ test('react only react component.', t => {
   create(<TestComponent />);
 });
 
-test('react IocProvider.', t => {
+test('IocProvider.', t => {
   const context = IocContext.DefaultInstance;
   class NRServiceDI {}
   context.register(NRServiceDI);
@@ -53,7 +59,7 @@ test('react IocProvider.', t => {
   );
 });
 
-test('react IocProvider with context.', t => {
+test('IocProvider with context.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -78,7 +84,7 @@ test('react IocProvider with context.', t => {
   );
 });
 
-test('react has componentWillMount.', t => {
+test('has componentWillMount.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -87,7 +93,7 @@ test('react has componentWillMount.', t => {
     @inject()
     service: NRService;
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
       t.true(this.service instanceof NRService);
     }
 
@@ -103,7 +109,7 @@ test('react has componentWillMount.', t => {
   );
 });
 
-test('react has componentWillMount, PureComponent.', t => {
+test('has componentWillMount, PureComponent.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -112,7 +118,7 @@ test('react has componentWillMount, PureComponent.', t => {
     @inject()
     service: NRService;
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
       t.true(this.service instanceof NRService);
     }
 
@@ -128,7 +134,7 @@ test('react has componentWillMount, PureComponent.', t => {
   );
 });
 
-test('react postConstruct.', t => {
+test('postConstruct.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -154,7 +160,7 @@ test('react postConstruct.', t => {
   );
 });
 
-test('react consumer.', t => {
+test('consumer.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -181,7 +187,7 @@ test('react consumer.', t => {
   );
 });
 
-test('react consumer， PureComponent.', t => {
+test('consumer, PureComponent.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -208,7 +214,50 @@ test('react consumer， PureComponent.', t => {
   );
 });
 
-test('react consumer, manual extends.', t => {
+test('consumer, manual extends.', t => {
+  const context = new IocContext();
+  class NRService {}
+  context.register(NRService);
+
+  @iocConsumer({ manualExtendsBaseClass: true })
+  class TestComponent extends React.Component {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
+      t.fail();
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  @iocConsumer()
+  class TestBComponent extends React.Component {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
+      t.true(this.service instanceof NRService);
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+      <TestBComponent />
+    </IocProvider>
+  );
+});
+
+test('consumer, manual extends BaseConsumerComponent.', t => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -227,6 +276,49 @@ test('react consumer, manual extends.', t => {
       return null;
     }
   }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('has createInstanceHook', t => {
+  const context = new IocContext({
+    createInstanceHook(inst, ioc) {
+      inst.x = 'test';
+      return inst;
+    },
+  });
+  class TestComponent extends Component {
+    x: string;
+
+    componentDidMount() {
+      t.deepEqual(this.x, 'test');
+    }
+
+    render(): any {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('use hooks', t => {
+  const context = new IocContext();
+  class NRService {}
+  context.register(NRService);
+
+  const TestComponent = (): any => {
+    t.true(useInstanceHook(NRService) instanceof NRService);
+    return null;
+  };
 
   create(
     <IocProvider context={context}>

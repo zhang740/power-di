@@ -10,48 +10,46 @@ export interface IocConsumerOpt {
 }
 
 export function iocConsumer(opt: IocConsumerOpt = {}): ClassDecorator {
-  opt = Object.assign({ useBaseClass: false }, opt);
+  opt = Object.assign({}, opt);
 
   return function (Comp: any): any {
     const NewComp: any = opt.manualExtendsBaseClass ? Comp : createConsumerComponent(Comp);
 
-    class IoCPureComponent extends React.PureComponent {
-      static displayName = `IoCComponent(${getDisplayName(Comp)})`;
+    return opt.pureComponent
+      ? class IoCPureComponent extends React.PureComponent {
+          static displayName = `IoCComponent(${getDisplayName(Comp)})`;
 
-      render() {
-        return (
-          <Context.Consumer>
-            {ctx => (
-              <NewComp
-                {...Object.assign({}, this.props, {
-                  [ContextSymbol]: ctx,
-                })}
-              />
-            )}
-          </Context.Consumer>
-        );
-      }
-    }
+          render() {
+            return (
+              <Context.Consumer>
+                {ctx => (
+                  <NewComp
+                    {...Object.assign({}, this.props, {
+                      [ContextSymbol]: ctx,
+                    })}
+                  />
+                )}
+              </Context.Consumer>
+            );
+          }
+        }
+      : class IoCComponent extends React.Component {
+          static displayName = `IoCComponent(${getDisplayName(Comp)})`;
 
-    class IoCComponent extends React.Component {
-      static displayName = `IoCComponent(${getDisplayName(Comp)})`;
-
-      render() {
-        return (
-          <Context.Consumer>
-            {ctx => (
-              <NewComp
-                {...Object.assign({}, this.props, {
-                  [ContextSymbol]: ctx,
-                })}
-              />
-            )}
-          </Context.Consumer>
-        );
-      }
-    }
-
-    return opt.pureComponent ? IoCPureComponent : IoCComponent;
+          render() {
+            return (
+              <Context.Consumer>
+                {ctx => (
+                  <NewComp
+                    {...Object.assign({}, this.props, {
+                      [ContextSymbol]: ctx,
+                    })}
+                  />
+                )}
+              </Context.Consumer>
+            );
+          }
+        };
   };
 }
 
