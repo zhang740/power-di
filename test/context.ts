@@ -126,7 +126,8 @@ test('remove component.', t => {
   const context = new IocContext();
   context.register(TestService);
   t.true(context.get(TestService) instanceof TestService);
-  context.remove(TestService);
+  t.deepEqual(context.remove(TestService), true);
+  t.deepEqual(context.remove(TestService), false);
   t.throws(() => context.get(TestService), { instanceOf: NotfoundTypeError });
 });
 
@@ -336,7 +337,7 @@ test('multi implement, use classLoader.', t => {
 
   t.true(context.get(IService) instanceof IService);
   t.true(context.get(IService) instanceof A);
-  context.remove(IService);
+  context.remove(A);
 
   @injectable()
   class B extends IService {}
@@ -369,9 +370,9 @@ test('multi implement, conflictHandler.', t => {
   });
 
   t.true(context.get(IService) instanceof A);
-  context.remove(IService);
+  context.remove(A);
   t.true(context.get(C).b1 instanceof B);
-  context.remove(IService);
+  context.remove(B);
   t.true(context.get(C).b2 instanceof B);
 });
 
@@ -578,4 +579,38 @@ test('autoRun postConstruct', t => {
   const a2 = new A();
   ioc.inject(a2, { autoRunPostConstruct: false });
   t.deepEqual(a2.x, undefined);
+});
+
+test('select strategy of multiple', t => {
+  abstract class IService {}
+
+  @injectable()
+  class A extends IService {}
+  @injectable()
+  class B extends IService {}
+
+  const ioc = new IocContext();
+  t.throws(() => ioc.get(IService), { instanceOf: MultiImplementError });
+
+  ioc.register(B);
+  t.true(ioc.get(IService) instanceof B);
+
+  ioc.register(A);
+  t.throws(() => ioc.get(IService), { instanceOf: MultiImplementError });
+});
+
+test('select strategy of multiple, childContext', t => {
+  abstract class IService {}
+
+  @injectable()
+  class A extends IService {}
+  @injectable()
+  class B extends IService {}
+
+  const ioc = new IocContext();
+  const child = ioc.createChildContext();
+  t.throws(() => child.get(IService), { instanceOf: MultiImplementError });
+
+  ioc.register(B);
+  t.true(child.get(IService) instanceof B);
 });
