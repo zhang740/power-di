@@ -73,9 +73,9 @@ export class ClassLoader {
           cache.splice(index, 1);
         }
       });
-
-      this.classInfoMap.delete(type);
+      return this.classInfoMap.delete(type);
     }
+    return false;
   }
 
   /** get class info */

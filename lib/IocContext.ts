@@ -80,8 +80,9 @@ export class IocContext {
     const key = getGlobalType(keyOrType);
     if (this.components.has(key)) {
       this.preDestroyInstance(this.components.get(key));
+      return this.components.delete(key);
     }
-    return this.components.delete(key);
+    return false;
   }
 
   /** clear all */
@@ -138,6 +139,12 @@ export class IocContext {
           break;
 
         default:
+          // if an instance of one of the classes already exists, the match takes precedence
+          const instances = classes.filter(ele => this.has(ele.type, true));
+          if (instances.length === 1) {
+            return this.get(instances[0].type as any, opt);
+          }
+
           if (this.config.conflictHandler) {
             const one = this.config.conflictHandler(
               type,
@@ -210,9 +217,14 @@ export class IocContext {
   /**
    * instance of key in context
    * @param keyOrType key
+   * @param deep deep search parent context
    */
-  public has(keyOrType: KeyType): boolean {
-    return this.components.has(getGlobalType(keyOrType));
+  public has(keyOrType: KeyType, deep = false): boolean {
+    const key = getGlobalType(keyOrType);
+    return (
+      this.components.has(key) ||
+      (deep && this.config.parentContext && this.config.parentContext.has(key, deep))
+    );
   }
 
   public replace(

@@ -108,7 +108,8 @@ test('unregisterClass', t => {
       },
     },
   ]);
-  classLoader.unregisterClass(B);
+  t.deepEqual(classLoader.unregisterClass(B), true);
+  t.deepEqual(classLoader.unregisterClass(B), false);
   t.deepEqual(classLoader.getClassInfo(B), undefined);
   t.deepEqual(classLoader.getImplementClasses(A), []);
 
