@@ -2,8 +2,16 @@ import * as React from 'react';
 import { Context, ContextSymbol as ContextInProps } from './context';
 import type { IocContext } from '../IocContext';
 
-function injectInstance(instance: any, context: IocContext) {
-  context.inject(instance);
+function injectInstance(instance: React.Component<any, any, any>, context: IocContext) {
+  context.inject(instance, { autoRunPostConstruct: false });
+
+  const oriWillMount = instance.componentWillMount || instance.UNSAFE_componentWillMount;
+  instance.componentWillMount = function () {
+    context.runPostConstruct(instance);
+    oriWillMount && oriWillMount.bind(instance)();
+  };
+
+  delete instance.UNSAFE_componentWillMount;
 
   if (context.config.createInstanceHook) {
     instance = context.config.createInstanceHook(instance, context);
@@ -56,7 +64,7 @@ export function createConsumerComponent(Comp: any) {
     constructor(props: IocProps, context: any) {
       super(props, context);
 
-      return injectInstance(this, props[ContextInProps]);
+      return injectInstance(this as any, props[ContextInProps]);
     }
   };
 }

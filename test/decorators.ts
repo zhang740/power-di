@@ -343,6 +343,8 @@ test('postConstruct, parent and subClass.', t => {
   let count = 0;
 
   class A {
+    test = 1;
+
     @postConstruct()
     init() {
       t.fail();
@@ -366,6 +368,8 @@ test('postConstruct, parent and subClass.', t => {
     @postConstruct()
     init2() {
       count++;
+
+      t.deepEqual(this.test, 1);
     }
   }
 
