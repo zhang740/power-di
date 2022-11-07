@@ -1,3 +1,7 @@
+# 2.4.25 / 2022-11-07
+
+- fix: postConstruct in react
+
 # 2.4.24 / 2022-11-04
 
 - feat: select strategy of multiple when only one instance exist
