@@ -326,3 +326,65 @@ test('use hooks', t => {
     </IocProvider>
   );
 });
+
+test('postConstruct, subclass', t => {
+  const context = new IocContext();
+  class NRService {
+    test = 2;
+  }
+  context.register(NRService);
+
+  class Base extends Component {
+    test = 1;
+  }
+
+  class TestComponent extends Base {
+    @inject()
+    service: NRService;
+
+    @postConstruct()
+    init() {
+      t.deepEqual(this.test, 1);
+      t.deepEqual(this.service.test, 2);
+    }
+
+    render(): React.ReactNode {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
+test('postConstruct, componentWillMount', t => {
+  const context = new IocContext();
+
+  class Base extends Component {
+    test = 1;
+  }
+
+  class TestComponent extends Base {
+    componentWillMount() {
+      this.test++;
+    }
+
+    @postConstruct()
+    init() {
+      t.deepEqual(this.test, 1);
+    }
+
+    render(): React.ReactNode {
+      return null;
+    }
+  }
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
