@@ -1,3 +1,7 @@
+# 2.4.26 / 2022-11-09
+
+- feat: transformer support optional.
+
 # 2.4.25 / 2022-11-07
 
 - fix: postConstruct in react
