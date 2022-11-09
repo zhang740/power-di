@@ -1,3 +1,7 @@
+# 2.4.27 / 2022-11-09
+
+- fix: optional parse
+
 # 2.4.26 / 2022-11-09
 
 - feat: transformer support optional.
