@@ -203,9 +203,20 @@ function processInject(
   const info = [
     f.createPropertyAssignment('type', identifier),
     propertyNode.questionToken && f.createPropertyAssignment('optional', f.createTrue()),
-  ].filter(
-    s => s && (!oldArgObj || oldArgObj.properties.every(p => p.name.getText() !== s.name.getText()))
-  );
+  ].filter(s => {
+    if (!s) {
+      return false;
+    }
+    if (!oldArgObj) {
+      return true;
+    }
+    return !oldArgObj.properties.some(
+      p =>
+        ts.isIdentifier(p.name) &&
+        ts.isIdentifier(s.name) &&
+        p.name.escapedText === s.name.escapedText
+    );
+  });
 
   const config = oldArgObj
     ? f.updateObjectLiteralExpression(
