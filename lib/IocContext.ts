@@ -161,6 +161,7 @@ export class IocContext {
               return this.get(one as any, opt);
             }
           }
+
           // BaseClass has @injectable
           if (isClass(keyOrType) && getMetadata(type).injectable) {
             this.register(type);

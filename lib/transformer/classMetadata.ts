@@ -6,12 +6,12 @@ import { NodeTransformer, walker } from './util';
 
 console.log('[power-di] load transformer: class metadata.');
 
-export default function transformer(program: ts.Program) {
+export default function transformer(program: ts.Program, config?: Config) {
   const typeChecker = program.getTypeChecker();
   return {
     before(ctx: ts.TransformationContext) {
       return (sourceFile: ts.SourceFile) => {
-        return walker(sourceFile, ctx, before(ctx, sourceFile, typeChecker));
+        return walker(sourceFile, ctx, before(ctx, sourceFile, typeChecker, config));
       };
     },
   };
@@ -20,7 +20,8 @@ export default function transformer(program: ts.Program) {
 export function before(
   ctx: ts.TransformationContext,
   sf: ts.SourceFile,
-  typeChecker: ts.TypeChecker
+  typeChecker: ts.TypeChecker,
+  config?: Config
 ): NodeTransformer {
   const pkg = findPkg(sf.fileName);
   if (!pkg) {
@@ -34,24 +35,26 @@ export function before(
       return node;
     }
     // 处理注入 type
-    const injectDecorators = pkg['power-di']?.decoratorNames?.inject || [
-      'inject',
-      'getContributions',
-      'getExtensions',
-      'getPlugins',
-    ];
+    const injectDecorators = config?.decoratorNames?.inject ||
+      pkg['power-di']?.decoratorNames?.inject || [
+        'inject',
+        'getContributions',
+        'getExtensions',
+        'getPlugins',
+      ];
     if (injectDecorators.includes(`${getDecoratorName(node)}`)) {
       return processInject(ctx, node, sf, typeChecker);
     }
 
     // 处理 class
-    const classDecorators = pkg['power-di']?.decoratorNames?.class || [
-      'classInfo',
-      'injectable',
-      'contribution',
-      'extension',
-      'plugin',
-    ];
+    const classDecorators = config?.decoratorNames?.class ||
+      pkg['power-di']?.decoratorNames?.class || [
+        'classInfo',
+        'injectable',
+        'contribution',
+        'extension',
+        'plugin',
+      ];
     if (classDecorators.includes(`${getDecoratorName(node)}`)) {
       return processClassInfo(ctx, node, pkg, sf, typeChecker);
     }
@@ -166,15 +169,6 @@ function processInject(
   const oldArg = decoratorFactory.arguments.length && decoratorFactory.arguments[0];
   const oldArgObj = oldArg && ts.isObjectLiteralExpression(oldArg) && oldArg;
 
-  if (
-    oldArgObj &&
-    oldArgObj.properties.some(
-      p => p.name && ts.isIdentifier(p.name) && 'type' === `${p.name.escapedText}`
-    )
-  ) {
-    return node;
-  }
-
   const refType = propertyNode.type
     ? ts.isTypeReferenceNode(propertyNode.type)
       ? propertyNode.type
@@ -206,7 +200,12 @@ function processInject(
 
   const f = ctx.factory;
 
-  const info = [refType && f.createPropertyAssignment('type', identifier)];
+  const info = [
+    f.createPropertyAssignment('type', identifier),
+    propertyNode.questionToken && f.createPropertyAssignment('optional', f.createTrue()),
+  ].filter(
+    s => s && (!oldArgObj || oldArgObj.properties.every(p => p.name.getText() !== s.name.getText()))
+  );
 
   const config = oldArgObj
     ? f.updateObjectLiteralExpression(
@@ -226,15 +225,17 @@ function processInject(
   );
 }
 
+type Config = {
+  decoratorNames?: {
+    inject?: string[];
+    class?: string[];
+  };
+};
+
 type PkgJSONType = {
   name: string;
   version: string;
-  'power-di'?: {
-    decoratorNames?: {
-      inject?: string[];
-      class?: string[];
-    };
-  };
+  'power-di'?: Config;
 };
 
 const pkgCache: { path: string; pkg: PkgJSONType }[] = [];
