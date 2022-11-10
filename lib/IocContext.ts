@@ -382,12 +382,19 @@ export class IocContext {
   }
 
   public runPostConstruct(instance: any) {
-    const classType = instance.constructor;
-    Array.from(new Set(getMetadataField(classType, 'postConstruct').map(p => p.key))).forEach(
-      key => {
-        instance[key]();
-      }
-    );
+    Array.from(
+      new Set(getMetadataField(instance.constructor, 'postConstruct').map(p => p.key))
+    ).forEach(key => {
+      instance[key]();
+    });
+  }
+
+  public runPreDestroy(instance: any) {
+    Array.from(
+      new Set(getMetadataField(instance.constructor, 'preDestroy').map(p => p.key))
+    ).forEach(key => {
+      instance[key]();
+    });
   }
 
   /**
@@ -410,12 +417,7 @@ export class IocContext {
     if (!store.inited) {
       return;
     }
-    const inst = store.value;
-    Array.from(new Set(getMetadataField(inst.constructor, 'preDestroy').map(p => p.key))).forEach(
-      key => {
-        inst[key]();
-      }
-    );
+    this.runPreDestroy(store.value);
   }
 
   private newStore(data: any, options: RegisterOptions) {

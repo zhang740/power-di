@@ -9,7 +9,7 @@ import {
   useInstanceHook,
   BaseConsumerComponent,
 } from '../lib/react';
-import { inject, postConstruct } from '../lib';
+import { inject, postConstruct, preDestroy } from '../lib';
 import { iocConsumer } from '../react';
 
 test('only component.', t => {
@@ -387,4 +387,34 @@ test('postConstruct, componentWillMount', t => {
       <TestComponent />
     </IocProvider>
   );
+});
+
+test('preDestroy, componentWillUnmount', t => {
+  const context = new IocContext();
+
+  class Base extends Component {
+    test = 1;
+  }
+
+  class TestComponent extends Base {
+    componentWillUnmount() {
+      this.test++;
+    }
+
+    @preDestroy()
+    destroy() {
+      t.deepEqual(this.test, 1);
+    }
+
+    render(): React.ReactNode {
+      return null;
+    }
+  }
+
+  const c = create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+  c.unmount();
 });
