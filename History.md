@@ -1,3 +1,7 @@
+# 2.4.28 / 2022-11-10
+
+- feat: support run preDestroy.
+
 # 2.4.27 / 2022-11-09
 
 - fix: optional parse
