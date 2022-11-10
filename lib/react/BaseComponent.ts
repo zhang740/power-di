@@ -5,6 +5,7 @@ import type { IocContext } from '../IocContext';
 function injectInstance(instance: React.Component<any, any, any>, context: IocContext) {
   context.inject(instance, { autoRunPostConstruct: false });
 
+  // process postConstruct
   const oriWillMount = instance.componentWillMount || instance.UNSAFE_componentWillMount;
   instance.componentWillMount = function () {
     context.runPostConstruct(instance);
@@ -12,6 +13,13 @@ function injectInstance(instance: React.Component<any, any, any>, context: IocCo
   };
 
   delete instance.UNSAFE_componentWillMount;
+
+  // process preDe
+  const oriWillUnmount = instance.componentWillUnmount;
+  instance.componentWillUnmount = function () {
+    context.runPreDestroy(instance);
+    oriWillUnmount && oriWillUnmount.bind(instance)();
+  };
 
   if (context.config.createInstanceHook) {
     instance = context.config.createInstanceHook(instance, context);

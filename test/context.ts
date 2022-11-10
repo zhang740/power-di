@@ -7,6 +7,7 @@ import {
   MultiImplementError,
   classInfo,
   postConstruct,
+  preDestroy,
 } from '../lib';
 
 class TestService {}
@@ -579,6 +580,23 @@ test('autoRun postConstruct', t => {
   const a2 = new A();
   ioc.inject(a2, { autoRunPostConstruct: false });
   t.deepEqual(a2.x, undefined);
+});
+
+test('run preDestroy', t => {
+  const ioc = new IocContext();
+  class A {
+    x: number;
+    @preDestroy()
+    destroy() {
+      this.x = 1;
+    }
+  }
+
+  const a = new A();
+  ioc.inject(a);
+  ioc.runPreDestroy(a);
+
+  t.deepEqual(a.x, 1);
 });
 
 test('select strategy of multiple', t => {
