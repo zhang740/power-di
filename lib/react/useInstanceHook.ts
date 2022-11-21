@@ -5,9 +5,9 @@ import { Context } from './context';
 /**
  * hooks
  *
- * @param ifs interface
+ * @param keyOrType interface
  */
-export function useInstanceHook<C extends ClassType>(ifs: C) {
+export function useInstanceHook<T = undefined, KeyOrType = any>(keyOrType: KeyOrType) {
   const iocContext = useContext(Context);
-  return iocContext.get<C>(ifs);
+  return iocContext.get(keyOrType);
 }

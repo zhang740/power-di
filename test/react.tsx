@@ -327,6 +327,26 @@ test('use hooks', t => {
   );
 });
 
+test('use hooks, symbol', t => {
+  const context = new IocContext();
+  class NRService {}
+  type INRService = NRService;
+  const INRService = Symbol('INRService');
+
+  context.register(NRService, INRService);
+
+  const TestComponent = (): any => {
+    t.true(useInstanceHook(INRService) instanceof NRService);
+    return null;
+  };
+
+  create(
+    <IocProvider context={context}>
+      <TestComponent />
+    </IocProvider>
+  );
+});
+
 test('postConstruct, subclass', t => {
   const context = new IocContext();
   class NRService {
