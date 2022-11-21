@@ -1,3 +1,7 @@
+# 2.4.29 / 2022-11-21
+
+- chore: useInstanceHook support symbol type.
+
 # 2.4.28 / 2022-11-10
 
 - feat: support run preDestroy.
