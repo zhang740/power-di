@@ -108,10 +108,10 @@ export class ClassLoader {
 
   /** return new instance from this */
   clone() {
-    return new ClassLoader(
-      new Map(this.classInfoMap),
-      this.cloneImplCacheMap(this.implementCacheMap)
-    );
+    const Constructor = this.constructor as typeof ClassLoader;
+    const newInst = new Constructor();
+    newInst.initWith(this);
+    return newInst;
   }
 
   /**

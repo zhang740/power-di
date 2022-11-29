@@ -211,6 +211,18 @@ test('clone', t => {
   t.deepEqual(newLoader.getImplementClasses(Base).length, 2);
 });
 
+test('clone, subclass', t => {
+  class NewClassLoader extends ClassLoader {}
+
+  const newLoader = new NewClassLoader();
+  t.true(newLoader instanceof ClassLoader);
+  t.true(newLoader instanceof NewClassLoader);
+
+  const newLoader2 = newLoader.clone();
+  t.true(newLoader2 instanceof ClassLoader);
+  t.true(newLoader2 instanceof NewClassLoader);
+});
+
 test('init with', t => {
   class A {}
   class B {}
