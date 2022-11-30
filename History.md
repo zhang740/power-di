@@ -1,3 +1,7 @@
+# 2.4.32 / 2022-11-30
+
+- fix: setConfig support true
+
 # 2.4.31 / 2022-11-30
 
 - fix: class loader in context.setConfig
