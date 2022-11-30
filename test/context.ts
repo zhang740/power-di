@@ -364,8 +364,8 @@ test('multi implement, conflictHandler.', t => {
     conflictHandler: (type, implCls, sourceCls) => {
       if (type === IService) {
         return sourceCls?.type === C
-          ? implCls.find(info => info.type === B).type
-          : implCls.find(info => info.info.name === 'A').type;
+          ? implCls.find(info => info.type === B)?.type
+          : implCls.find(info => info.info.name === 'A')?.type;
       }
     },
   });
@@ -407,7 +407,7 @@ test('multi implement, no err.', t => {
 
   const childContext = context.createChildContext({
     conflictHandler: (type, implCls, sourceCls) => {
-      return implCls.find(s => s.type === A).type;
+      return implCls.find(s => s.type === A)?.type;
     },
   });
   t.true(childContext.get(BaseService) instanceof A);
@@ -474,7 +474,7 @@ test('custom classLoader.', t => {
   class A extends IA {}
   t.throws(() => context.get(IA));
 
-  context.classLoader.registerClass(A);
+  context.classLoader!.registerClass(A);
   t.true(context.get(IA) instanceof A);
 });
 
