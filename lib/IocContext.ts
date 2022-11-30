@@ -10,8 +10,8 @@ export class Config {
   autoRegisterSelf?: boolean = false;
   /** constructor inject, MUST in TypeScript with emitDecoratorMetadata and use decorator with class, default: true */
   constructorInject?: boolean = true;
-  /** use class loader for autowired default: default ClassLoader */
-  useClassLoader?: ClassLoader | false = classLoader;
+  /** use class loader for autowired default: true */
+  useClassLoader?: ClassLoader | boolean = true;
   /** when implement class not found */
   notFoundHandler?: (type: KeyType) => any;
   /** when have multi implement class */
@@ -49,9 +49,11 @@ export interface Store {
 /** ioc context */
 export class IocContext {
   private static defaultInstance: IocContext;
-  get classLoader() {
-    return this.config.useClassLoader ? this.config.useClassLoader : undefined;
+  private _classLoader?: ClassLoader;
+  public get classLoader() {
+    return this._classLoader;
   }
+
   private components = new Map<string | symbol, Store>();
   public static get DefaultInstance() {
     return (
@@ -69,6 +71,12 @@ export class IocContext {
    */
   public setConfig(config: Partial<Config>) {
     Object.assign(this.config, config);
+    this._classLoader =
+      this.config.useClassLoader === true
+        ? classLoader
+        : this.config.useClassLoader === false
+        ? undefined
+        : this.config.useClassLoader;
   }
 
   /**
