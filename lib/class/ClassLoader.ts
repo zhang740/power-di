@@ -33,27 +33,28 @@ export class ClassLoader {
     }
     const metadata = getMetadata(type);
     metadata.injectable = true;
-    info = info || metadata.classInfo;
-    if (!info.name) {
-      info.name = type.name;
-    }
-    if (!info.extends?.length) {
-      const superClasses = getSuperClassInfo(type);
-      info.extends = superClasses.map(c => c.class);
-    }
-    this.classInfoMap.set(type, info);
+    const clsInfo = info || metadata.classInfo;
 
-    if (!info.implements) {
-      info.implements = [];
+    if (!clsInfo.name) {
+      clsInfo.name = type.name;
+    }
+    if (!clsInfo.extends?.length) {
+      const superClasses = getSuperClassInfo(type);
+      clsInfo.extends = superClasses.map(c => c.class);
+    }
+    this.classInfoMap.set(type, clsInfo);
+
+    if (!clsInfo.implements) {
+      clsInfo.implements = [];
     }
 
     // add cache
-    [...info.extends, ...info.implements].forEach(ext => {
+    [...clsInfo.extends, ...clsInfo.implements].forEach(ext => {
       const impls = this.getImplCacheByType(ext);
       if (impls.every(impl => impl.type !== type)) {
         impls.push({
           type,
-          info,
+          info: clsInfo,
         });
       }
     });
@@ -133,7 +134,7 @@ export class ClassLoader {
       this.implementCacheMap.set(key, []);
       return this.getImplCacheByType(type);
     }
-    return this.implementCacheMap.get(key);
+    return this.implementCacheMap.get(key)!;
   }
 }
 

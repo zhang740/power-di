@@ -18,7 +18,7 @@ test('getImports.', t => {
   class BaseCls {}
   class TestCls extends BaseCls {}
   const parent = new IocContext();
-  parent.classLoader.registerClass(TestCls);
+  parent.classLoader!.registerClass(TestCls);
 
   const parentImpls = parent.getImports(BaseCls);
   t.true(parentImpls[0] instanceof TestCls);
@@ -47,7 +47,7 @@ test('parent finder', t => {
   class TestCls extends IService {}
 
   const parent = new IocContext();
-  parent.classLoader.registerClass(TestCls);
+  parent.classLoader!.registerClass(TestCls);
 
   t.true(parent.get(IService) === parent.get(TestCls));
 

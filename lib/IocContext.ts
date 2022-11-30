@@ -10,8 +10,8 @@ export class Config {
   autoRegisterSelf?: boolean = false;
   /** constructor inject, MUST in TypeScript with emitDecoratorMetadata and use decorator with class, default: true */
   constructorInject?: boolean = true;
-  /** use class loader for autowired default: true */
-  useClassLoader?: boolean | ClassLoader = true;
+  /** use class loader for autowired default: default ClassLoader */
+  useClassLoader?: ClassLoader | false = classLoader;
   /** when implement class not found */
   notFoundHandler?: (type: KeyType) => any;
   /** when have multi implement class */
@@ -49,7 +49,9 @@ export interface Store {
 /** ioc context */
 export class IocContext {
   private static defaultInstance: IocContext;
-  readonly classLoader = classLoader;
+  get classLoader() {
+    return this.config.useClassLoader ? this.config.useClassLoader : undefined;
+  }
   private components = new Map<string | symbol, Store>();
   public static get DefaultInstance() {
     return (
@@ -58,10 +60,7 @@ export class IocContext {
   }
 
   constructor(readonly config: Readonly<Config> = {}) {
-    this.config = Object.assign({}, new Config(), config);
-    if (config.useClassLoader instanceof ClassLoader) {
-      this.classLoader = config.useClassLoader;
-    }
+    this.setConfig(Object.assign(new Config(), config));
   }
 
   /**
@@ -78,8 +77,9 @@ export class IocContext {
    */
   public remove(keyOrType: KeyType) {
     const key = getGlobalType(keyOrType);
-    if (this.components.has(key)) {
-      this.preDestroyInstance(this.components.get(key));
+    const store = this.components.get(key);
+    if (store) {
+      this.preDestroyInstance(store);
       return this.components.delete(key);
     }
     return false;
@@ -113,8 +113,9 @@ export class IocContext {
   ): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
 
-    if (this.components.has(key)) {
-      return this.returnValue(this.components.get(key), opt.forceNew);
+    const store = this.components.get(key);
+    if (store) {
+      return this.returnValue(store, opt.forceNew);
     }
 
     if (this.config.notFoundHandler) {
@@ -124,7 +125,7 @@ export class IocContext {
       }
     }
 
-    if (opt.useClassLoader || this.config.useClassLoader) {
+    if (opt.useClassLoader !== false && this.classLoader) {
       const type = keyOrType as any;
       const classes = this.classLoader.getImplementClasses(type);
       switch (classes.length) {
@@ -152,7 +153,7 @@ export class IocContext {
               opt.sourceCls
                 ? {
                     type: opt.sourceCls,
-                    info: classLoader.getClassInfo(opt.sourceCls),
+                    info: this.classLoader.getClassInfo(opt.sourceCls),
                   }
                 : undefined
             );
@@ -204,10 +205,11 @@ export class IocContext {
     if (cache && this.has(type)) {
       return this.get(type);
     }
+    if (!this.classLoader) {
+      return [];
+    }
     const data = this.classLoader.getImplementClasses(type).map(clsInfo => {
-      return this.get(clsInfo.type, {
-        useClassLoader: true,
-      });
+      return this.get(clsInfo.type);
     });
     if (cache) {
       this.register(data, type);
@@ -222,7 +224,7 @@ export class IocContext {
    */
   public has(keyOrType: KeyType, deep = false): boolean {
     const key = getGlobalType(keyOrType);
-    return (
+    return !!(
       this.components.has(key) ||
       (deep && this.config.parentContext && this.config.parentContext.has(key, deep))
     );

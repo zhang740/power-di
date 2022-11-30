@@ -47,7 +47,7 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
         run(point.after, context);
         return context.ret;
       } catch (error) {
-        context.err = error;
+        context.err = error as Error;
         run(point.error, context);
         if (context.err) {
           throw context.err;
@@ -83,7 +83,7 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
           return context.ret;
         }
       } catch (error) {
-        context.err = error;
+        context.err = error as Error;
         run(point.error, context);
         if (context.err) {
           throw context.err;

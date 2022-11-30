@@ -1,5 +1,5 @@
 import test from 'ava';
-import { classInfo, DuplicateRegistrationError } from '../lib';
+import { classInfo, DuplicateRegistrationError, IocContext } from '../lib';
 import { getMetadata } from '../lib/class/metadata';
 import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 
@@ -251,4 +251,15 @@ test('init with', t => {
     extends: [],
     implements: [],
   });
+});
+
+test('no classLoader', t => {
+  const ioc = new IocContext({ useClassLoader: false });
+  t.true(ioc.classLoader === undefined);
+
+  abstract class Base {}
+  @classInfo({ implements: [Base] })
+  class A extends Base {}
+
+  t.true(ioc.getImports(Base).length === 0);
 });
