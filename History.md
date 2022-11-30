@@ -1,3 +1,7 @@
+# 2.4.31 / 2022-11-30
+
+- fix: class loader in context.setConfig
+
 # 2.4.30 / 2022-11-29
 
 - fix: clone of ClassLoader when has sub class.
