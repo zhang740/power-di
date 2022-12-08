@@ -14,6 +14,17 @@ test('class info', t => {
   });
 });
 
+test('class info, name from classInfo', t => {
+  @classInfo({ name: 'newName' })
+  class A {}
+
+  t.deepEqual(getMetadata(A).classInfo, {
+    name: 'newName',
+    extends: [],
+    implements: [],
+  });
+});
+
 test('has super class', t => {
   class Z {}
   class A extends Z {}

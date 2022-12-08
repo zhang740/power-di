@@ -1,3 +1,4 @@
+import { nameSymbol } from '../class';
 import { getSuperClassInfo } from './getSuperClassInfo';
 
 let _uid = 0;
@@ -24,12 +25,14 @@ export function getGlobalType(key: any, prefix: string = ''): string | symbol {
   if (key.hasOwnProperty('__type')) {
     return key['__type'];
   }
+
   let type: string;
-  if (typeof key !== 'function' || !key.name) {
+  const keyName = key[nameSymbol] || key.name;
+  if (typeof key !== 'function' || !keyName) {
     // Only for compatible with es5 class
     throw new Error('data MUST be a class or string.');
   }
-  type = prefix + key.name;
+  type = prefix + keyName;
   if (_globalTypes[type]) {
     type = type + '_' + _uid++;
   }
