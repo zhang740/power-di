@@ -1,3 +1,7 @@
+# 2.4.33 / 2022-12-08
+
+- feat: name from classInfo.
+
 # 2.4.32 / 2022-11-30
 
 - fix: setConfig support true
