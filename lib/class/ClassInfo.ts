@@ -1,5 +1,8 @@
 import { KeyType } from '../utils/types';
 
+/** class name */
+export const nameSymbol = Symbol('className');
+
 /** class info */
 export interface ClassInfo {
   /** package name */

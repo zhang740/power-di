@@ -9,14 +9,17 @@ test('getGlobalType, error.', t => {
 });
 
 test('getGlobalType, string.', t => {
-  t.true(getGlobalType('stringkey') === 'stringkey');
+  t.true(getGlobalType('stringKey') === 'stringKey');
 });
 
 test('getGlobalType, a class.', t => {
   class A {}
 
-  const typeA = getGlobalType(A);
-  t.true(typeA === 'A');
+  t.true(getGlobalType(A) === 'A');
+
+  class B extends A {}
+
+  t.true(getGlobalType(B) === 'B');
 
   // es5
   function test() {}
