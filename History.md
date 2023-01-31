@@ -1,3 +1,7 @@
+# 2.4.34 / 2023-01-31
+
+- fix: Notfound tips
+
 # 2.4.33 / 2022-12-08
 
 - feat: name from classInfo.
