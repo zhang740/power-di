@@ -512,7 +512,7 @@ export class MultiImplementError extends Error {
 
 export class NotfoundTypeError extends Error {
   constructor(type: any, key: string | symbol) {
-    super(`Notfound type: ${type.name || type}(${symbolString(key)})`);
+    super(`Notfound type: ${type.name || symbolString(type)}(${symbolString(key)})`);
   }
 }
 
