@@ -99,7 +99,14 @@ function processClassInfo(
     impls.types.forEach(typeNode => {
       const type = typeChecker.getTypeFromTypeNode(typeNode);
       const symbol = type.getSymbol();
-      fixedImport(ctx, symbol?.name || typeNode.getText(), sourceFile);
+      fixedImport(
+        ctx,
+        symbol?.name ||
+          typeNode.getText?.() ||
+          typeNode.expression.getText?.() ||
+          (typeNode.expression as ts.Identifier).escapedText,
+        sourceFile
+      );
     });
 
   const f = ctx.factory;
@@ -162,7 +169,7 @@ function processInject(
       '[power-di] class metadata transformer fail!',
       `@${getDecoratorName(
         node
-      )} of class [${propertyNode.name.getText()}] param is not a ObjectLiteral.`
+      )} of class [${propertyNode.name.getText?.()}] param is not a ObjectLiteral.`
     );
     return node;
   }
@@ -189,8 +196,8 @@ function processInject(
       console.warn(
         '[power-di] class metadata transformer fail!',
         getDecoratorName(node),
-        propertyNode.name.getText(),
-        refType.getText()
+        propertyNode.name.getText?.(),
+        refType.getText?.()
       );
       return node;
     }
@@ -303,7 +310,10 @@ function fixedImport(
   escapedText: string | ts.__String,
   sourceFile: ts.SourceFile
 ) {
-  // const f = ctx.factory;
+  if (!escapedText) {
+    console.warn('fixedImport no escapedText!', sourceFile.fileName);
+    return;
+  }
 
   // IFoo<IBar> => IFoo
   escapedText = `${escapedText}`.split('<')[0];
