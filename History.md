@@ -1,3 +1,7 @@
+# 2.4.35 / 2023-03-28
+
+- fix: compatible with ts5.0
+
 # 2.4.34 / 2023-01-31
 
 - fix: Notfound tips
