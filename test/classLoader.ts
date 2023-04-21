@@ -1,6 +1,6 @@
 import test from 'ava';
 import { classInfo, DuplicateRegistrationError, IocContext } from '../lib';
-import { getMetadata } from '../lib/class/metadata';
+import { getMetadata, MetadataType } from '../lib/class/metadata';
 import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 
 test('class info', t => {
@@ -273,4 +273,14 @@ test('no classLoader', t => {
   class A extends Base {}
 
   t.true(ioc.getImports(Base).length === 0);
+});
+
+test('getMetadata, Object', t => {
+  const meta = getMetadata(Object);
+  t.deepEqual(meta, new MetadataType());
+
+  meta.injectable = true;
+  t.deepEqual(meta.injectable, true);
+  t.notDeepEqual(getMetadata(Object), meta);
+  t.deepEqual(getMetadata(Object).injectable, undefined);
 });

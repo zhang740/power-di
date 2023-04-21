@@ -56,6 +56,9 @@ export class MetadataType {
  * @param type type of class
  */
 export function getMetadata(type: ClassType): MetadataType {
+  if ([Object, Array, Error, null].includes(type as any)) {
+    return new MetadataType();
+  }
   const metadata = Object.getOwnPropertyDescriptor(type, metaSymbol);
   if (!metadata || !metadata.value) {
     Object.defineProperty(type, metaSymbol, {
