@@ -1,4 +1,10 @@
+# 2.4.37 / 2023-04-23
+==================
+
+* fix: can't write Object by getMetadata
+
 # 2.4.36 / 2023-04-21
+
 ==================
 
 * fix: can't write Object by getMetadata
