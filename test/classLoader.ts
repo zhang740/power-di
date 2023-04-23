@@ -1,6 +1,6 @@
 import test from 'ava';
 import { classInfo, DuplicateRegistrationError, IocContext } from '../lib';
-import { getMetadata, MetadataType } from '../lib/class/metadata';
+import { getMetadata, MetadataType, metaSymbol } from '../lib/class/metadata';
 import { classLoader, ClassLoader } from '../lib/class/ClassLoader';
 
 test('class info', t => {
@@ -283,4 +283,6 @@ test('getMetadata, Object', t => {
   t.deepEqual(meta.injectable, true);
   t.notDeepEqual(getMetadata(Object), meta);
   t.deepEqual(getMetadata(Object).injectable, undefined);
+
+  t.true((Object as any)[metaSymbol] === undefined);
 });
