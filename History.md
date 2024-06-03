@@ -1,11 +1,12 @@
+# 2.4.38 / 2024-06-03
+
+* feat: Add deep option to get method in IocContext
+
 # 2.4.37 / 2023-04-23
-==================
 
 * fix: can't write Object by getMetadata
 
 # 2.4.36 / 2023-04-21
-
-==================
 
 * fix: can't write Object by getMetadata
 
@@ -59,44 +60,30 @@
 
 # 2.4.23 / 2022-11-04
 
-==================
-
 * fix: iocConsumer support createInstanceHook
 * feat: add react hooks
 
 # 2.4.22 / 2022-10-31
 
-==================
-
 * fix: inject override
 
 # 2.4.21 / 2022-10-25
-
-==================
 
 * fix: child context addressing logic
 
 # 2.4.19 / 2022-10-18
 
-==================
-
 * upgrade: transformer for typescript
 
 # 2.4.18 / 2022-02-21
-
-==================
 
 * update: optimize data register
 
 # 2.4.17 / 2022-02-16
 
-==================
-
 * update: impl cache by type change to key.
 
 # 2.4.16 / 2022-02-09
-
-==================
 
 * update: optimize isClass
 
