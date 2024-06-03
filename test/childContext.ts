@@ -59,3 +59,19 @@ test('parent finder', t => {
   t.true(parent.get(IService) === 'TEST');
   t.true(child.get(IService) === 'TEST');
 });
+
+
+test('parent finder, not deep', t => {
+  class IService {}
+  class TestCls extends IService {}
+
+  const parent = new IocContext();
+  parent.classLoader!.registerClass(TestCls);
+
+  t.true(parent.get(IService) === parent.get(TestCls));
+
+  const child = parent.createChildContext();
+
+  t.true(child.get(IService, { deep: false }) !== parent.get(IService, { deep: false }));
+  t.true(child.get(IService, { deep: false }) !== parent.get(TestCls, { deep: false }));
+});

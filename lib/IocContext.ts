@@ -117,6 +117,8 @@ export class IocContext {
       sourceCls?: ClassType;
       /** source of type */
       sourceType?: KeyOrType;
+      /** deep get from parent context, default: true */
+      deep?: boolean;
     } = {}
   ): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
@@ -180,7 +182,7 @@ export class IocContext {
       }
     }
 
-    if (this.config.parentContext) {
+    if (this.config.parentContext && opt.deep !== false) {
       return this.config.parentContext.get(opt.sourceType || keyOrType);
     }
 
@@ -228,7 +230,7 @@ export class IocContext {
   /**
    * instance of key in context
    * @param keyOrType key
-   * @param deep deep search parent context
+   * @param deep deep search from parent context
    */
   public has(keyOrType: KeyType, deep = false): boolean {
     const key = getGlobalType(keyOrType);
