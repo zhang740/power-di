@@ -1,4 +1,4 @@
-import { getGlobalType, isClass, symbolString } from './utils';
+import { getGlobalType, getReflectMetadata, isClass, symbolString } from './utils';
 import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
 import { getMetadata, getMetadataField } from './class/metadata';
 import { classLoader, TypeWithInfo, ClassLoader } from './class/ClassLoader';
@@ -136,49 +136,22 @@ export class IocContext {
     }
 
     if (opt.useClassLoader !== false && this.classLoader) {
-      const type = keyOrType as any;
-      const classes = this.classLoader.getImplementClasses(type);
-      switch (classes.length) {
-        case 1:
-          // class loader is only responsible for matching and not for registration.
-          return this.get(classes[0].type, {
-            ...opt,
-            sourceType: opt.sourceType || type,
-          });
-
-        case 0:
-          break;
-
-        default:
-          // if an instance of one of the classes already exists, the match takes precedence
-          const instances = classes.filter(ele => this.has(ele.type, true));
-          if (instances.length === 1) {
-            return this.get(instances[0].type as any, opt);
-          }
-
-          if (this.config.conflictHandler) {
-            const one = this.config.conflictHandler(
-              type,
-              classes,
-              opt.sourceCls
-                ? {
-                    type: opt.sourceCls,
-                    info: this.classLoader.getClassInfo(opt.sourceCls),
-                  }
-                : undefined
-            );
-            if (one !== undefined) {
-              // class loader is only responsible for matching and not for registration.
-              return this.get(one as any, opt);
-            }
-          }
-
-          // BaseClass has @injectable
-          if (isClass(keyOrType) && getMetadata(type).injectable) {
-            this.register(type);
-            return this.get(type, opt);
-          }
-          throw new MultiImplementError(type, key);
+      const target = this.findClassByClassLoader(keyOrType as any, key, {
+        sourceCls: opt.sourceCls,
+      });
+      if (target) {
+        if (target.base) {
+          this.register(target.type);
+        }
+        return this.get(
+          target.type as any,
+          target.ref
+            ? {
+                ...opt,
+                sourceType: opt.sourceType || keyOrType,
+              }
+            : opt
+        );
       }
     }
 
@@ -195,6 +168,55 @@ export class IocContext {
     }
 
     throw new NotfoundTypeError(keyOrType, key);
+  }
+
+  private findClassByClassLoader(
+    type: KeyType,
+    key: string | symbol,
+    opt?: {
+      sourceCls?: ClassType;
+    }
+  ) {
+    const classes = this.classLoader.getImplementClasses(type);
+
+    if (classes.length === 0) {
+      return;
+    }
+
+    if (classes.length === 1) {
+      // class loader is only responsible for matching and not for registration.
+      return { type: classes[0].type, ref: true };
+    }
+
+    // if an instance of one of the classes already exists, the match takes precedence
+    const instances = classes.filter(ele => this.has(ele.type, true));
+    if (instances.length === 1) {
+      return { type: instances[0].type };
+    }
+
+    if (this.config.conflictHandler) {
+      const one = this.config.conflictHandler(
+        type,
+        classes,
+        opt.sourceCls
+          ? {
+              type: opt.sourceCls,
+              info: this.classLoader.getClassInfo(opt.sourceCls),
+            }
+          : undefined
+      );
+      if (one !== undefined) {
+        // class loader is only responsible for matching and not for registration.
+        return { type: one };
+      }
+    }
+
+    // BaseClass has @injectable
+    if (isClass(type) && getMetadata(type).injectable) {
+      return { type, base: true };
+    }
+
+    throw new MultiImplementError(type as any, key);
   }
 
   /**
@@ -231,13 +253,27 @@ export class IocContext {
    * instance of key in context
    * @param keyOrType key
    * @param deep deep search from parent context
+   * @param useClassLoader use classLoader
    */
-  public has(keyOrType: KeyType, deep = false): boolean {
+  public has(keyOrType: KeyType, deep = false, useClassLoader = false): boolean {
     const key = getGlobalType(keyOrType);
-    return !!(
-      this.components.has(key) ||
-      (deep && this.config.parentContext && this.config.parentContext.has(key, deep))
-    );
+
+    if (this.components.has(key)) {
+      return true;
+    }
+
+    if (useClassLoader && this.config.useClassLoader && this.classLoader) {
+      const target = this.findClassByClassLoader(keyOrType, key);
+      if (target) {
+        return this.has(target.type, deep);
+      }
+    }
+
+    if (deep && this.config.parentContext) {
+      return this.config.parentContext.has(key, deep);
+    }
+
+    return false;
   }
 
   public replace(
@@ -443,8 +479,8 @@ export class IocContext {
             if (dataIsClass) {
               const ClsType = data;
               let args: any[] = [];
-              if (this.config.constructorInject && Reflect && Reflect.getMetadata) {
-                const paramTypes = Reflect.getMetadata('design:paramtypes', ClsType);
+              if (this.config.constructorInject) {
+                const paramTypes = getReflectMetadata('design:paramtypes', ClsType);
                 if (paramTypes) {
                   args = paramTypes.map((type: any) => {
                     if (
