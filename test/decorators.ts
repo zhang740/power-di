@@ -68,6 +68,19 @@ test('inject decorator.', t => {
   t.true(test.testService2 instanceof DTestService);
 });
 
+test('inject decorator, without reflect-metadata.', t => {
+  @injectable()
+  class DTestService {}
+  @injectable()
+  class ITestService {
+    @inject({ type: DTestService, lazy: false })
+    public testService: DTestService;
+  }
+
+  const test = context.get(ITestService);
+  t.true(test.testService instanceof DTestService);
+});
+
 test('inject decorator, no data.', t => {
   class NRService {}
   @injectable()

@@ -123,6 +123,21 @@ test('has component.', t => {
   t.false(context.has(BTest));
 });
 
+test('has component, mapping.', t => {
+  const context = new IocContext();
+
+  class AService extends TestService {}
+
+  t.false(context.has(TestService, true, true));
+
+  context.classLoader.registerClass(AService);
+
+  context.register(AService);
+  t.true(context.has(TestService, true, true));
+
+  context.classLoader.unregisterClass(AService);
+});
+
 test('remove component.', t => {
   const context = new IocContext();
   context.register(TestService);
