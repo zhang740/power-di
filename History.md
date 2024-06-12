@@ -1,3 +1,7 @@
+# 2.4.39 / 2024-06-12
+
+* feat: has support class loader.
+
 # 2.4.38 / 2024-06-03
 
 * feat: Add deep option to get method in IocContext
