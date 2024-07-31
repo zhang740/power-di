@@ -228,10 +228,11 @@ export class IocContext {
     keyOrType: KeyOrType,
     {
       cache,
+      deep,
     }: {
       /** peer cache */
       cache?: boolean;
-    } = {}
+    } & Pick<Parameters<IocContext['get']>[1], 'deep'> = {}
   ): GetReturnType<T, KeyOrType>[] {
     const type = keyOrType as any;
     if (cache && this.has(type)) {
@@ -241,7 +242,7 @@ export class IocContext {
       return [];
     }
     const data = this.classLoader.getImplementClasses(type).map(clsInfo => {
-      return this.get(clsInfo.type);
+      return this.get(clsInfo.type, { deep });
     });
     if (cache) {
       this.register(data, type);
