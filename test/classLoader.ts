@@ -286,3 +286,41 @@ test('getMetadata, Object', t => {
 
   t.true((Object as any)[metaSymbol] === undefined);
 });
+
+test('hook, registerClass', t => {
+  const loader = new ClassLoader();
+
+  class Test {}
+
+  loader.callback.onRegisterClass = (type, info) => {
+    t.true(type === Test);
+    t.deepEqual(info, {
+      extends: [],
+      implements: [],
+      name: 'xxx',
+    });
+  };
+
+  loader.registerClass(Test, { name: 'xxx' });
+});
+
+test('hook, unregisterClass', t => {
+  const loader = new ClassLoader();
+
+  class BaseTest {}
+
+  class Test extends BaseTest {}
+
+  loader.registerClass(Test);
+
+  loader.callback.onUnregisterClass = (type, info) => {
+    t.true(type === Test);
+    t.deepEqual(info, {
+      extends: [BaseTest],
+      implements: [],
+      name: 'Test',
+    });
+  };
+
+  loader.unregisterClass(Test);
+});
