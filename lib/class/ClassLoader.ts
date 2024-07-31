@@ -18,7 +18,11 @@ export class DuplicateRegistrationError extends Error {
 export class ClassLoader {
   constructor(
     protected classInfoMap: Map<ClassType, ClassInfo> = new Map(),
-    protected implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map()
+    protected implementCacheMap: Map<ExtendAndInterface, TypeWithInfo[]> = new Map(),
+    public callback: {
+      onRegisterClass?: (type: ClassType, info: ClassInfo) => void;
+      onUnregisterClass?: (type: ClassType, info: ClassInfo) => void;
+    } = {}
   ) {}
 
   /** has class */
@@ -58,6 +62,8 @@ export class ClassLoader {
         });
       }
     });
+
+    this.callback.onRegisterClass?.(type, clsInfo);
     return this;
   }
 
@@ -74,7 +80,9 @@ export class ClassLoader {
           cache.splice(index, 1);
         }
       });
-      return this.classInfoMap.delete(type);
+      const ret = this.classInfoMap.delete(type);
+      this.callback.onUnregisterClass?.(type, info);
+      return ret;
     }
     return false;
   }
@@ -117,11 +125,12 @@ export class ClassLoader {
 
   /**
    * init maps from instance
-   * @param classLoader source loader
+   * @param oldLoader source loader
    */
-  initWith(classLoader: ClassLoader) {
-    this.classInfoMap = new Map(classLoader.classInfoMap);
-    this.implementCacheMap = this.cloneImplCacheMap(classLoader.implementCacheMap);
+  initWith(oldLoader: ClassLoader) {
+    this.classInfoMap = new Map(oldLoader.classInfoMap);
+    this.implementCacheMap = this.cloneImplCacheMap(oldLoader.implementCacheMap);
+    this.callback = oldLoader.callback;
   }
 
   protected cloneImplCacheMap(map: Map<KeyType, TypeWithInfo[]>) {
