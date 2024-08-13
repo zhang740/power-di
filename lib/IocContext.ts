@@ -232,7 +232,7 @@ export class IocContext {
     }: {
       /** peer cache */
       cache?: boolean;
-    } & Pick<Parameters<IocContext['get']>[1], 'deep'> = {}
+    } & Partial<Pick<Parameters<IocContext['get']>[1], 'deep'>> = {}
   ): GetReturnType<T, KeyOrType>[] {
     const type = keyOrType as any;
     if (cache && this.has(type)) {
