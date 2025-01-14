@@ -1,5 +1,5 @@
 import test from 'ava';
-import { IocContext } from '../lib';
+import { injectable, IocContext, MultiImplementError, NotfoundTypeError } from '../lib';
 
 test('default.', t => {
   const parent = new IocContext();
@@ -60,7 +60,6 @@ test('parent finder', t => {
   t.true(child.get(IService) === 'TEST');
 });
 
-
 test('parent finder, not deep', t => {
   class IService {}
   class TestCls extends IService {}
@@ -74,4 +73,58 @@ test('parent finder, not deep', t => {
 
   t.true(child.get(IService, { deep: false }) !== parent.get(IService, { deep: false }));
   t.true(child.get(IService, { deep: false }) !== parent.get(TestCls, { deep: false }));
+});
+
+test('multi implement, use classLoader, resolve.', t => {
+  const context = new IocContext();
+  const childContext = context.createChildContext();
+
+  abstract class IService {}
+
+  @injectable()
+  class A extends IService {}
+
+  t.true(context.get(IService) instanceof IService);
+  t.true(context.get(IService) instanceof A);
+  context.remove(A);
+
+  @injectable()
+  class B extends IService {}
+
+  t.throws(() => childContext.get(IService), { instanceOf: MultiImplementError });
+
+  childContext.setConfig({
+    conflictHandler(type, implCls, sourceCls) {
+      return implCls.find(s => s.type === A)?.type;
+    },
+  });
+
+  t.true(childContext.get(IService) instanceof A);
+});
+
+test('multi implement, use classLoader, resolve deep.', t => {
+  const context = new IocContext();
+  const childContext = context.createChildContext();
+
+  abstract class IService {}
+
+  @injectable()
+  class A extends IService {}
+
+  t.true(context.get(IService) instanceof IService);
+  t.true(context.get(IService) instanceof A);
+  context.remove(A);
+
+  @injectable()
+  class B extends IService {}
+
+  t.throws(() => childContext.get(IService), { instanceOf: MultiImplementError });
+
+  context.setConfig({
+    conflictHandler(type, implCls, sourceCls) {
+      return implCls.find(s => s.type === A)?.type;
+    },
+  });
+
+  t.true(childContext.get(IService) instanceof A);
 });

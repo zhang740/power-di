@@ -1,6 +1,6 @@
 {
   "name": "power-di",
-  "version": "2.4.41",
+  "version": "2.4.42",
   "description": "A lightweight Dependency Injection library. Using es6 and other features, remove unnecessary concepts, easy and convenient to use.",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
@@ -20,7 +20,7 @@
     "rmjsmap": "rimraf -- **/*.js.map ./*.js.map test/*.js.map scripts/*.js.map",
     "babel": "babel lib --out-dir lib",
     "build:dist": "webpack --progress",
-    "test": "rimraf -- test/**/*.js && tsc && ava -v -s && npm run rmjsmap",
+    "test": "rimraf -- test/**/*.js && tsc -v && tsc && ava -v -s && npm run rmjsmap",
     "test:prod": "npm run clean && tsc && npm run test",
     "coverage": "nyc npm test",
     "coverage:report": "nyc report --reporter=lcov",
