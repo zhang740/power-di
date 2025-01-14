@@ -422,7 +422,7 @@ test('multi implement, no err.', t => {
 
   const childContext = context.createChildContext({
     conflictHandler: (type, implCls, sourceCls) => {
-      return implCls.find(s => s.type === A)?.type;
+      return implCls.find(s => s.type === A)!.type;
     },
   });
   t.true(childContext.get(BaseService) instanceof A);
