@@ -141,23 +141,24 @@ export class IocContext {
         deep: opt.deep !== false,
       });
       if (target) {
-        if (target.final) {
+        if (target.base) {
           this.register(target.type);
         }
-        return this.get(
-          target.type as any,
-          target.ref
+
+        return this.get(target.type as any, {
+          ...(target.ref
             ? {
                 ...opt,
                 sourceType: opt.sourceType || keyOrType,
               }
-            : opt
-        );
+            : opt),
+          useClassLoader: target.final ? false : true,
+        });
       }
     }
 
     if (this.config.parentContext && opt.deep !== false) {
-      return this.config.parentContext.get(opt.sourceType || keyOrType);
+      return this.config.parentContext.get(opt.sourceType || keyOrType, opt);
     }
 
     const canAutoRegister =
@@ -230,7 +231,7 @@ export class IocContext {
 
     // BaseClass has @injectable
     if (this.isInjectableBaseClass(type)) {
-      return { type, final: true };
+      return { type, base: true };
     }
 
     throw new MultiImplementError(type as any, key);
