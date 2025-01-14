@@ -116,7 +116,7 @@ test('multi implement, use classLoader, resolve deep.', t => {
   context.remove(A);
 
   @injectable()
-  class B extends IService {}
+  class B extends A {}
 
   t.throws(() => childContext.get(IService), { instanceOf: MultiImplementError });
 
@@ -126,5 +126,7 @@ test('multi implement, use classLoader, resolve deep.', t => {
     },
   });
 
+  console.log('!!!!!');
   t.true(childContext.get(IService) instanceof A);
+  t.false(childContext.get(IService) instanceof B);
 });

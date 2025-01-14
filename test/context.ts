@@ -542,6 +542,7 @@ test('use the same instance between interface and impl when get.', t => {
   const test = context.get(Test);
 
   t.deepEqual(test.a, test.base);
+  t.true(test.a === test.base);
 });
 
 test('cannot serialize.', t => {
