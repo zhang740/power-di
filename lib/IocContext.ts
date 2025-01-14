@@ -138,6 +138,7 @@ export class IocContext {
     if (opt.useClassLoader !== false && this.classLoader) {
       const target = this.findClassByClassLoader(keyOrType as any, key, {
         sourceCls: opt.sourceCls,
+        deep: opt.deep !== false,
       });
       if (target) {
         if (target.base) {
@@ -170,11 +171,29 @@ export class IocContext {
     throw new NotfoundTypeError(keyOrType, key);
   }
 
+  protected resolveConflict(
+    type: KeyType,
+    classes: TypeWithInfo[],
+    sourceCls?: TypeWithInfo,
+    deep?: boolean
+  ): { type: ClassType } | undefined {
+    if (this.config.conflictHandler) {
+      const one = this.config.conflictHandler(type, classes, sourceCls);
+      if (one !== undefined) {
+        return { type: one };
+      }
+    }
+    if (deep) {
+      return this.config.parentContext?.resolveConflict(type, classes, sourceCls);
+    }
+  }
+
   private findClassByClassLoader(
     type: KeyType,
     key: string | symbol,
-    opt?: {
+    opt: {
       sourceCls?: ClassType;
+      deep?: boolean;
     }
   ) {
     const classes = this.classLoader.getImplementClasses(type);
@@ -194,21 +213,20 @@ export class IocContext {
       return { type: instances[0].type };
     }
 
-    if (this.config.conflictHandler) {
-      const one = this.config.conflictHandler(
-        type,
-        classes,
-        opt.sourceCls
-          ? {
-              type: opt.sourceCls,
-              info: this.classLoader.getClassInfo(opt.sourceCls),
-            }
-          : undefined
-      );
-      if (one !== undefined) {
-        // class loader is only responsible for matching and not for registration.
-        return { type: one };
-      }
+    const resolved = this.resolveConflict(
+      type,
+      classes,
+      opt.sourceCls
+        ? {
+            type: opt.sourceCls,
+            info: this.classLoader.getClassInfo(opt.sourceCls),
+          }
+        : undefined,
+      opt.deep
+    );
+    if (resolved !== undefined) {
+      // class loader is only responsible for matching and not for registration.
+      return resolved;
     }
 
     // BaseClass has @injectable
@@ -264,7 +282,9 @@ export class IocContext {
     }
 
     if (useClassLoader && this.config.useClassLoader && this.classLoader) {
-      const target = this.findClassByClassLoader(keyOrType, key);
+      const target = this.findClassByClassLoader(keyOrType, key, {
+        deep,
+      });
       if (target) {
         return this.has(target.type, deep);
       }
