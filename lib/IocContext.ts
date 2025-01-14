@@ -141,7 +141,7 @@ export class IocContext {
         deep: opt.deep !== false,
       });
       if (target) {
-        if (target.base) {
+        if (target.final) {
           this.register(target.type);
         }
         return this.get(
@@ -176,11 +176,11 @@ export class IocContext {
     classes: TypeWithInfo[],
     sourceCls?: TypeWithInfo,
     deep?: boolean
-  ): { type: ClassType } | undefined {
+  ): ClassType | undefined {
     if (this.config.conflictHandler) {
       const one = this.config.conflictHandler(type, classes, sourceCls);
       if (one !== undefined) {
-        return { type: one };
+        return one;
       }
     }
     if (deep) {
@@ -225,16 +225,19 @@ export class IocContext {
       opt.deep
     );
     if (resolved !== undefined) {
-      // class loader is only responsible for matching and not for registration.
-      return resolved;
+      return { type: resolved, final: true };
     }
 
     // BaseClass has @injectable
-    if (isClass(type) && getMetadata(type).injectable) {
-      return { type, base: true };
+    if (this.isInjectableBaseClass(type)) {
+      return { type, final: true };
     }
 
     throw new MultiImplementError(type as any, key);
+  }
+
+  private isInjectableBaseClass(type: KeyType) {
+    return isClass(type) && getMetadata(type).injectable;
   }
 
   /**
