@@ -1,3 +1,28 @@
+# 2.4.45 / 2025-01-15
+
+* feat: add newInstanceInThisContext option for instance creation in child contexts
+
+# 2.4.44 / 2025-01-14
+
+* fix: update IocContext to use base class logic and improve instance resolution
+
+# 2.4.43 / 2025-01-14
+
+* fix: instance create error when resolve is a base class.
+
+# 2.4.42 / 2025-01-14
+
+* feat: support resolve conflict deep.
+
+# 2.4.41 / 2024-08-13
+
+* fix: getImports type error.
+
+# 2.4.40 / 2024-07-31
+
+* feat: Add callback hooks for registering and unregistering classes in ClassLoader
+* feat: Add deep option to getImports method in IocContext 
+
 # 2.4.39 / 2024-06-12
 
 * feat: has support class loader.
