@@ -129,3 +129,25 @@ test('multi implement, use classLoader, resolve deep.', t => {
   t.true(childContext.get(IService) instanceof A);
   t.false(childContext.get(IService) instanceof B);
 });
+
+
+test('multi implement, use classLoader, one instance existed.', t => {
+  const context = new IocContext({
+    conflictHandler(type, implCls, sourceCls) {
+      return implCls.find(s => s.type === A)?.type;
+    },
+  });
+  const childContext = context.createChildContext({
+    newInstanceInThisContext: true,
+  });
+
+  abstract class IService {}
+
+  @injectable()
+  class A extends IService {}
+  @injectable()
+  class B extends A {}
+
+  t.false(context.get(IService) instanceof B);
+  t.false(childContext.get(IService) instanceof B);
+});
