@@ -1,3 +1,7 @@
+# 2.4.46 / 2025-01-15
+
+* fix: add final flag to instance resolution when a single instance exists
+
 # 2.4.45 / 2025-01-15
 
 * feat: add newInstanceInThisContext option for instance creation in child contexts
