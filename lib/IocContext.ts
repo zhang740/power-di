@@ -24,6 +24,8 @@ export class Config {
   createInstanceHook?: (inst: any, ioc: IocContext) => any;
   /** parent ioc context */
   parentContext?: IocContext;
+  /** create new instance in this context when is not exist */
+  newInstanceInThisContext?: boolean;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -158,7 +160,9 @@ export class IocContext {
     }
 
     if (this.config.parentContext && opt.deep !== false) {
-      return this.config.parentContext.get(opt.sourceType || keyOrType, opt);
+      if (!this.config.newInstanceInThisContext || this.config.parentContext.has(key, true, true)) {
+        return this.config.parentContext.get(opt.sourceType || keyOrType, opt);
+      }
     }
 
     const canAutoRegister =
