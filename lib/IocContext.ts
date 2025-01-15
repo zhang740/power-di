@@ -215,7 +215,7 @@ export class IocContext {
     // if an instance of one of the classes already exists, the match takes precedence
     const instances = classes.filter(ele => this.has(ele.type, true));
     if (instances.length === 1) {
-      return { type: instances[0].type };
+      return { type: instances[0].type, final: true };
     }
 
     const resolved = this.resolveConflict(
