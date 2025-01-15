@@ -648,3 +648,31 @@ test('select strategy of multiple, childContext', t => {
   ioc.register(B);
   t.true(child.get(IService) instanceof B);
 });
+
+test('newInstanceInThisContext', t => {
+  const parent = new IocContext();
+  const child1 = parent.createChildContext();
+  const child2 = parent.createChildContext({ newInstanceInThisContext: true });
+
+  @injectable()
+  class A {}
+
+  t.false(parent.has(A, false));
+
+  parent.get(A);
+  t.true(parent.has(A, false));
+
+  parent.clear();
+  t.false(parent.has(A, false));
+
+  child1.get(A);
+  t.true(parent.has(A, false));
+  t.false(child1.has(A, false));
+
+  parent.clear();
+  t.false(parent.has(A, false));
+
+  child2.get(A);
+  t.false(parent.has(A, false));
+  t.true(child2.has(A, false));
+});

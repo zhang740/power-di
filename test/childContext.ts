@@ -126,7 +126,6 @@ test('multi implement, use classLoader, resolve deep.', t => {
     },
   });
 
-  console.log('!!!!!');
   t.true(childContext.get(IService) instanceof A);
   t.false(childContext.get(IService) instanceof B);
 });
