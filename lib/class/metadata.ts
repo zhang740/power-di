@@ -33,7 +33,7 @@ export interface FunctionContext<T extends Object = {}, K = {}> {
   skipRunning?: boolean;
 }
 
-export interface AspectPoint<T = {}, K = {}> {
+export interface AspectPoint<T extends Object = {}, K = {}> {
   before?: (context: FunctionContext<T, K>) => void;
   after?: (context: FunctionContext<T, K>) => void;
   error?: (context: FunctionContext<T, K>) => void;
