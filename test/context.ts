@@ -208,6 +208,25 @@ test('getSubClasses, with classLoader.', t => {
   t.true(cls3[0] === cls4[0]);
 });
 
+test('getImpl, ignore subclass.', t => {
+  const ITest = Symbol('ITest');
+
+  class AClass {}
+  class BClass extends AClass {}
+  class CClass extends BClass {}
+
+  const context = new IocContext();
+  t.true(!context.getImports(AClass).length);
+
+  classLoader.registerClass(BClass, { implements: [ITest] });
+  classLoader.registerClass(CClass);
+
+  const cls2 = context.getImports(ITest);
+  t.true(cls2.length === 1);
+  t.true(cls2[0] instanceof BClass);
+  t.false(cls2[0] instanceof CClass);
+});
+
 test('new constructor.', t => {
   let count = 0;
   class OtherClass {}

@@ -268,7 +268,7 @@ export class IocContext {
       return [];
     }
     const data = this.classLoader.getImplementClasses(type).map(clsInfo => {
-      return this.get(clsInfo.type, { deep });
+      return this.get(clsInfo.type, { useClassLoader: false, deep });
     });
     if (cache) {
       this.register(data, type);
