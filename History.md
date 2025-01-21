@@ -1,3 +1,7 @@
+# 2.4.47 / 2025-01-21
+
+* fix: update IocContext to ignore subclasses when retrieving implementations
+
 # 2.4.46 / 2025-01-15
 
 * fix: add final flag to instance resolution when a single instance exists
