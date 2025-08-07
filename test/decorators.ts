@@ -796,3 +796,24 @@ test('metadata', t => {
 
   t.deepEqual(getMetadataField(B, 'injectable'), true);
 });
+
+test('constructor inject', t => {
+  const ioc = new IocContext();
+
+  @injectable()
+  class A {
+    getMessage() {
+      return 'Hello from A';
+    }
+  }
+
+  @injectable()
+  class B {
+    constructor(a: A) {
+      t.assert(a instanceof A);
+      t.is(a.getMessage(), 'Hello from A');
+    }
+  }
+
+  ioc.get(B);
+});
