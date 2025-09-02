@@ -299,7 +299,7 @@ export class IocContext {
     }
 
     if (deep && this.config.parentContext) {
-      return this.config.parentContext.has(key, deep);
+      return this.config.parentContext.has(key, deep, useClassLoader);
     }
 
     return false;

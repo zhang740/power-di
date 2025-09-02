@@ -138,6 +138,30 @@ test('has component, mapping.', t => {
   context.classLoader.unregisterClass(AService);
 });
 
+test('has component, deep.', t => {
+  const cl1 = new ClassLoader();
+  const cl2 = new ClassLoader();
+
+  const context = new IocContext({
+    useClassLoader: cl1,
+  });
+
+  const childContext = context.createChildContext({
+    useClassLoader: cl2,
+  });
+
+  class AService extends TestService {}
+
+  cl1.registerClass(AService);
+
+  const service = context.get(TestService);
+  t.true(service instanceof AService);
+
+  t.true(context.has(TestService, true, true));
+  t.false(childContext.has(TestService, false, true));
+  t.true(childContext.has(TestService, true, true));
+});
+
 test('remove component.', t => {
   const context = new IocContext();
   context.register(TestService);
