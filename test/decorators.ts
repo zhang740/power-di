@@ -92,6 +92,22 @@ test('inject decorator, no data.', t => {
   t.true(!context.get(ITestService).testService);
 });
 
+test('inject decorator, constructor error.', t => {
+  @injectable()
+  class NRService {
+    constructor() {
+      throw new Error('test error');
+    }
+  }
+  @injectable()
+  class ITestService {
+    @inject({ lazy: false, optional: true })
+    public testService: NRService;
+  }
+
+  t.throws(() => !context.get(ITestService).testService, null, 'test error');
+});
+
 test('inject decorator, must have instance.', t => {
   class NRService {}
   @injectable()
