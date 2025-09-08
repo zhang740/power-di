@@ -385,10 +385,11 @@ export class IocContext {
             {
               defaultValue,
               onError: err => {
-                if (!allowOptional) {
-                  err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
-                  throw err;
+                if (allowOptional && err instanceof NotfoundTypeError) {
+                  return;
                 }
+                err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
+                throw err;
               },
             }
           ),
@@ -417,10 +418,11 @@ export class IocContext {
                 defaultValue,
                 onError: err => {
                   hasErr = true;
-                  if (!allowOptional) {
-                    err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
-                    throw err;
+                  if (allowOptional && err instanceof NotfoundTypeError) {
+                    return;
                   }
+                  err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
+                  throw err;
                 },
               }
             );
