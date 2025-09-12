@@ -568,6 +568,42 @@ test('createInstanceHook.', t => {
   t.true(a.test === 'xxx');
 });
 
+test('destroyInstanceHook.', t => {
+  let destroyed = false;
+
+  @injectable()
+  class AClass {
+    test: string;
+  }
+  const context = new IocContext();
+
+  context.setConfig({
+    destroyInstanceHook: inst => {
+      t.true(inst instanceof AClass);
+      if (inst instanceof AClass) {
+        destroyed = true;
+      }
+    },
+  });
+
+  {
+    const a = context.get(AClass);
+    t.true(a instanceof AClass);
+    t.false(destroyed);
+    context.remove(AClass);
+    t.true(destroyed);
+  }
+
+  {
+    destroyed = false;
+    const a = context.get(AClass);
+    t.true(a instanceof AClass);
+    t.false(destroyed);
+    context.clear();
+    t.true(destroyed);
+  }
+});
+
 test('use the same instance between interface and impl when get.', t => {
   abstract class Base {}
   @injectable()

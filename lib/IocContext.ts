@@ -22,6 +22,8 @@ export class Config {
   ) => ClassType | undefined;
   /** create instance hook, return value will replace instance */
   createInstanceHook?: (inst: any, ioc: IocContext) => any;
+  /** destroy instance hook */
+  destroyInstanceHook?: (inst: any, ioc: IocContext) => void;
   /** parent ioc context */
   parentContext?: IocContext;
   /** create new instance in this context when is not exist */
@@ -474,6 +476,9 @@ export class IocContext {
     ).forEach(key => {
       instance[key]();
     });
+    if (this.config.destroyInstanceHook) {
+      this.config.destroyInstanceHook(instance, this);
+    }
   }
 
   /**
