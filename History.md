@@ -1,3 +1,7 @@
+# 2.4.52 / 2025-10-14
+
+* fix: improve error handling by introducing isError function for type checking
+
 # 2.4.47 / 2025-01-21
 
 * fix: update IocContext to ignore subclasses when retrieving implementations
