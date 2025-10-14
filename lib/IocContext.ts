@@ -387,7 +387,7 @@ export class IocContext {
             {
               defaultValue,
               onError: err => {
-                if (allowOptional && err instanceof NotfoundTypeError) {
+                if (allowOptional && isError(err, NotfoundTypeError)) {
                   return;
                 }
                 err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
@@ -420,7 +420,7 @@ export class IocContext {
                 defaultValue,
                 onError: err => {
                   hasErr = true;
-                  if (allowOptional && err instanceof NotfoundTypeError) {
+                  if (allowOptional && isError(err, NotfoundTypeError)) {
                     return;
                   }
                   err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
@@ -578,26 +578,40 @@ export class IocContext {
   }
 }
 
+const ErrorTypeSymbol = Symbol('ErrorType');
+
+function isError(err: any, ErrorType: any) {
+  return err instanceof ErrorType || err[ErrorTypeSymbol] === ErrorType;
+}
+
 export class MultiImplementError extends Error {
   constructor(type: ClassType, key: string | symbol) {
     super(`Has multi Classes of implement type: ${type.name}(${symbolString(key)})`);
   }
+
+  [ErrorTypeSymbol] = MultiImplementError;
 }
 
 export class NotfoundTypeError extends Error {
   constructor(type: any, key: string | symbol) {
     super(`Notfound type: ${type.name || symbolString(type)}(${symbolString(key)})`);
   }
+
+  [ErrorTypeSymbol] = NotfoundTypeError;
 }
 
 export class NoRegistryError extends Error {
   constructor(key: string | symbol) {
     super(`the key:[${symbolString(key)}] is no registry.`);
   }
+
+  [ErrorTypeSymbol] = NoRegistryError;
 }
 
 export class AlreadyRegistryError extends Error {
   constructor(key: string | symbol) {
     super(`the key:[${symbolString(key)}] is already registry.`);
   }
+
+  [ErrorTypeSymbol] = AlreadyRegistryError;
 }
