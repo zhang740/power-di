@@ -421,7 +421,7 @@ test('class inject use interface.', t => {
 
   const ioc = new IocContext();
   t.true(ioc.get(AInterface) instanceof A);
-  t.true(ioc.get(BInterface) instanceof B);
+  t.true(ioc.get<BInterface>(BInterface) instanceof B);
 });
 
 test('throw error when inject Object/undefined.', t => {

@@ -87,7 +87,7 @@ test('register 2nd with same key.', t => {
 test('register component by string.', t => {
   const context = new IocContext();
   context.register(TestService, 'string_key');
-  t.true(context.get('string_key') instanceof TestService);
+  t.true(context.get<TestService>('string_key') instanceof TestService);
 
   const data = { x: 'test' };
   context.register(data, 'string_key_value');
@@ -245,7 +245,7 @@ test('getImpl, ignore subclass.', t => {
   classLoader.registerClass(BClass, { implements: [ITest] });
   classLoader.registerClass(CClass);
 
-  const cls2 = context.getImports(ITest);
+  const cls2 = context.getImports<AClass>(ITest);
   t.true(cls2.length === 1);
   t.true(cls2[0] instanceof BClass);
   t.false(cls2[0] instanceof CClass);
