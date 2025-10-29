@@ -1,3 +1,7 @@
+# 2.4.53 / 2025-10-29
+
+* fix: update type inference in GetReturnType and improve type safety in tests
+
 # 2.4.52 / 2025-10-14
 
 * fix: improve error handling by introducing isError function for type checking
