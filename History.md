@@ -6,6 +6,18 @@
 
 * fix: improve error handling by introducing isError function for type checking
 
+# 2.4.51 / 2025-09-12
+
+* feat: add destroyInstanceHook to Config and implement in IocContext with corresponding tests
+
+# 2.4.50 / 2025-09-08
+
+* fix: update error handling in IocContext and add test for constructor injection error
+
+# 2.4.48 / 2025-09-02
+
+fix: update IocContext.has method to include useClassLoader parameter and add corresponding test
+
 # 2.4.47 / 2025-01-21
 
 * fix: update IocContext to ignore subclasses when retrieving implementations
