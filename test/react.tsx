@@ -336,7 +336,7 @@ test('use hooks, symbol', t => {
   context.register(NRService, INRService);
 
   const TestComponent = (): any => {
-    t.true(useInstanceHook(INRService) instanceof NRService);
+    t.true(useInstanceHook<INRService>(INRService) instanceof NRService);
     return null;
   };
 

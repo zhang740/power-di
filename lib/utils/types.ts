@@ -4,5 +4,5 @@ export type RegKeyType = KeyType | undefined;
 export type GetReturnType<T, ClsType> = T extends undefined
   ? ClsType extends { prototype: infer R }
     ? R
-    : any
+    : never
   : T;
