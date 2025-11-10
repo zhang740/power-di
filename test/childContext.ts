@@ -128,8 +128,17 @@ test('multi implement, use classLoader, resolve deep.', t => {
 
   t.true(childContext.get(IService) instanceof A);
   t.false(childContext.get(IService) instanceof B);
-});
 
+  context.clear();
+  const subChildContext = childContext.createChildContext();
+
+  t.throws(() => subChildContext.get(IService, { deep: false }), {
+    instanceOf: MultiImplementError,
+  });
+
+  t.true(subChildContext.get(IService) instanceof A);
+  t.false(subChildContext.get(IService) instanceof B);
+});
 
 test('multi implement, use classLoader, one instance existed.', t => {
   const context = new IocContext({

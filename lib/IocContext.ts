@@ -191,7 +191,7 @@ export class IocContext {
       }
     }
     if (deep) {
-      return this.config.parentContext?.resolveConflict(type, classes, sourceCls);
+      return this.config.parentContext?.resolveConflict(type, classes, sourceCls, deep);
     }
   }
 
