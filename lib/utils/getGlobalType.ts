@@ -28,11 +28,11 @@ export function getGlobalType(key: any, prefix: string = ''): string | symbol {
 
   let type: string;
   const keyName = key[nameSymbol] || key.name;
-  if (typeof key !== 'function' || !keyName) {
+  if (typeof key !== 'function' || keyName === undefined) {
     // Only for compatible with es5 class
     throw new Error('data MUST be a class or string.');
   }
-  type = prefix + keyName;
+  type = prefix + (keyName || '[anonymous]');
   if (_globalTypes[type]) {
     type = type + '_' + _uid++;
   }
