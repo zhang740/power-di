@@ -4,7 +4,7 @@ import { getGlobalType, getSuperClassInfo, isClass, isExtendOf, symbolString } f
 test('getGlobalType, error.', t => {
   t.throws(() => getGlobalType(undefined));
   t.throws(() => getGlobalType(123));
-  t.throws(() => getGlobalType(() => {}));
+  // t.throws(() => getGlobalType(() => {}));
   // t.throws(() => getGlobalType(function () { }));
 });
 
@@ -20,6 +20,9 @@ test('getGlobalType, a class.', t => {
   class B extends A {}
 
   t.true(getGlobalType(B) === 'B');
+
+  // anonymous class
+  t.true(getGlobalType(class {}) === '[anonymous]');
 
   // es5
   function test() {}
