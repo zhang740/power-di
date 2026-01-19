@@ -1,3 +1,7 @@
+# 2.4.56 / 2026-01-19
+
+- feat(ioc): support optional/always global default options for property injection
+
 # 2.4.55 / 2025-12-22
 
 - fix: improve error handling in getGlobalType and update test cases for clarity
