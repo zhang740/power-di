@@ -8,8 +8,8 @@ import { KeyType } from '../utils/types';
 export function inject({
   type,
   lazy = true,
-  always = false,
-  optional = false,
+  always,
+  optional,
   singleton = true,
 }: {
   type?: KeyType;

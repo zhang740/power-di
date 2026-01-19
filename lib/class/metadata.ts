@@ -9,7 +9,7 @@ export interface InjectMetadataType {
   globalType: string | symbol;
   typeCls: KeyType;
   singleton?: boolean;
-  /** with lazyInject */
+  /** need with lazyInject */
   always?: boolean;
   optional?: boolean;
 }

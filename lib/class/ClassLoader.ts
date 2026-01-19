@@ -88,7 +88,7 @@ export class ClassLoader {
   }
 
   /** get class info */
-  getClassInfo(type: ClassType) {
+  getClassInfo(type: ClassType): ClassInfo | undefined {
     return this.classInfoMap.get(type);
   }
 

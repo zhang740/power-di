@@ -728,7 +728,7 @@ test('select strategy of multiple, childContext', t => {
   t.true(child.get(IService) instanceof B);
 });
 
-test('newInstanceInThisContext', t => {
+test('config, newInstanceInThisContext', t => {
   const parent = new IocContext();
   const child1 = parent.createChildContext();
   const child2 = parent.createChildContext({ newInstanceInThisContext: true });
@@ -754,4 +754,40 @@ test('newInstanceInThisContext', t => {
   child2.get(A);
   t.false(parent.has(A, false));
   t.true(child2.has(A, false));
+});
+
+test('config, defaultInjectOptions', t => {
+  const IfA = Symbol('IfA');
+  class A {
+    id = 111;
+  }
+  class B {
+    @inject({ type: IfA })
+    a: A;
+    @inject({ type: IfA })
+    b: A;
+  }
+
+  const classLoader = new ClassLoader();
+  classLoader.registerClass(B);
+  const context = new IocContext({
+    useClassLoader: classLoader,
+    defaultInjectOptions: {
+      optional: true,
+      always: true,
+    },
+  });
+
+  const b = context.get(B);
+  t.true(b.a === undefined);
+
+  classLoader.registerClass(A, { implements: [IfA] });
+  t.true(context.get(B).a instanceof A);
+
+  context.config.defaultInjectOptions.always = false;
+  t.true(context.get(B).b instanceof A);
+
+  classLoader.unregisterClass(A);
+  t.true(context.get(B).a === undefined);
+  t.true(context.get(B).b instanceof A);
 });

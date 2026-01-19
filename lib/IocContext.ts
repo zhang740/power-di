@@ -1,6 +1,6 @@
 import { getGlobalType, getReflectMetadata, isClass, symbolString } from './utils';
 import { GetReturnType, RegKeyType, KeyType, ClassType } from './utils/types';
-import { getMetadata, getMetadataField } from './class/metadata';
+import { getMetadata, getMetadataField, InjectMetadataType } from './class/metadata';
 import { classLoader, TypeWithInfo, ClassLoader } from './class/ClassLoader';
 import { guard } from './utils/guard';
 import { genAspectWrapper } from './decorator/aspect';
@@ -28,6 +28,8 @@ export class Config {
   parentContext?: IocContext;
   /** create new instance in this context when is not exist */
   newInstanceInThisContext?: boolean;
+  /** default inject options */
+  defaultInjectOptions?: Pick<InjectMetadataType, 'optional' | 'always'>;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -38,8 +40,8 @@ export const DefaultRegisterOption: RegisterOptions = {
 export interface RegisterOptions {
   /** default: true */
   singleton?: boolean;
-  /** if data a class, auto new a instance.
-   *  if data a function, auto run(lazy).
+  /** if data as a class, auto new a instance.
+   *  if data as a function, auto run(lazy).
    *  default: true */
   autoNew?: boolean;
 }
@@ -368,13 +370,15 @@ export class IocContext {
     const classType = instance.constructor;
 
     getMetadataField(classType, 'injects').forEach(inject => {
-      const { key, typeCls, optional, singleton } = inject;
+      const { type, key, typeCls, singleton } = inject;
 
       const descriptor = Object.getOwnPropertyDescriptor(instance, key);
       let defaultValue: any = descriptor && descriptor.value;
-      const allowOptional = optional || defaultValue !== undefined;
 
-      if ('inject' === inject.type) {
+      const isAllowOptional = () =>
+        inject.optional ?? this.config.defaultInjectOptions?.optional ?? defaultValue !== undefined;
+
+      if ('inject' === type) {
         Object.defineProperty(instance, key, {
           configurable: true,
           writable: true,
@@ -387,7 +391,7 @@ export class IocContext {
             {
               defaultValue,
               onError: err => {
-                if (allowOptional && isError(err, NotfoundTypeError)) {
+                if (isAllowOptional() && isError(err, NotfoundTypeError)) {
                   return;
                 }
                 err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
@@ -398,15 +402,15 @@ export class IocContext {
         });
       }
 
-      if (['lazyInject', 'imports'].includes(inject.type)) {
-        const { always } = inject;
+      if (['lazyInject', 'imports'].includes(type)) {
         Object.defineProperty(instance, key, {
           configurable: true,
           get: function () {
+            const always = inject.always ?? iocSelf.config.defaultInjectOptions?.always ?? false;
             let hasErr = false;
             const data = guard(
               () => {
-                switch (inject.type) {
+                switch (type) {
                   case 'lazyInject':
                     return iocSelf.get(typeCls, {
                       sourceCls: classType,
@@ -420,7 +424,7 @@ export class IocContext {
                 defaultValue,
                 onError: err => {
                   hasErr = true;
-                  if (allowOptional && isError(err, NotfoundTypeError)) {
+                  if (isAllowOptional() && isError(err, NotfoundTypeError)) {
                     return;
                   }
                   err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
