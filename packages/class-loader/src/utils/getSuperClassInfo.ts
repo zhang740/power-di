@@ -1,4 +1,4 @@
-import { isClass, getGlobalType } from './getGlobalType';
+import { getGlobalType, isClass } from './getGlobalType';
 
 export interface TypeInfo {
   type: string | symbol;

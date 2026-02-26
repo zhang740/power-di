@@ -1,7 +1,7 @@
-import { test, expect } from 'vitest';
-import { getSuperClassInfo } from '@power-di/class-loader';
+import { expect, it } from 'vitest';
+import { getSuperClassInfo } from '../src';
 
-test('basic', () => {
+it('basic', () => {
   class A {}
   class B extends A {}
   class C extends B {}

@@ -17,13 +17,14 @@ export function isClass(target: any): target is Function {
  * @param prefix the prefix of type.
  */
 export function getGlobalType(key: any, prefix: string = ''): string | symbol {
-  if (!key) throw new Error('no key.');
+  if (!key)
+    throw new Error('no key.');
   // object for ie11 symbol
   if (['string', 'symbol', 'object'].includes(typeof key)) {
     return key;
   }
   if (key.hasOwnProperty('__type')) {
-    return key['__type'];
+    return key.__type;
   }
 
   let type: string;
@@ -34,7 +35,7 @@ export function getGlobalType(key: any, prefix: string = ''): string | symbol {
   }
   type = prefix + (keyName || '[anonymous]');
   if (_globalTypes[type]) {
-    type = type + '_' + _uid++;
+    type = `${type}_${_uid++}`;
   }
   _globalTypes[type] = true;
   Object.defineProperty(key, '__type', {

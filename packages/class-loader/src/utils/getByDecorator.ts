@@ -2,12 +2,12 @@ import { getGlobalType } from './getGlobalType';
 
 declare global {
   namespace Reflect {
-    function getMetadata(metadataKey: any, target: Object): any;
-    function getMetadata(metadataKey: any, target: Object, propertyKey: string | symbol): any;
+    function getMetadata(metadataKey: any, target: object): any;
+    function getMetadata(metadataKey: any, target: object, propertyKey: string | symbol): any;
   }
 }
 
-export function getReflectMetadata(metadataKey: any, target: Object, key?: string | symbol) {
+export function getReflectMetadata(metadataKey: any, target: object, key?: string | symbol) {
   /* istanbul ignore else */
   if (Reflect && Reflect.getMetadata) {
     return Reflect.getMetadata(metadataKey, target, key);

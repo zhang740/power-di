@@ -1,6 +1,11 @@
 {
   "name": "power-di",
   "version": "2.4.56",
+  "exports": {
+    ".": "./dist/index.js",
+    "./utils": "./dist/utils/index.js",
+    "./react": "./dist/react/index.js"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -12,7 +17,6 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@power-di/aspect": "workspace:*",
     "@power-di/class-loader": "workspace:*",
     "@power-di/di": "workspace:*",
     "@power-di/react": "workspace:*"

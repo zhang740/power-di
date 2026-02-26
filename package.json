@@ -23,10 +23,11 @@
     "react"
   ],
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm run clean && pnpm -r build",
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "clean": "pnpm -r clean"
+    "clean": "pnpm -r clean",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:",
@@ -34,7 +35,6 @@
     "@babel/core": "catalog:",
     "@babel/preset-env": "catalog:",
     "@eslint-react/eslint-plugin": "catalog:",
-    "@types/co": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-test-renderer": "catalog:",
@@ -50,6 +50,7 @@
     "prettier": "catalog:",
     "react": "catalog:",
     "react-test-renderer": "catalog:",
+    "reflect-metadata": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

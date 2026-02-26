@@ -1,34 +1,34 @@
-import { test, expect } from 'vitest';
-import { guard } from '@power-di/class-loader';
+import { expect, it } from 'vitest';
+import { guard } from '../src';
 
-test('guard', () => {
+it('guard', () => {
   expect(() =>
     guard(() => {
-      throw Error();
-    })
+      throw new Error();
+    }),
   ).not.toThrow();
 });
 
-test('default value', () => {
+it('default value', () => {
   expect(
     guard(
       () => {
-        throw Error();
+        throw new Error();
       },
-      { defaultValue: 5 }
-    )
+      { defaultValue: 5 },
+    ),
   ).toBe(5);
 });
 
-test('onError', () => {
+it('onError', () => {
   guard(
     () => {
-      throw Error();
+      throw new Error();
     },
     {
       onError: () => {
         expect(true).toBe(true);
       },
-    }
+    },
   );
 });

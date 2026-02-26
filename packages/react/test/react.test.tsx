@@ -1,44 +1,17 @@
-import { test as vitestTest, expect } from 'vitest';
+import { inject, IocContext, postConstruct, preDestroy } from '@power-di/di';
 import * as React from 'react';
 import { create } from 'react-test-renderer';
-import { IocContext, inject, postConstruct, preDestroy } from '@power-di/di';
+import { it } from 'vitest';
 import {
-  IocProvider,
+  BaseConsumerComponent,
   Component,
+  iocConsumer,
+  IocProvider,
   PureComponent,
   useInstanceHook,
-  BaseConsumerComponent,
-  iocConsumer,
-} from '@power-di/react';
+} from '../src';
 
-const test = (name: string, fn: (t: any) => any) => vitestTest(name, () => fn(createAssert()));
-
-function createAssert() {
-  return {
-    true: (value: any) => expect(value).toBe(true),
-    false: (value: any) => expect(value).toBe(false),
-    is: (value: any, expected: any) => expect(value).toBe(expected),
-    deepEqual: (value: any, expected: any) => expect(value).toEqual(expected),
-    throws: (fn: () => any, opts?: any) => {
-      if (opts?.instanceOf) {
-        return expect(fn).toThrow(opts.instanceOf);
-      }
-      return expect(fn).toThrow();
-    },
-    notThrows: (fn: () => any) => expect(fn).not.toThrow(),
-    throwsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).rejects.toThrow();
-    },
-    notThrowsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).resolves.toBeUndefined();
-    },
-    pass: () => expect(true).toBe(true),
-    assert: (value: any) => expect(!!value).toBe(true),
-    fail: () => expect(false).toBe(true),
-  };
-}
-
-test('only component.', t => {
+it('only component.', (t) => {
   const context = IocContext.DefaultInstance;
   class NRServiceDI {}
   context.register(NRServiceDI);
@@ -48,11 +21,11 @@ test('only component.', t => {
     service: NRServiceDI;
 
     componentDidMount() {
-      t.true(this.service instanceof NRServiceDI);
+      t.expect(this.service instanceof NRServiceDI).toBe(true);
     }
 
     render(): any {
-      t.true(this.service instanceof NRServiceDI);
+      t.expect(this.service instanceof NRServiceDI).toBe(true);
       return null;
     }
   }
@@ -60,7 +33,7 @@ test('only component.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('has componentWillMount.', t => {
+it('has componentWillMount.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -70,7 +43,7 @@ test('has componentWillMount.', t => {
     service: NRService;
 
     UNSAFE_componentWillMount() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -81,7 +54,7 @@ test('has componentWillMount.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('has componentWillMount, PureComponent.', t => {
+it('has componentWillMount, PureComponent.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -91,7 +64,7 @@ test('has componentWillMount, PureComponent.', t => {
     service: NRService;
 
     UNSAFE_componentWillMount() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -102,7 +75,7 @@ test('has componentWillMount, PureComponent.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('postConstruct.', t => {
+it('postConstruct.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -113,7 +86,7 @@ test('postConstruct.', t => {
 
     @postConstruct()
     init() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -124,7 +97,7 @@ test('postConstruct.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('postConstruct, subclass.', t => {
+it('postConstruct, subclass.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -141,7 +114,7 @@ test('postConstruct, subclass.', t => {
   class TestComponent extends Base {
     @postConstruct()
     init() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -152,7 +125,7 @@ test('postConstruct, subclass.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('preDestroy.', t => {
+it('preDestroy.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -163,7 +136,7 @@ test('preDestroy.', t => {
 
     @preDestroy()
     destroy() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -172,12 +145,12 @@ test('preDestroy.', t => {
   }
 
   const root = create(
-    React.createElement(IocProvider, { context }, React.createElement(TestComponent, null))
+    React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)),
   );
   root.unmount();
 });
 
-test('preDestroy, subclass.', t => {
+it('preDestroy, subclass.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -194,7 +167,7 @@ test('preDestroy, subclass.', t => {
   class TestComponent extends Base {
     @preDestroy()
     destroy() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -203,12 +176,12 @@ test('preDestroy, subclass.', t => {
   }
 
   const root = create(
-    React.createElement(IocProvider, { context }, React.createElement(TestComponent, null))
+    React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)),
   );
   root.unmount();
 });
 
-test('has componentWillMount, manual extends BaseConsumerComponent.', t => {
+it('has componentWillMount, manual extends BaseConsumerComponent.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -220,7 +193,7 @@ test('has componentWillMount, manual extends BaseConsumerComponent.', t => {
 
     @postConstruct()
     init() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -231,7 +204,7 @@ test('has componentWillMount, manual extends BaseConsumerComponent.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('consumer, manual extends.', t => {
+it('consumer, manual extends.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -243,7 +216,7 @@ test('consumer, manual extends.', t => {
 
     @postConstruct()
     init() {
-      t.fail();
+      t.expect(false).toBe(true);
     }
 
     render(): any {
@@ -254,7 +227,7 @@ test('consumer, manual extends.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('consumer, manual extends BaseConsumerComponent.', t => {
+it('consumer, manual extends BaseConsumerComponent.', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -266,7 +239,7 @@ test('consumer, manual extends BaseConsumerComponent.', t => {
 
     @postConstruct()
     init() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -277,7 +250,7 @@ test('consumer, manual extends BaseConsumerComponent.', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('has createInstanceHook', t => {
+it('has createInstanceHook', (t) => {
   const context = new IocContext({
     createInstanceHook(inst, ioc) {
       inst.x = 'test';
@@ -288,7 +261,7 @@ test('has createInstanceHook', t => {
     x: string;
 
     componentDidMount() {
-      t.deepEqual(this.x, 'test');
+      t.expect(this.x).toBe('test');
     }
 
     render(): any {
@@ -299,20 +272,20 @@ test('has createInstanceHook', t => {
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('use hooks', t => {
+it('use hooks', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
 
   const TestComponent = (): any => {
-    t.true(useInstanceHook(NRService) instanceof NRService);
+    t.expect(useInstanceHook(NRService) instanceof NRService).toBe(true);
     return null;
   };
 
   create(React.createElement(IocProvider, { context }, React.createElement(TestComponent, null)));
 });
 
-test('use hooks, symbol', t => {
+it('use hooks, symbol', (t) => {
   const context = new IocContext();
   class NRService {}
   type INRService = NRService;
@@ -321,18 +294,18 @@ test('use hooks, symbol', t => {
   context.register(NRService, INRService);
 
   const TestComponent = (): any => {
-    t.true(useInstanceHook<INRService>(INRService) instanceof NRService);
+    t.expect(useInstanceHook<INRService>(INRService) instanceof NRService).toBe(true);
     return null;
   };
 
   create(
     <IocProvider context={context}>
       <TestComponent />
-    </IocProvider>
+    </IocProvider>,
   );
 });
 
-test('postConstruct, subclass', t => {
+it('postConstruct, subclass', (t) => {
   const context = new IocContext();
   class NRService {}
   context.register(NRService);
@@ -349,7 +322,7 @@ test('postConstruct, subclass', t => {
   class TestComponent extends Base {
     @postConstruct()
     init() {
-      t.true(this.service instanceof NRService);
+      t.expect(this.service instanceof NRService).toBe(true);
     }
 
     render(): any {
@@ -360,6 +333,6 @@ test('postConstruct, subclass', t => {
   create(
     <IocProvider context={context}>
       <TestComponent />
-    </IocProvider>
+    </IocProvider>,
   );
 });

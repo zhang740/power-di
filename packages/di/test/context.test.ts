@@ -1,151 +1,120 @@
-import { test as vitestTest, expect } from 'vitest';
+import { classLoader, ClassLoader } from '@power-di/class-loader';
+import { it } from 'vitest';
 import {
-  IocContext,
   inject,
-  NotfoundTypeError,
   injectable,
+  IocContext,
   MultiImplementError,
-  classInfo,
+  NotfoundTypeError,
   postConstruct,
   preDestroy,
-} from '@power-di/di';
-import { classLoader, ClassLoader } from '@power-di/class-loader';
+} from '../src';
 import { TestService as TS2 } from './base.test';
-
-const test = (name: string, fn: (t: any) => any) => vitestTest(name, () => fn(createAssert()));
-
-function createAssert() {
-  return {
-    true: (value: any) => expect(value).toBe(true),
-    false: (value: any) => expect(value).toBe(false),
-    is: (value: any, expected: any) => expect(value).toBe(expected),
-    deepEqual: (value: any, expected: any) => expect(value).toEqual(expected),
-    throws: (fn: () => any, opts?: any, message?: string) => {
-      if (message) {
-        return expect(fn).toThrow(message);
-      }
-      if (opts?.instanceOf) {
-        return expect(fn).toThrow(opts.instanceOf);
-      }
-      return expect(fn).toThrow();
-    },
-    notThrows: (fn: () => any) => expect(fn).not.toThrow(),
-    throwsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).rejects.toThrow();
-    },
-    notThrowsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).resolves.toBeUndefined();
-    },
-    pass: () => expect(true).toBe(true),
-    assert: (value: any) => expect(!!value).toBe(true),
-    fail: () => expect(false).toBe(true),
-  };
-}
 
 class TestService {}
 
-test('default instance.', t => {
-  t.true(IocContext.DefaultInstance instanceof IocContext);
+it('default instance.', (t) => {
+  t.expect(IocContext.DefaultInstance instanceof IocContext).toBe(true);
 });
 
-test('register component error case.', t => {
+it('register component error case.', (t) => {
   enum INJECTTYPE {
     test,
   }
 
   const context = new IocContext();
-  t.throws(() => context.register(undefined));
-  t.throws(() => context.register(123123));
-  t.throws(() => context.register({}));
-  t.throws(() => context.register({}, 123123 as any));
-  t.throws(() => context.register({}, INJECTTYPE.test as any));
-  t.throws(() => context.get('TEST'), { instanceOf: NotfoundTypeError });
+  t.expect(() => context.register(undefined)).toThrow();
+  t.expect(() => context.register(123123)).toThrow();
+  t.expect(() => context.register({})).toThrow();
+  t.expect(() => context.register({}, 123123 as any)).toThrow();
+  t.expect(() => context.register({}, INJECTTYPE.test as any)).toThrow();
+  t.expect(() => context.get('TEST')).toThrow(NotfoundTypeError);
 });
 
-test('register component by class.', t => {
+it('register component by class.', (t) => {
   const context = new IocContext();
   context.register(TestService);
-  t.true(context.get(TestService) instanceof TestService);
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
 });
 
-test('register component by class, symbol.', t => {
+it('register component by class, symbol.', (t) => {
   const context = new IocContext();
   const service = Symbol('TestService');
   context.register(TestService, service);
-  t.true((context.get(service) as any) instanceof TestService);
+  t.expect((context.get(service) as any) instanceof TestService).toBe(true);
 });
 
-test('register component by class, no new.', t => {
+it('register component by class, no new.', (t) => {
   const context = new IocContext();
   context.register(TestService, TestService, { autoNew: false });
-  t.true(!(context.get(TestService) instanceof TestService));
+  t.expect(!(context.get(TestService) instanceof TestService)).toBe(true);
 });
 
-test('register component by class, singleton', t => {
+it('register component by class, singleton', (t) => {
   const context = new IocContext();
   context.register(TestService, TestService, { singleton: false });
-  t.true(context.get(TestService) instanceof TestService);
-  t.true(context.get(TestService) !== context.get(TestService));
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
+  t.expect(context.get(TestService) !== context.get(TestService)).toBe(true);
 });
 
-test('register component by class, singleton', t => {
+it('register component by class, singleton, simple', (t) => {
   const context = new IocContext();
   context.register(TestService);
-  t.true(context.get(TestService) instanceof TestService);
-  t.true(context.get(TestService) === context.get(TestService));
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
+  t.expect(context.get(TestService) === context.get(TestService)).toBe(true);
 });
 
-test('register component by value.', t => {
+it('register component by value.', (t) => {
   const context = new IocContext();
   context.register(1, TestService);
-  t.true(context.get(TestService) === 1);
-  t.throws(() => context.register(2, TestService));
+  t.expect(context.get(TestService) === 1).toBe(true);
+  t.expect(() => context.register(2, TestService)).toThrow();
 });
 
-test('register component by value, no auto new.', t => {
+it('register component by value, no auto new.', (t) => {
   const context = new IocContext();
   context.register(TestService, TestService, { autoNew: false });
-  t.true(!(context.get(TestService) instanceof TestService));
-  t.true(context.get(TestService) === TestService);
-  t.true(context.get(TestService) === context.get(TestService));
+  t.expect(!(context.get(TestService) instanceof TestService)).toBe(true);
+  t.expect(context.get(TestService) === TestService).toBe(true);
+  t.expect(context.get(TestService) === context.get(TestService)).toBe(true);
 });
 
-test('register component, autoRegisterSelf.', t => {
+it('register component, autoRegisterSelf.', (t) => {
   class A {}
   class B {
     @inject({ type: A })
     a: A;
   }
   const context = new IocContext({ autoRegisterSelf: true });
-  t.true(context.get(B) instanceof B);
-  t.true(context.get(B).a instanceof A);
+  t.expect(context.get(B) instanceof B).toBe(true);
+  t.expect(context.get(B).a instanceof A).toBe(true);
 });
 
-test('has component.', t => {
+it('has component.', (t) => {
   const context = new IocContext();
   context.register(TestService);
-  t.true(context.has(TestService));
+  t.expect(context.has(TestService)).toBe(true);
 
   class BTest {}
-  t.false(context.has(BTest));
+  t.expect(context.has(BTest)).toBe(false);
 });
 
-test('has component, mapping.', t => {
+it('has component, mapping.', (t) => {
   const context = new IocContext();
 
   class AService extends TestService {}
 
-  t.false(context.has(TestService, true, true));
+  t.expect(context.has(TestService, true, true)).toBe(false);
 
   context.classLoader.registerClass(AService);
 
   context.register(AService);
-  t.true(context.has(TestService, true, true));
+  t.expect(context.has(TestService, true, true)).toBe(true);
 
   context.classLoader.unregisterClass(AService);
 });
 
-test('has component, deep.', t => {
+it('has component, deep.', (t) => {
   const cl1 = new ClassLoader();
   const cl2 = new ClassLoader();
 
@@ -162,118 +131,118 @@ test('has component, deep.', t => {
   cl1.registerClass(AService);
 
   const service = context.get(TestService);
-  t.true(service instanceof AService);
+  t.expect(service instanceof AService).toBe(true);
 
-  t.true(context.has(TestService, true, true));
-  t.false(childContext.has(TestService, false, true));
-  t.true(childContext.has(TestService, true, true));
+  t.expect(context.has(TestService, true, true)).toBe(true);
+  t.expect(childContext.has(TestService, false, true)).toBe(false);
+  t.expect(childContext.has(TestService, true, true)).toBe(true);
 });
 
-test('remove component.', t => {
+it('remove component.', (t) => {
   const context = new IocContext();
   context.register(TestService);
-  t.true(context.get(TestService) instanceof TestService);
-  t.deepEqual(context.remove(TestService), true);
-  t.deepEqual(context.remove(TestService), false);
-  t.throws(() => context.get(TestService), { instanceOf: NotfoundTypeError });
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
+  t.expect(context.remove(TestService)).toBe(true);
+  t.expect(context.remove(TestService)).toBe(false);
+  t.expect(() => context.get(TestService)).toThrow(NotfoundTypeError);
 });
 
-test('replace component.', t => {
+it('replace component.', (t) => {
   class BClass {}
   const context = new IocContext();
   context.register(TestService);
-  t.true(context.get(TestService) instanceof TestService);
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
 
   context.replace(TestService, BClass);
-  t.true(context.get(TestService) instanceof BClass);
+  t.expect(context.get(TestService) instanceof BClass).toBe(true);
 
-  t.throws(() => context.replace(BClass, TestService));
+  t.expect(() => context.replace(BClass, TestService)).toThrow();
 
   context.replace(BClass, '123', undefined, true);
-  t.true(context.get(BClass) === '123');
+  t.expect(context.get(BClass) === '123').toBe(true);
 });
 
-test('difference class with same class name.', t => {
+it('difference class with same class name.', (t) => {
   const context = new IocContext();
   context.register(TestService);
   context.register(TS2);
-  t.true(context.get(TestService) instanceof TestService);
-  t.true(context.get(TS2) instanceof TS2);
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
+  t.expect(context.get(TS2) instanceof TS2).toBe(true);
 });
 
-test('subComponent.', t => {
+it('subComponent.', (t) => {
   class SubClass extends TestService {}
 
   const context = new IocContext();
   context.register(SubClass, TestService);
-  t.true(context.get(TestService) instanceof SubClass);
-  t.true(context.get(TestService) instanceof TestService);
-  t.throws(() => context.get(SubClass), { instanceOf: NotfoundTypeError });
+  t.expect(context.get(TestService) instanceof SubClass).toBe(true);
+  t.expect(context.get(TestService) instanceof TestService).toBe(true);
+  t.expect(() => context.get(SubClass)).toThrow(NotfoundTypeError);
 });
 
-test('getSubClasses, with classLoader.', t => {
+it('getSubClasses, with classLoader.', (t) => {
   class AClass {}
   class BClass extends AClass {}
   class CClass extends BClass {}
 
   const context = new IocContext();
-  t.true(!context.getImports(AClass).length);
+  t.expect(!context.getImports(AClass).length).toBe(true);
 
   classLoader.registerClass(BClass);
   classLoader.registerClass(CClass);
 
   const cls = context.getImports<AClass>(AClass);
-  t.true(cls.length === 2);
-  t.true(cls[0] instanceof BClass);
-  t.true(cls[1] instanceof CClass);
+  t.expect(cls.length === 2).toBe(true);
+  t.expect(cls[0] instanceof BClass).toBe(true);
+  t.expect(cls[1] instanceof CClass).toBe(true);
 
   classLoader.unregisterClass(BClass);
   classLoader.unregisterClass(CClass);
 });
 
-test('getSubClasses, with classLoader with implements.', t => {
+it('getSubClasses, with classLoader with implements.', (t) => {
   abstract class ITest {}
   class AClass {}
   class BClass extends AClass {}
   class CClass extends BClass {}
 
   const context = new IocContext();
-  t.true(!context.getImports(AClass).length);
+  t.expect(!context.getImports(AClass).length).toBe(true);
 
   classLoader.registerClass(BClass, { implements: [ITest] });
   classLoader.registerClass(CClass, { implements: [ITest] });
 
   const cls = context.getImports<AClass>(ITest);
-  t.true(cls.length === 2);
-  t.true(cls[0] instanceof BClass);
-  t.true(cls[1] instanceof CClass);
+  t.expect(cls.length === 2).toBe(true);
+  t.expect(cls[0] instanceof BClass).toBe(true);
+  t.expect(cls[1] instanceof CClass).toBe(true);
 
   classLoader.unregisterClass(BClass);
   classLoader.unregisterClass(CClass);
 });
 
-test('getSubClasses, with classLoader with implements.', t => {
+it('getSubClasses, with classLoader with implements, 2.', (t) => {
   abstract class ITest {}
   class AClass {}
   class BClass extends AClass {}
   class CClass extends BClass {}
 
   const context = new IocContext();
-  t.true(!context.getImports(AClass).length);
+  t.expect(!context.getImports(AClass).length).toBe(true);
 
   classLoader.registerClass(BClass, { implements: [ITest] });
   classLoader.registerClass(CClass);
 
   const cls2 = context.getImports<AClass>(ITest);
-  t.true(cls2.length === 1);
-  t.true(cls2[0] instanceof BClass);
-  t.false(cls2[0] instanceof CClass);
+  t.expect(cls2.length === 1).toBe(true);
+  t.expect(cls2[0] instanceof BClass).toBe(true);
+  t.expect(cls2[0] instanceof CClass).toBe(false);
 
   classLoader.unregisterClass(BClass);
   classLoader.unregisterClass(CClass);
 });
 
-test('new constructor.', t => {
+it('new constructor.', (t) => {
   let count = 0;
 
   @injectable()
@@ -286,18 +255,18 @@ test('new constructor.', t => {
   const context = new IocContext({ constructorInject: true });
   context.register(A);
 
-  t.true(context.get(A) instanceof A);
-  t.true(context.get(A) === context.get(A));
-  t.is(count, 1);
+  t.expect(context.get(A) instanceof A).toBe(true);
+  t.expect(context.get(A) === context.get(A)).toBe(true);
+  t.expect(count).toBe(1);
 
   context.remove(A);
   context.register(A, A, { singleton: false });
-  t.true(context.get(A) instanceof A);
-  t.true(context.get(A) !== context.get(A));
-  t.is(count, 4);
+  t.expect(context.get(A) instanceof A).toBe(true);
+  t.expect(context.get(A) !== context.get(A)).toBe(true);
+  t.expect(count).toBe(4);
 });
 
-test('new constructor, opt.', t => {
+it('new constructor, opt.', (t) => {
   let count = 0;
 
   @injectable()
@@ -310,22 +279,22 @@ test('new constructor, opt.', t => {
   const context = new IocContext();
   context.register(A);
 
-  t.true(context.get(A) instanceof A);
-  t.true(context.get(A) === context.get(A));
-  t.is(count, 1);
+  t.expect(context.get(A) instanceof A).toBe(true);
+  t.expect(context.get(A) === context.get(A)).toBe(true);
+  t.expect(count).toBe(1);
 
-  t.true(context.get(A, { forceNew: true }) instanceof A);
-  t.true(context.get(A, { forceNew: true }) !== context.get(A));
-  t.is(count, 3);
+  t.expect(context.get(A, { forceNew: true }) instanceof A).toBe(true);
+  t.expect(context.get(A, { forceNew: true }) !== context.get(A)).toBe(true);
+  t.expect(count).toBe(3);
 });
 
-test('new constructor, error type.', t => {
+it('new constructor, error type.', (t) => {
   class A {}
   const context = new IocContext();
-  t.throws(() => context.get(A));
+  t.expect(() => context.get(A)).toThrow(NotfoundTypeError);
 });
 
-test('default value.', t => {
+it('default value.', (t) => {
   class A {
     a: number = 1;
   }
@@ -339,14 +308,14 @@ test('default value.', t => {
   }
 
   const context = new IocContext({ autoRegisterSelf: true });
-  t.true(context.get(A) instanceof A);
-  t.true(context.get(B).a instanceof A);
+  t.expect(context.get(A) instanceof A).toBe(true);
+  t.expect(context.get(B).a instanceof A).toBe(true);
 
   const c = context.get(C);
-  t.true(c.a instanceof A);
+  t.expect(c.a instanceof A).toBe(true);
 });
 
-test('default value, inject from parent.', t => {
+it('default value, inject from parent.', (t) => {
   class A {}
   class B {
     @inject({ type: A })
@@ -361,14 +330,14 @@ test('default value, inject from parent.', t => {
   parent.register(A);
 
   const child = parent.createChildContext();
-  t.true(child.get(A) instanceof A);
-  t.true(child.get(B).a instanceof A);
+  t.expect(child.get(A) instanceof A).toBe(true);
+  t.expect(child.get(B).a instanceof A).toBe(true);
 
   const c = child.get(C);
-  t.true(c.a instanceof A);
+  t.expect(c.a instanceof A).toBe(true);
 });
 
-test('inject, from parent.', t => {
+it('inject, from parent.', (t) => {
   class A {}
   class B {
     @inject({ type: A })
@@ -379,11 +348,11 @@ test('inject, from parent.', t => {
   parent.register(A);
 
   const child = parent.createChildContext();
-  t.true(child.get(A) instanceof A);
-  t.true(child.get(B).a instanceof A);
+  t.expect(child.get(A) instanceof A).toBe(true);
+  t.expect(child.get(B).a instanceof A).toBe(true);
 });
 
-test('inject, from parent, not found.', t => {
+it('inject, from parent, not found.', (t) => {
   class A {}
   class B {
     @inject({ type: A })
@@ -392,11 +361,11 @@ test('inject, from parent, not found.', t => {
 
   const parent = new IocContext();
   const child = parent.createChildContext();
-  t.throws(() => child.get(A), { instanceOf: NotfoundTypeError });
-  t.throws(() => child.get(B), { instanceOf: NotfoundTypeError });
+  t.expect(() => child.get(A)).toThrow(NotfoundTypeError);
+  t.expect(() => child.get(B)).toThrow(NotfoundTypeError);
 });
 
-test('inject, from parent, not found, optional.', t => {
+it('inject, from parent, not found, optional.', (t) => {
   class A {}
   @injectable()
   class B {
@@ -406,10 +375,10 @@ test('inject, from parent, not found, optional.', t => {
 
   const parent = new IocContext();
   const child = parent.createChildContext({ newInstanceInThisContext: true });
-  t.true(child.get(B) instanceof B);
+  t.expect(child.get(B) instanceof B).toBe(true);
 });
 
-test('inject, from parent, not found, autoNew.', t => {
+it('inject, from parent, not found, autoNew.', (t) => {
   class A {}
   class B {
     @inject({ type: A, optional: true })
@@ -421,28 +390,10 @@ test('inject, from parent, not found, autoNew.', t => {
     autoRegisterSelf: true,
     newInstanceInThisContext: true,
   });
-  t.true(child.get(B) instanceof B);
+  t.expect(child.get(B) instanceof B).toBe(true);
 });
 
-test('inject, from parent, not found, autoNew, value.', t => {
-  class A {}
-  class B {
-    @inject({ type: A, optional: true })
-    a: A;
-  }
-
-  const parent = new IocContext();
-  parent.register(1, A);
-
-  const child = parent.createChildContext({
-    autoRegisterSelf: true,
-    newInstanceInThisContext: true,
-  });
-  t.true(child.get(B) instanceof B);
-  t.true(child.get(B).a === 1);
-});
-
-test('inject, from parent, not found, autoNew, value, opt.', t => {
+it('inject, from parent, not found, autoNew, value.', (t) => {
   class A {}
   class B {
     @inject({ type: A, optional: true })
@@ -455,13 +406,12 @@ test('inject, from parent, not found, autoNew, value, opt.', t => {
   const child = parent.createChildContext({
     autoRegisterSelf: true,
     newInstanceInThisContext: true,
-    constructorInject: false,
   });
-  t.true(child.get(B) instanceof B);
-  t.true(child.get(B).a === 1);
+  t.expect(child.get(B) instanceof B).toBe(true);
+  t.expect(child.get(B).a === 1).toBe(true);
 });
 
-test('inject, from parent, not found, autoNew, value, opt.', t => {
+it('inject, from parent, not found, autoNew, value, opt.', (t) => {
   class A {}
   class B {
     @inject({ type: A, optional: true })
@@ -476,11 +426,30 @@ test('inject, from parent, not found, autoNew, value, opt.', t => {
     newInstanceInThisContext: true,
     constructorInject: false,
   });
-  t.true(child.get(B) instanceof B);
-  t.true(child.get(B).a === 1);
+  t.expect(child.get(B) instanceof B).toBe(true);
+  t.expect(child.get(B).a === 1).toBe(true);
 });
 
-test('get, from parent, not found, autoNew, value, opt.', t => {
+it('inject, from parent, not found, autoNew, value, opt, 2.', (t) => {
+  class A {}
+  class B {
+    @inject({ type: A, optional: true })
+    a: A;
+  }
+
+  const parent = new IocContext();
+  parent.register(1, A);
+
+  const child = parent.createChildContext({
+    autoRegisterSelf: true,
+    newInstanceInThisContext: true,
+    constructorInject: false,
+  });
+  t.expect(child.get(B) instanceof B).toBe(true);
+  t.expect(child.get(B).a === 1).toBe(true);
+});
+
+it('get, from parent, not found, autoNew, value, opt.', (t) => {
   class A {}
 
   const parent = new IocContext();
@@ -490,23 +459,10 @@ test('get, from parent, not found, autoNew, value, opt.', t => {
     autoRegisterSelf: true,
     constructorInject: false,
   });
-  t.true(child.get(A) === 1);
+  t.expect(child.get(A) === 1).toBe(true);
 });
 
-test('get, from parent, not found, autoNew, value, opt.', t => {
-  class A {}
-
-  const parent = new IocContext();
-  parent.register(1, A);
-
-  const child = parent.createChildContext({
-    autoRegisterSelf: true,
-    constructorInject: false,
-  });
-  t.true(child.get(A) === 1);
-});
-
-test('config, defaultInjectOptions', t => {
+it('config, defaultInjectOptions', (t) => {
   const IfA = Symbol('IfA');
   interface IfA {}
 
@@ -531,11 +487,11 @@ test('config, defaultInjectOptions', t => {
   context.register(B);
   context.register(C);
 
-  t.true(context.get(B).a instanceof A);
-  t.true(context.get(C).a instanceof A);
+  t.expect(context.get(B).a instanceof A).toBe(true);
+  t.expect(context.get(C).a instanceof A).toBe(true);
 });
 
-test('config, notFoundHandler', t => {
+it('config, notFoundHandler', (t) => {
   const context = new IocContext({
     notFoundHandler: (type: any) => {
       if (type === 'str') {
@@ -543,10 +499,10 @@ test('config, notFoundHandler', t => {
       }
     },
   });
-  t.is(context.get('str'), '123');
+  t.expect(context.get('str')).toBe('123');
 });
 
-test('config, parentContext, useClassLoader', t => {
+it('config, parentContext, useClassLoader', (t) => {
   class A {}
   class B {}
 
@@ -557,11 +513,11 @@ test('config, parentContext, useClassLoader', t => {
     useClassLoader: true,
   });
 
-  t.true(child.get(A) instanceof A);
-  t.throws(() => child.get(B), { instanceOf: NotfoundTypeError });
+  t.expect(child.get(A) instanceof A).toBe(true);
+  t.expect(() => child.get(B)).toThrow(NotfoundTypeError);
 });
 
-test('config, parentContext, no useClassLoader', t => {
+it('config, parentContext, no useClassLoader', (t) => {
   class A {}
   class B {}
 
@@ -572,11 +528,11 @@ test('config, parentContext, no useClassLoader', t => {
     useClassLoader: false,
   });
 
-  t.true(child.get(A) instanceof A);
-  t.throws(() => child.get(B), { instanceOf: NotfoundTypeError });
+  t.expect(child.get(A) instanceof A).toBe(true);
+  t.expect(() => child.get(B)).toThrow(NotfoundTypeError);
 });
 
-test('config, parentContext, autoRegisterSelf', t => {
+it('config, parentContext, autoRegisterSelf', (t) => {
   class A {}
   class B {}
 
@@ -588,11 +544,11 @@ test('config, parentContext, autoRegisterSelf', t => {
     newInstanceInThisContext: true,
   });
 
-  t.true(child.get(A) instanceof A);
-  t.true(child.get(B) instanceof B);
+  t.expect(child.get(A) instanceof A).toBe(true);
+  t.expect(child.get(B) instanceof B).toBe(true);
 });
 
-test('config, parentContext, newInstanceInThisContext', t => {
+it('config, parentContext, newInstanceInThisContext', (t) => {
   class A {}
   @injectable()
   class B {}
@@ -606,21 +562,21 @@ test('config, parentContext, newInstanceInThisContext', t => {
 
   const a = child.get(A);
   const a1 = child.get(A);
-  t.true(a === a1);
+  t.expect(a === a1).toBe(true);
 
   const b = child.get(B);
   const b1 = child.get(B);
-  t.true(b === b1);
+  t.expect(b === b1).toBe(true);
 
   const child2 = parent.createChildContext({
     newInstanceInThisContext: true,
   });
 
-  t.true(child2.get(A) === child.get(A));
-  t.true(child2.get(B) !== child.get(B));
+  t.expect(child2.get(A) === child.get(A)).toBe(true);
+  t.expect(child2.get(B) !== child.get(B)).toBe(true);
 });
 
-test('config, parentContext, newInstanceInThisContext, no default', t => {
+it('config, parentContext, newInstanceInThisContext, no default', (t) => {
   class A {}
   @injectable()
   class B {}
@@ -634,21 +590,21 @@ test('config, parentContext, newInstanceInThisContext, no default', t => {
 
   const a = child.get(A);
   const a1 = child.get(A);
-  t.true(a === a1);
+  t.expect(a === a1).toBe(true);
 
   const b = child.get(B);
   const b1 = child.get(B);
-  t.true(b === b1);
+  t.expect(b === b1).toBe(true);
 
   const child2 = parent.createChildContext({
     newInstanceInThisContext: true,
   });
 
-  t.true(child2.get(A) === child.get(A));
-  t.true(child2.get(B) !== child.get(B));
+  t.expect(child2.get(A) === child.get(A)).toBe(true);
+  t.expect(child2.get(B) !== child.get(B)).toBe(true);
 });
 
-test('config, parentContext, newInstanceInThisContext, true', t => {
+it('config, parentContext, newInstanceInThisContext, true', (t) => {
   class A {}
   class B {}
 
@@ -661,17 +617,17 @@ test('config, parentContext, newInstanceInThisContext, true', t => {
 
   const a = child.get(A);
   const a1 = child.get(A);
-  t.true(a === a1);
+  t.expect(a === a1).toBe(true);
 
   const child2 = parent.createChildContext({
     newInstanceInThisContext: true,
   });
 
-  t.true(child2.get(A) === child.get(A));
-  t.true(child2.get(A) === parent.get(A));
+  t.expect(child2.get(A) === child.get(A)).toBe(true);
+  t.expect(child2.get(A) === parent.get(A)).toBe(true);
 });
 
-test('config, parentContext, newInstanceInThisContext, false', t => {
+it('config, parentContext, newInstanceInThisContext, false', (t) => {
   class A {}
   class B {}
 
@@ -684,17 +640,17 @@ test('config, parentContext, newInstanceInThisContext, false', t => {
 
   const a = child.get(A);
   const a1 = child.get(A);
-  t.true(a === a1);
+  t.expect(a === a1).toBe(true);
 
   const child2 = parent.createChildContext({
     newInstanceInThisContext: false,
   });
 
-  t.true(child2.get(A) === child.get(A));
-  t.true(child2.get(A) === parent.get(A));
+  t.expect(child2.get(A) === child.get(A)).toBe(true);
+  t.expect(child2.get(A) === parent.get(A)).toBe(true);
 });
 
-test('clear, test class info', t => {
+it('clear, test class info', (t) => {
   class TestClass {
     a() {
       return 1;
@@ -702,33 +658,33 @@ test('clear, test class info', t => {
   }
   const context = new IocContext();
   context.register(TestClass);
-  t.true(context.get(TestClass).a() === 1);
+  t.expect(context.get(TestClass).a() === 1).toBe(true);
 
   context.clear();
-  t.throws(() => context.get(TestClass), { instanceOf: NotfoundTypeError });
+  t.expect(() => context.get(TestClass)).toThrow(NotfoundTypeError);
 });
 
-test('multi implement, use classLoader.', t => {
+it('multi implement, use classLoader.', (t) => {
   const context = new IocContext();
 
   abstract class IService {}
 
-  t.throws(() => context.get(IService), { instanceOf: NotfoundTypeError });
+  t.expect(() => context.get(IService)).toThrow(NotfoundTypeError);
 
   @injectable()
   class A extends IService {}
 
-  t.true(context.get(IService) instanceof IService);
-  t.true(context.get(IService) instanceof A);
+  t.expect(context.get(IService) instanceof IService).toBe(true);
+  t.expect(context.get(IService) instanceof A).toBe(true);
   context.remove(A);
 
   @injectable()
   class B extends IService {}
 
-  t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
+  t.expect(() => context.get(IService)).toThrow(MultiImplementError);
 });
 
-test('multi implement, conflictHandler.', t => {
+it('multi implement, conflictHandler.', (t) => {
   abstract class IService {}
 
   @injectable()
@@ -742,10 +698,10 @@ test('multi implement, conflictHandler.', t => {
     },
   });
 
-  t.throws(() => context.get(IService), { instanceOf: MultiImplementError });
+  t.expect(() => context.get(IService)).toThrow(MultiImplementError);
 });
 
-test('multi implement, no err.', t => {
+it('multi implement, no err.', (t) => {
   @injectable()
   class BaseService {}
   @injectable()
@@ -755,17 +711,17 @@ test('multi implement, no err.', t => {
 
   const context = new IocContext();
 
-  t.true(context.get(BaseService) instanceof BaseService);
+  t.expect(context.get(BaseService) instanceof BaseService).toBe(true);
 
   const childContext = context.createChildContext({
     conflictHandler: (type, implCls, sourceCls) => {
       return implCls.find(s => s.type === A)!.type;
     },
   });
-  t.true(childContext.get(BaseService) instanceof A);
+  t.expect(childContext.get(BaseService) instanceof A).toBe(true);
 });
 
-test('constructor inject', t => {
+it('constructor inject', (t) => {
   @injectable()
   class A {
     getMessage() {
@@ -776,8 +732,8 @@ test('constructor inject', t => {
   @injectable()
   class B {
     constructor(a: A) {
-      t.assert(a instanceof A);
-      t.is(a.getMessage(), 'Hello from A');
+      t.expect(a instanceof A).toBe(true);
+      t.expect(a.getMessage()).toBe('Hello from A');
     }
   }
 
@@ -786,7 +742,7 @@ test('constructor inject', t => {
   ioc.get(B);
 });
 
-test('multi level inject.', t => {
+it('multi level inject.', (t) => {
   @injectable()
   class X {
     name = 'x';
@@ -804,16 +760,16 @@ test('multi level inject.', t => {
   @injectable()
   class Test extends Base {
     @inject({ type: Y })
-    service: Y;
+    declare service: Y;
   }
 
   const context = new IocContext();
   context.register(Base);
-  t.deepEqual('x', context.get(Base).service.name, 'Base');
-  t.deepEqual('y', context.get(Test).service.name, 'Test');
+  t.expect(context.get(Base).service.name).toBe('x');
+  t.expect(context.get(Test).service.name).toBe('y');
 });
 
-test('autoRun postConstruct', t => {
+it('autoRun postConstruct', (t) => {
   const ioc = new IocContext();
   class A {
     x: number;
@@ -825,14 +781,14 @@ test('autoRun postConstruct', t => {
 
   const a = new A();
   ioc.inject(a);
-  t.deepEqual(a.x, 1);
+  t.expect(a.x).toBe(1);
 
   const a2 = new A();
   ioc.inject(a2, { autoRunPostConstruct: false });
-  t.deepEqual(a2.x, undefined);
+  t.expect(a2.x).toBe(undefined);
 });
 
-test('run preDestroy', t => {
+it('run preDestroy', (t) => {
   const ioc = new IocContext();
   class A {
     x: number;
@@ -845,10 +801,10 @@ test('run preDestroy', t => {
   const a = new A();
   ioc.inject(a);
   ioc.runPreDestroy(a);
-  t.deepEqual(a.x, 1);
+  t.expect(a.x).toBe(1);
 });
 
-test('clear, child, parent, retain dependency', t => {
+it('clear, child, parent, retain dependency', (t) => {
   @injectable()
   class A {}
 
@@ -863,27 +819,27 @@ test('clear, child, parent, retain dependency', t => {
     newInstanceInThisContext: true,
   });
 
-  t.true(parent.has(A, false));
+  t.expect(parent.has(A, false)).toBe(true);
 
   parent.get(A);
-  t.true(parent.has(A, false));
+  t.expect(parent.has(A, false)).toBe(true);
 
   parent.clear();
-  t.false(parent.has(A, false));
+  t.expect(parent.has(A, false)).toBe(false);
 
   child1.get(A);
-  t.false(parent.has(A, false));
-  t.true(child1.has(A, false));
+  t.expect(parent.has(A, false)).toBe(false);
+  t.expect(child1.has(A, false)).toBe(true);
 
   parent.clear();
-  t.false(parent.has(A, false));
+  t.expect(parent.has(A, false)).toBe(false);
 
   child2.get(A);
-  t.false(parent.has(A, false));
-  t.true(child2.has(A, false));
+  t.expect(parent.has(A, false)).toBe(false);
+  t.expect(child2.has(A, false)).toBe(true);
 });
 
-test('config, defaultInjectOptions', t => {
+it('config, defaultInjectOptions, 2', (t) => {
   const IfA = Symbol('IfA');
   interface IfA {}
 
@@ -908,6 +864,6 @@ test('config, defaultInjectOptions', t => {
   context.register(B);
   context.register(C);
 
-  t.true(context.get(B).a instanceof A);
-  t.true(context.get(C).a instanceof A);
+  t.expect(context.get(B).a instanceof A).toBe(true);
+  t.expect(context.get(C).a instanceof A).toBe(true);
 });

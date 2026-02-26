@@ -1,8 +1,10 @@
-import {
-  getGlobalTypeByDecorator,
-  getClsTypeByDecorator,
-  getMetadata,
+import type {
   KeyType,
+} from '@power-di/class-loader';
+import {
+  getClsTypeByDecorator,
+  getGlobalTypeByDecorator,
+  getMetadata,
 } from '@power-di/class-loader';
 
 /**
@@ -29,7 +31,7 @@ export function inject({
     const typeCls = getClsTypeByDecorator(type, target, key);
     if (typeCls === undefined || typeCls === Object) {
       throw new Error(
-        `CANNOT inject undefined! source: ${target.constructor.name}.${key.toString()}`
+        `CANNOT inject undefined! source: ${target.constructor.name}.${key.toString()}`,
       );
     }
     getMetadata(target.constructor).injects.push({

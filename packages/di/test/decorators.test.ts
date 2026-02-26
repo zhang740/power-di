@@ -1,49 +1,28 @@
-import { test as vitestTest, expect, beforeEach } from 'vitest';
+import type { FunctionContext } from '@power-di/class-loader';
+import { getMetadataField } from '@power-di/class-loader';
+import { beforeEach, expect, it } from 'vitest';
 import {
+  aspect,
+  classInfo,
+  imports,
+  inject,
+  injectable,
   IocContext,
   NotfoundTypeError,
-  inject,
-  classInfo,
-  injectable,
-  imports,
   postConstruct,
   preDestroy,
-} from '@power-di/di';
-import { aspect } from '@power-di/aspect';
-import { FunctionContext, getMetadataField } from '@power-di/class-loader';
-import co = require('co');
+} from '../src';
+import { co } from './co';
 
-const test = (name: string, fn: (t: any) => any) => vitestTest(name, () => fn(createAssert()));
-
-function createAssert() {
-  return {
-    true: (value: any) => expect(value).toBe(true),
-    false: (value: any) => expect(value).toBe(false),
-    is: (value: any, expected: any) => expect(value).toBe(expected),
-    deepEqual: (value: any, expected: any) => expect(value).toEqual(expected),
-    throws: (fn: () => any, opts?: any, message?: string) => {
-      if (message) {
-        return expect(fn).toThrow(message);
-      }
-      if (opts?.instanceOf) {
-        return expect(fn).toThrow(opts.instanceOf);
-      }
-      return expect(fn).toThrow();
-    },
-    notThrows: (fn: () => any) => expect(fn).not.toThrow(),
-    throwsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).rejects.toThrow();
-    },
-    notThrowsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).resolves.toBeUndefined();
-    },
-    pass: () => expect(true).toBe(true),
-    assert: (value: any) => expect(!!value).toBe(true),
-    fail: () => expect(false).toBe(true),
-  };
+async function throwsAsync(fn: () => Promise<any>) {
+  await expect(fn()).rejects.toThrow();
 }
 
-test('decorator, custom IocContext.', t => {
+async function notThrowsAsync(fn: () => Promise<any>) {
+  await expect(fn()).resolves.toBeUndefined();
+}
+
+it('decorator, custom IocContext.', (t) => {
   const context = new IocContext();
 
   @injectable()
@@ -55,10 +34,10 @@ test('decorator, custom IocContext.', t => {
   }
 
   const test = context.get(LITestService);
-  t.true(test.testService instanceof NRService);
+  t.expect(test.testService instanceof NRService).toBe(true);
 });
 
-test('decorator, function IocContext.', t => {
+it('decorator, function IocContext.', (t) => {
   const context = new IocContext();
 
   @injectable()
@@ -70,10 +49,10 @@ test('decorator, function IocContext.', t => {
   }
 
   const test = context.get(LITestService);
-  t.true(test.testService instanceof NRService);
+  t.expect(test.testService instanceof NRService).toBe(true);
 });
 
-test('decorator, default IocContext.', t => {
+it('decorator, default IocContext.', (t) => {
   @injectable()
   class NRService {}
 
@@ -84,7 +63,7 @@ test('decorator, default IocContext.', t => {
   }
 
   const test = IocContext.DefaultInstance.get(LITestService);
-  t.true(test.testService instanceof NRService);
+  t.expect(test.testService instanceof NRService).toBe(true);
 });
 
 let context: IocContext;
@@ -93,7 +72,7 @@ beforeEach(() => {
   context = new IocContext();
 });
 
-test('inject decorator.', t => {
+it('inject decorator.', (t) => {
   @injectable()
   class DTestService {}
   @injectable()
@@ -106,11 +85,11 @@ test('inject decorator.', t => {
   }
 
   const test = context.get(ITestService);
-  t.true(test.testService instanceof DTestService);
-  t.true(test.testService2 instanceof DTestService);
+  t.expect(test.testService instanceof DTestService).toBe(true);
+  t.expect(test.testService2 instanceof DTestService).toBe(true);
 });
 
-test('inject decorator, without reflect-metadata.', t => {
+it('inject decorator, without reflect-metadata.', (t) => {
   @injectable()
   class DTestService {}
   @injectable()
@@ -120,10 +99,10 @@ test('inject decorator, without reflect-metadata.', t => {
   }
 
   const test = context.get(ITestService);
-  t.true(test.testService instanceof DTestService);
+  t.expect(test.testService instanceof DTestService).toBe(true);
 });
 
-test('inject decorator, no data.', t => {
+it('inject decorator, no data.', (t) => {
   class NRService {}
   @injectable()
   class ITestService {
@@ -131,10 +110,10 @@ test('inject decorator, no data.', t => {
     public testService: NRService;
   }
 
-  t.true(!context.get(ITestService).testService);
+  t.expect(!context.get(ITestService).testService).toBe(true);
 });
 
-test('inject decorator, constructor error.', t => {
+it('inject decorator, constructor error.', (t) => {
   @injectable()
   class NRService {
     constructor() {
@@ -147,10 +126,10 @@ test('inject decorator, constructor error.', t => {
     public testService: NRService;
   }
 
-  t.throws(() => !context.get(ITestService).testService, null, 'test error');
+  t.expect(() => !context.get(ITestService).testService).toThrow('test error');
 });
 
-test('inject decorator, must have instance.', t => {
+it('inject decorator, must have instance.', (t) => {
   class NRService {}
   @injectable()
   class ITestService {
@@ -158,12 +137,10 @@ test('inject decorator, must have instance.', t => {
     public testService: NRService;
   }
 
-  t.throws(() => !context.get(ITestService).testService, {
-    instanceOf: NotfoundTypeError,
-  });
+  t.expect(() => !context.get(ITestService).testService).toThrowError(NotfoundTypeError);
 });
 
-test('lazyInject decorator.', t => {
+it('lazyInject decorator.', (t) => {
   @injectable()
   class DTestService {}
   @injectable()
@@ -176,11 +153,11 @@ test('lazyInject decorator.', t => {
   }
 
   const test = context.get(LITestService);
-  t.true(test.testService instanceof DTestService);
-  t.true(test.testService2 instanceof DTestService);
+  t.expect(test.testService instanceof DTestService).toBe(true);
+  t.expect(test.testService2 instanceof DTestService).toBe(true);
 });
 
-test('lazyInject decorator, no data.', t => {
+it('lazyInject decorator, no data.', (t) => {
   class NRService {}
   @injectable()
   class LITestService {
@@ -189,10 +166,10 @@ test('lazyInject decorator, no data.', t => {
   }
 
   const test = context.get<LITestService>(LITestService);
-  t.true(!test.testService);
+  t.expect(!test.testService).toBe(true);
 });
 
-test('lazyInject decorator, no data, then have.', t => {
+it('lazyInject decorator, no data, then have.', (t) => {
   class NRService {}
   @injectable()
   class LITestService {
@@ -201,13 +178,13 @@ test('lazyInject decorator, no data, then have.', t => {
   }
 
   const test = context.get<LITestService>(LITestService);
-  t.true(!test.testService);
+  t.expect(!test.testService).toBe(true);
 
   context.register(NRService);
-  t.true(test.testService instanceof NRService);
+  t.expect(test.testService instanceof NRService).toBe(true);
 });
 
-test('lazyInject decorator, always option true.', t => {
+it('lazyInject decorator, always option true.', (t) => {
   @injectable()
   class NRService {}
   @injectable()
@@ -217,15 +194,15 @@ test('lazyInject decorator, always option true.', t => {
   }
 
   const test = context.get(LITestService);
-  t.true(test.testService instanceof NRService);
-  t.true(test.testService === test.testService);
+  t.expect(test.testService instanceof NRService).toBe(true);
+  t.expect(test.testService === test.testService).toBe(true);
 
   const old = test.testService;
   context.remove(NRService);
-  t.true(test.testService !== old);
+  t.expect(test.testService !== old).toBe(true);
 });
 
-test('lazyInject decorator, always option false.', t => {
+it('lazyInject decorator, always option false.', (t) => {
   @injectable()
   class NRService {}
   @injectable()
@@ -235,12 +212,12 @@ test('lazyInject decorator, always option false.', t => {
   }
 
   const test = context.get<LITestService>(LITestService);
-  t.true(test.testService instanceof NRService);
+  t.expect(test.testService instanceof NRService).toBe(true);
   context.remove(NRService);
-  t.true(test.testService instanceof NRService);
+  t.expect(test.testService instanceof NRService).toBe(true);
 });
 
-test('lazyInject decorator, imports.', t => {
+it('lazyInject decorator, imports.', (t) => {
   abstract class A {}
   @classInfo()
   class B extends A {}
@@ -256,15 +233,15 @@ test('lazyInject decorator, imports.', t => {
   }
 
   const test = context.get(LITestService);
-  t.true(test.testService.length === 2);
-  t.true(test.testService[0] instanceof B);
-  t.true(test.testService[1] instanceof C);
-  t.true(test.testServiceAgain.length === 2);
-  t.true(test.testService === test.testServiceAgain);
-  t.deepEqual(test.testService, test.testServiceAgain);
+  t.expect(test.testService.length === 2).toBe(true);
+  t.expect(test.testService[0] instanceof B).toBe(true);
+  t.expect(test.testService[1] instanceof C).toBe(true);
+  t.expect(test.testServiceAgain.length === 2).toBe(true);
+  t.expect(test.testService === test.testServiceAgain).toBe(true);
+  t.expect(test.testService).toEqual(test.testServiceAgain);
 });
 
-test('lazyInject decorator, defaultValue, auto optional.', t => {
+it('lazyInject decorator, defaultValue, auto optional.', (t) => {
   class NRService {}
   const defaultValue = new NRService();
 
@@ -277,14 +254,14 @@ test('lazyInject decorator, defaultValue, auto optional.', t => {
   context.register(LITestService);
 
   const test = context.get<LITestService>(LITestService);
-  t.true(test.testService === defaultValue);
+  t.expect(test.testService === defaultValue).toBe(true);
 
   const value2 = new NRService();
   test.testService = value2;
-  t.true(test.testService === value2);
+  t.expect(test.testService === value2).toBe(true);
 });
 
-test('inject decorator, setter.', t => {
+it('inject decorator, setter.', (t) => {
   class NRService {}
 
   class LITestService {
@@ -297,17 +274,17 @@ test('inject decorator, setter.', t => {
   context.register(LITestService);
 
   const test = context.get<LITestService>(LITestService);
-  t.true(!!test.testService);
+  t.expect(!!test.testService).toBe(true);
   const oldService = test.testService;
 
   const newService = new NRService();
   test.testService = newService;
 
-  t.true(test.testService !== oldService);
-  t.true(test.testService === newService);
+  t.expect(test.testService !== oldService).toBe(true);
+  t.expect(test.testService === newService).toBe(true);
 });
 
-test('lazyInject decorator, setter.', t => {
+it('lazyInject decorator, setter.', (t) => {
   class NRService {}
 
   class LITestService {
@@ -320,17 +297,17 @@ test('lazyInject decorator, setter.', t => {
   context.register(LITestService);
 
   const test = context.get<LITestService>(LITestService);
-  t.true(!!test.testService);
+  t.expect(!!test.testService).toBe(true);
   const oldService = test.testService;
 
   const newService = new NRService();
   test.testService = newService;
 
-  t.true(test.testService !== oldService);
-  t.true(test.testService === newService);
+  t.expect(test.testService !== oldService).toBe(true);
+  t.expect(test.testService === newService).toBe(true);
 });
 
-test('multi level inject.', t => {
+it('multi level inject.', (t) => {
   @injectable()
   class X {
     name = 'x';
@@ -348,16 +325,16 @@ test('multi level inject.', t => {
   @injectable()
   class Test extends Base {
     @inject({ type: Y })
-    service: Y;
+    declare service: Y;
   }
 
   const context = new IocContext();
   context.register(Base);
-  t.deepEqual('x', context.get(Base).service.name, 'Base');
-  t.deepEqual('y', context.get(Test).service.name, 'Test');
+  t.expect('x', context.get(Base).service.name);
+  t.expect('y', context.get(Test).service.name);
 });
 
-test('inject, opt default.', t => {
+it('inject, opt default.', (t) => {
   class A {}
   class B {
     @inject({ type: A })
@@ -371,10 +348,10 @@ test('inject, opt default.', t => {
   });
 
   context.register(B);
-  t.true(context.get(B) instanceof B);
+  t.expect(context.get(B) instanceof B).toBe(true);
 });
 
-test('inject decorator, opt.', t => {
+it('inject decorator, opt.', (t) => {
   class DTestService {}
   class ITestService {
     @inject({ type: DTestService, lazy: false })
@@ -391,11 +368,11 @@ test('inject decorator, opt.', t => {
   });
   context.register(ITestService);
   const test = context.get(ITestService);
-  t.true(test.testService === undefined);
-  t.true(test.testService2 === undefined);
+  t.expect(test.testService === undefined).toBe(true);
+  t.expect(test.testService2 === undefined).toBe(true);
 });
 
-test('postConstruct, after inject.', t => {
+it('postConstruct, after inject.', (t) => {
   @injectable()
   class B {
     id = 1;
@@ -408,7 +385,7 @@ test('postConstruct, after inject.', t => {
 
     @postConstruct()
     init() {
-      t.true(this.b.id === 1);
+      t.expect(this.b.id === 1).toBe(true);
     }
   }
 
@@ -416,13 +393,14 @@ test('postConstruct, after inject.', t => {
   ioc.get(A);
 });
 
-test('postConstruct, without get.', t => {
+it('postConstruct, without get.', (t) => {
   let count = 0;
   @injectable()
   class A {
     constructor() {
       count++;
     }
+
     @postConstruct()
     init() {
       count++;
@@ -432,10 +410,10 @@ test('postConstruct, without get.', t => {
   const a = new A();
   const ioc = new IocContext();
   ioc.inject(a);
-  t.true(count === 2);
+  t.expect(count === 2).toBe(true);
 });
 
-test('postConstruct, parent and subClass.', t => {
+it('postConstruct, parent and subClass.', (t) => {
   let count = 0;
 
   class A {
@@ -443,7 +421,7 @@ test('postConstruct, parent and subClass.', t => {
 
     @postConstruct()
     init() {
-      t.fail();
+      t.expect(false).toBe(true);
     }
   }
 
@@ -457,7 +435,7 @@ test('postConstruct, parent and subClass.', t => {
 
   const ioc = new IocContext();
   ioc.get(B);
-  t.is(count, 1);
+  t.expect(count === 1).toBe(true);
 
   @injectable()
   class C extends B {
@@ -465,15 +443,15 @@ test('postConstruct, parent and subClass.', t => {
     init2() {
       count++;
 
-      t.deepEqual(this.test, 1);
+      t.expect(this.test).toBe(1);
     }
   }
 
   ioc.get(C);
-  t.is(count, 3);
+  t.expect(count === 3).toBe(true);
 });
 
-test('class inject use interface.', t => {
+it('class inject use interface.', (t) => {
   abstract class AInterface {}
   const BInterface = Symbol('BInterface');
   interface BInterface {}
@@ -487,15 +465,15 @@ test('class inject use interface.', t => {
   class B implements BInterface {}
 
   const ioc = new IocContext();
-  t.true(ioc.get(AInterface) instanceof A);
-  t.true(ioc.get<BInterface>(BInterface) instanceof B);
+  t.expect(ioc.get(AInterface) instanceof A).toBe(true);
+  t.expect(ioc.get<BInterface>(BInterface) instanceof B).toBe(true);
 });
 
-test('throw error when inject Object/undefined.', t => {
+it('throw error when inject Object/undefined.', (t) => {
   interface AInterface {}
   const AInterface = Symbol('AInterface');
 
-  t.throws(() => {
+  t.expect(() => {
     class Test {
       @inject()
       a: AInterface;
@@ -503,16 +481,16 @@ test('throw error when inject Object/undefined.', t => {
   });
 });
 
-test('aspect', t => {
+it('aspect', (t) => {
   let aspectFnCtx: FunctionContext;
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect<{ before: string }>({
-        before: ctx => {
+        before: (ctx) => {
           ctx.data.before = 'before';
         },
-        after: ctx => {
-          t.deepEqual(ctx.data.before, 'before');
+        after: (ctx) => {
+          t.expect(ctx.data.before).toBe('before');
           aspectFnCtx = ctx;
         },
       })(target, key, desc);
@@ -528,33 +506,33 @@ test('aspect', t => {
 
     @aAspect()
     b(x: string) {
-      return 'okb' + x;
+      return `okb${x}`;
     }
   }
 
   const context = new IocContext();
   const a = context.get(A);
-  t.deepEqual(a.a(), 'oka');
+  t.expect(a.a()).toBe('oka');
 
-  t.deepEqual(a.b('!'), 'okb!');
-  t.true(aspectFnCtx.ioc instanceof IocContext);
-  t.true(aspectFnCtx.inst instanceof A);
-  t.deepEqual(aspectFnCtx.functionName, 'b');
-  t.deepEqual(aspectFnCtx.data, { before: 'before' });
-  t.deepEqual(aspectFnCtx.args, ['!']);
-  t.deepEqual(aspectFnCtx.ret, 'okb!');
+  t.expect(a.b('!')).toBe('okb!');
+  t.expect(aspectFnCtx.ioc instanceof IocContext).toBe(true);
+  t.expect(aspectFnCtx.inst instanceof A).toBe(true);
+  t.expect(aspectFnCtx.functionName).toBe('b');
+  t.expect(aspectFnCtx.data).toEqual({ before: 'before' });
+  t.expect(aspectFnCtx.args).toEqual(['!']);
+  t.expect(aspectFnCtx.ret).toBe('okb!');
 });
 
-test('aspect, promise', async t => {
+it('aspect, promise', async (t) => {
   let aspectFnCtx: FunctionContext;
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect<{ before: string }>({
-        before: ctx => {
+        before: (ctx) => {
           ctx.data.before = 'before';
         },
-        after: ctx => {
-          t.deepEqual(ctx.data.before, 'before');
+        after: (ctx) => {
+          t.expect(ctx.data.before).toBe('before');
           aspectFnCtx = ctx;
         },
       })(target, key, desc);
@@ -570,33 +548,33 @@ test('aspect, promise', async t => {
 
     @aAspect()
     async b(x: string) {
-      return 'okb' + x;
+      return `okb${x}`;
     }
   }
 
   const context = new IocContext();
   const a = context.get(A);
-  t.deepEqual(await a.a(), 'oka');
+  t.expect(await a.a()).toBe('oka');
 
-  t.deepEqual(await a.b('!'), 'okb!');
-  t.true(aspectFnCtx.ioc instanceof IocContext);
-  t.true(aspectFnCtx.inst instanceof A);
-  t.deepEqual(aspectFnCtx.functionName, 'b');
-  t.deepEqual(aspectFnCtx.data, { before: 'before' });
-  t.deepEqual(aspectFnCtx.args, ['!']);
-  t.deepEqual(aspectFnCtx.ret, 'okb!');
+  t.expect(await a.b('!')).toBe('okb!');
+  t.expect(aspectFnCtx.ioc instanceof IocContext).toBe(true);
+  t.expect(aspectFnCtx.inst instanceof A).toBe(true);
+  t.expect(aspectFnCtx.functionName).toBe('b');
+  t.expect(aspectFnCtx.data).toEqual({ before: 'before' });
+  t.expect(aspectFnCtx.args).toEqual(['!']);
+  t.expect(aspectFnCtx.ret).toBe('okb!');
 });
 
-test('aspect, generator', async t => {
+it('aspect, generator', async (t) => {
   let aspectFnCtx: FunctionContext;
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect<{ before: string }>({
-        before: ctx => {
+        before: (ctx) => {
           ctx.data.before = 'before';
         },
-        after: ctx => {
-          t.deepEqual(ctx.data.before, 'before');
+        after: (ctx) => {
+          t.expect(ctx.data.before).toBe('before');
           aspectFnCtx = ctx;
         },
       })(target, key, desc);
@@ -605,45 +583,43 @@ test('aspect, generator', async t => {
 
   @injectable()
   class A {
-    @aspect()
-    *a() {
+    @aspect()* a() {
       return 'oka';
     }
 
-    @aAspect()
-    *b(x: string) {
-      return 'okb' + x;
+    @aAspect()* b(x: string) {
+      return `okb${x}`;
     }
   }
 
   const context = new IocContext();
   const a = context.get(A);
   await co(function* () {
-    t.deepEqual(yield a.a(), 'oka');
+    t.expect(yield a.a()).toBe('oka');
 
-    t.deepEqual(yield a.b('!'), 'okb!');
-    t.true(aspectFnCtx.ioc instanceof IocContext);
-    t.true(aspectFnCtx.inst instanceof A);
-    t.deepEqual(aspectFnCtx.functionName, 'b');
-    t.deepEqual(aspectFnCtx.data, { before: 'before' });
-    t.deepEqual(aspectFnCtx.args, ['!']);
-    t.deepEqual(aspectFnCtx.ret, 'okb!');
+    t.expect(yield a.b('!')).toBe('okb!');
+    t.expect(aspectFnCtx.ioc instanceof IocContext).toBe(true);
+    t.expect(aspectFnCtx.inst instanceof A).toBe(true);
+    t.expect(aspectFnCtx.functionName).toBe('b');
+    t.expect(aspectFnCtx.data).toEqual({ before: 'before' });
+    t.expect(aspectFnCtx.args).toEqual(['!']);
+    t.expect(aspectFnCtx.ret).toBe('okb!');
   });
 });
 
-test('aspect, error', t => {
+it('aspect, error', (t) => {
   let aspectFnCtx: FunctionContext;
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect<{ before: string }>({
-        before: ctx => {
+        before: (ctx) => {
           ctx.data.before = 'before';
         },
-        after: ctx => {
-          t.deepEqual(ctx.data.before, 'before');
+        after: (ctx) => {
+          t.expect(ctx.data.before).toBe('before');
           aspectFnCtx = ctx;
         },
-        error: ctx => {
+        error: (ctx) => {
           aspectFnCtx = ctx;
         },
       })(target, key, desc);
@@ -652,7 +628,7 @@ test('aspect, error', t => {
   function ignoreErr(): MethodDecorator {
     return (target, key, desc) => {
       return aspect({
-        error: ctx => {
+        error: (ctx) => {
           ctx.err = undefined;
         },
       })(target, key, desc);
@@ -665,6 +641,7 @@ test('aspect, error', t => {
     a() {
       throw new Error();
     }
+
     @ignoreErr()
     b() {
       throw new Error();
@@ -674,24 +651,24 @@ test('aspect, error', t => {
   const context = new IocContext();
   const a = context.get(A);
 
-  t.throws(() => a.a());
-  t.true(aspectFnCtx.err instanceof Error);
-  t.notThrows(() => a.b());
+  t.expect(() => a.a()).toThrowError(Error);
+  t.expect(aspectFnCtx.err instanceof Error).toBe(true);
+  t.expect(() => a.b()).not.toThrowError(Error);
 });
 
-test('aspect, error, promise', async t => {
+it('aspect, error, promise', async (t) => {
   let aspectFnCtx: FunctionContext;
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect<{ before: string }>({
-        before: ctx => {
+        before: (ctx) => {
           ctx.data.before = 'before';
         },
-        after: ctx => {
-          t.deepEqual(ctx.data.before, 'before');
+        after: (ctx) => {
+          t.expect(ctx.data.before).toBe('before');
           aspectFnCtx = ctx;
         },
-        error: ctx => {
+        error: (ctx) => {
           aspectFnCtx = ctx;
         },
       })(target, key, desc);
@@ -700,7 +677,7 @@ test('aspect, error, promise', async t => {
   function ignoreErr(): MethodDecorator {
     return (target, key, desc) => {
       return aspect({
-        error: ctx => {
+        error: (ctx) => {
           ctx.err = undefined;
         },
       })(target, key, desc);
@@ -713,6 +690,7 @@ test('aspect, error, promise', async t => {
     async a() {
       throw new Error();
     }
+
     @ignoreErr()
     async b() {
       throw new Error();
@@ -722,17 +700,17 @@ test('aspect, error, promise', async t => {
   const context = new IocContext();
   const a = context.get(A);
 
-  await t.throwsAsync(() => a.a());
-  t.true(aspectFnCtx.err instanceof Error);
-  await t.notThrowsAsync(() => a.b());
+  await throwsAsync(() => a.a());
+  t.expect(aspectFnCtx.err instanceof Error).toBe(true);
+  await notThrowsAsync(() => a.b());
 });
 
-test('aspect, error, generator', async t => {
+it('aspect, error, generator', async (t) => {
   let aspectFnCtx: FunctionContext;
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect({
-        error: ctx => {
+        error: (ctx) => {
           aspectFnCtx = ctx;
         },
       })(target, key, desc);
@@ -741,7 +719,7 @@ test('aspect, error, generator', async t => {
   function ignoreErr(): MethodDecorator {
     return (target, key, desc) => {
       return aspect({
-        error: ctx => {
+        error: (ctx) => {
           ctx.err = undefined;
         },
       })(target, key, desc);
@@ -750,12 +728,11 @@ test('aspect, error, generator', async t => {
 
   @injectable()
   class A {
-    @aAspect()
-    *a() {
+    @aAspect()* a() {
       throw new Error();
     }
-    @ignoreErr()
-    *b() {
+
+    @ignoreErr()* b() {
       throw new Error();
     }
   }
@@ -763,24 +740,24 @@ test('aspect, error, generator', async t => {
   const context = new IocContext();
   const a = context.get(A);
 
-  await t.throwsAsync(() =>
+  await throwsAsync(() =>
     co(function* () {
       return yield a.a();
-    })
+    }),
   );
-  t.true(aspectFnCtx.err instanceof Error);
-  await t.notThrowsAsync(() =>
+  t.expect(aspectFnCtx.err instanceof Error).toBe(true);
+  await notThrowsAsync(() =>
     co(function* () {
       return yield a.b();
-    })
+    }),
   );
 });
 
-test('aspect, skipRunning', async t => {
+it('aspect, skipRunning', async (t) => {
   function aAspect(): MethodDecorator {
     return (target, key, desc) => {
       return aspect<{ before: string }>({
-        before: ctx => {
+        before: (ctx) => {
           if (ctx.args[0] === 'xxx') {
             ctx.ret = 'yyy';
             ctx.skipRunning = true;
@@ -797,31 +774,30 @@ test('aspect, skipRunning', async t => {
       return str;
     }
 
-    @aAspect()
-    *b(str: string) {
+    @aAspect()* b(str: string) {
       return str;
     }
   }
 
   const context = new IocContext();
   const a = context.get(A);
-  t.deepEqual(a.a('oka'), 'oka');
-  t.deepEqual(a.a('xxx'), 'yyy');
-  t.deepEqual(
+  t.expect(a.a('oka')).toBe('oka');
+  t.expect(a.a('xxx')).toBe('yyy');
+  t.expect(
     await co(function* () {
       return yield a.b('oka');
     }),
-    'oka' as any
+    'oka',
   );
-  t.deepEqual(
+  t.expect(
     await co(function* () {
       return yield a.b('xxx');
     }),
-    'yyy' as any
+    'yyy',
   );
 });
 
-test('preDestroy.', t => {
+it('preDestroy.', (t) => {
   let count = 0;
   @injectable()
   class A {
@@ -834,26 +810,26 @@ test('preDestroy.', t => {
   const ioc = new IocContext();
   ioc.register(A);
   ioc.clear();
-  t.is(count, 0);
+  t.expect(count).toBe(0);
 
-  t.true(ioc.get(A) instanceof A);
+  t.expect(ioc.get(A) instanceof A).toBe(true);
   ioc.remove(A);
-  t.is(count, 1);
-  t.false(ioc.has(A));
+  t.expect(count).toBe(1);
+  t.expect(!ioc.has(A)).toBe(true);
 
-  t.true(ioc.get(A) instanceof A);
+  t.expect(ioc.get(A) instanceof A).toBe(true);
   ioc.clear();
-  t.is(count, 2);
-  t.false(ioc.has(A));
+  t.expect(count).toBe(2);
+  t.expect(!ioc.has(A)).toBe(true);
 });
 
-test('preDestroy, parent and subClass.', t => {
+it('preDestroy, parent and subClass.', (t) => {
   let count = 0;
 
   class A {
     @preDestroy()
     destroy() {
-      t.fail();
+      t.expect(false).toBe(true);
     }
   }
 
@@ -868,7 +844,7 @@ test('preDestroy, parent and subClass.', t => {
   const ioc = new IocContext();
   ioc.get(B);
   ioc.clear();
-  t.is(count, 1);
+  t.expect(count).toBe(1);
 
   @injectable()
   class C extends B {
@@ -880,21 +856,21 @@ test('preDestroy, parent and subClass.', t => {
 
   ioc.get(C);
   ioc.clear();
-  t.is(count, 3);
+  t.expect(count).toBe(3);
 });
 
-test('metadata', t => {
+it('metadata', (t) => {
   @injectable()
   class A {}
   @injectable()
   class B extends A {}
 
-  t.deepEqual(getMetadataField(A, 'injectable'), true);
+  t.expect(getMetadataField(A, 'injectable')).toBe(true);
 
-  t.deepEqual(getMetadataField(B, 'injectable'), true);
+  t.expect(getMetadataField(B, 'injectable')).toBe(true);
 });
 
-test('constructor inject', t => {
+it('constructor inject', (t) => {
   const ioc = new IocContext();
 
   @injectable()
@@ -907,8 +883,8 @@ test('constructor inject', t => {
   @injectable()
   class B {
     constructor(a: A) {
-      t.assert(a instanceof A);
-      t.is(a.getMessage(), 'Hello from A');
+      t.expect(a instanceof A).toBe(true);
+      t.expect(a.getMessage()).toBe('Hello from A');
     }
   }
 

@@ -1,6 +1,6 @@
 name: tests
 
-on: 
+on:
   push
 
 jobs:
@@ -22,10 +22,13 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Build
+        run: pnpm run build
 
       - name: Run tests
         run: pnpm run test

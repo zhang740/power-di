@@ -1,4 +1,4 @@
-import { KeyType } from '../utils/types';
+import type { KeyType } from '../utils/types';
 
 /** class name */
 export const nameSymbol = Symbol('className');

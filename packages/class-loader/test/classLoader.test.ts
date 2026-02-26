@@ -1,8 +1,8 @@
-import { test, expect } from 'vitest';
-import { DuplicateRegistrationError, classLoader, ClassLoader } from '../src/class/ClassLoader';
+import { expect, it } from 'vitest';
+import { classLoader, ClassLoader, DuplicateRegistrationError } from '../src/class/ClassLoader';
 import { getMetadata, MetadataType, metaSymbol } from '../src/class/metadata';
 
-test('class info', () => {
+it('class info', () => {
   classLoader.clearAll();
   class A {}
   classLoader.registerClass(A);
@@ -14,7 +14,7 @@ test('class info', () => {
   });
 });
 
-test('class info, name from classInfo', () => {
+it('class info, name from classInfo', () => {
   classLoader.clearAll();
   class A {}
   classLoader.registerClass(A, { name: 'newName' });
@@ -26,7 +26,7 @@ test('class info, name from classInfo', () => {
   });
 });
 
-test('has super class', () => {
+it('has super class', () => {
   classLoader.clearAll();
   class Z {}
   class A extends Z {}
@@ -61,7 +61,7 @@ test('has super class', () => {
   ]);
 });
 
-test('has interface', () => {
+it('has interface', () => {
   classLoader.clearAll();
   const A = Symbol('A');
   interface A {}
@@ -81,7 +81,7 @@ test('has interface', () => {
   ]);
 });
 
-test('register with info', () => {
+it('register with info', () => {
   classLoader.clearAll();
   class A {}
   classLoader.registerClass(A, {});
@@ -93,14 +93,14 @@ test('register with info', () => {
   });
 });
 
-test('cannot register twice', () => {
+it('cannot register twice', () => {
   classLoader.clearAll();
   class A {}
   classLoader.registerClass(A);
   expect(() => classLoader.registerClass(A)).toThrow(DuplicateRegistrationError);
 });
 
-test('unregisterClass', () => {
+it('unregisterClass', () => {
   classLoader.clearAll();
   class A {}
   class B extends A {}
@@ -128,7 +128,7 @@ test('unregisterClass', () => {
   expect(() => classLoader.unregisterClass(B)).not.toThrow();
 });
 
-test('filterClasses', () => {
+it('filterClasses', () => {
   classLoader.clearAll();
   class A {}
   class B extends A {}
@@ -146,7 +146,7 @@ test('filterClasses', () => {
   ]);
 });
 
-test('classAll', () => {
+it('classAll', () => {
   classLoader.clearAll();
   class A {}
   class B extends A {}
@@ -171,7 +171,7 @@ test('classAll', () => {
   expect(classLoader.getImplementClasses(A)).toEqual([]);
 });
 
-test('double in impl and extends', () => {
+it('double in impl and extends', () => {
   classLoader.clearAll();
   abstract class Base {}
   class A extends Base {}
@@ -189,7 +189,7 @@ test('double in impl and extends', () => {
   ]);
 });
 
-test('clone', () => {
+it('clone', () => {
   classLoader.clearAll();
   class Base {}
   class A extends Base {}
@@ -224,7 +224,7 @@ test('clone', () => {
   expect(newLoader.getImplementClasses(Base).length).toBe(2);
 });
 
-test('clone, subclass', () => {
+it('clone, subclass', () => {
   classLoader.clearAll();
   class NewClassLoader extends ClassLoader {}
 
@@ -237,7 +237,7 @@ test('clone, subclass', () => {
   expect(newLoader2 instanceof NewClassLoader).toBe(true);
 });
 
-test('init with', () => {
+it('init with', () => {
   classLoader.clearAll();
   class A {}
   class B {}
@@ -268,7 +268,7 @@ test('init with', () => {
   });
 });
 
-test('getMetadata, Object', () => {
+it('getMetadata, Object', () => {
   classLoader.clearAll();
   const meta = getMetadata(Object);
   expect(meta).toEqual(new MetadataType());
@@ -281,7 +281,7 @@ test('getMetadata, Object', () => {
   expect((Object as any)[metaSymbol]).toBeUndefined();
 });
 
-test('hook, registerClass', () => {
+it('hook, registerClass', () => {
   classLoader.clearAll();
   const loader = new ClassLoader();
 
@@ -299,7 +299,7 @@ test('hook, registerClass', () => {
   loader.registerClass(Test, { name: 'xxx' });
 });
 
-test('hook, unregisterClass', () => {
+it('hook, unregisterClass', () => {
   classLoader.clearAll();
   const loader = new ClassLoader();
 

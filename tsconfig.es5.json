@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.es.json",
-  "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs"
-  }
-}

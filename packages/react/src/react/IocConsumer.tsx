@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Context, ContextSymbol } from './context';
 import { createConsumerComponent } from './BaseComponent';
+import { Context, ContextSymbol } from './context';
 
 export interface IocConsumerOpt {
   /** manual extends BaseClass: BaseConsumerComponent */
@@ -17,39 +17,39 @@ export function iocConsumer(opt: IocConsumerOpt = {}): ClassDecorator {
 
     return opt.pureComponent
       ? class IoCPureComponent extends React.PureComponent {
-          static displayName = `IoCComponent(${getDisplayName(Comp)})`;
+        static displayName = `IoCComponent(${getDisplayName(Comp)})`;
 
-          render() {
-            return (
-              <Context.Consumer>
-                {ctx => (
-                  <NewComp
-                    {...Object.assign({}, this.props, {
-                      [ContextSymbol]: ctx,
-                    })}
-                  />
-                )}
-              </Context.Consumer>
-            );
-          }
+        render() {
+          return (
+            <Context.Consumer>
+              {ctx => (
+                <NewComp
+                  {...Object.assign({}, this.props, {
+                    [ContextSymbol]: ctx,
+                  })}
+                />
+              )}
+            </Context.Consumer>
+          );
         }
+      }
       : class IoCComponent extends React.Component {
-          static displayName = `IoCComponent(${getDisplayName(Comp)})`;
+        static displayName = `IoCComponent(${getDisplayName(Comp)})`;
 
-          render() {
-            return (
-              <Context.Consumer>
-                {ctx => (
-                  <NewComp
-                    {...Object.assign({}, this.props, {
-                      [ContextSymbol]: ctx,
-                    })}
-                  />
-                )}
-              </Context.Consumer>
-            );
-          }
-        };
+        render() {
+          return (
+            <Context.Consumer>
+              {ctx => (
+                <NewComp
+                  {...Object.assign({}, this.props, {
+                    [ContextSymbol]: ctx,
+                  })}
+                />
+              )}
+            </Context.Consumer>
+          );
+        }
+      };
   };
 }
 

@@ -1,6 +1,6 @@
+import type { IocContext } from '@power-di/di';
 import * as React from 'react';
 import { Context, ContextSymbol as ContextInProps } from './context';
-import type { IocContext } from '@power-di/di';
 
 function injectInstance(instance: React.Component<any, any, any>, context: IocContext) {
   context.inject(instance, { autoRunPostConstruct: false });
@@ -31,7 +31,7 @@ function injectInstance(instance: React.Component<any, any, any>, context: IocCo
 export abstract class Component<P = {}, S = {}> extends React.Component<P, S> {
   static contextType = Context;
 
-  context: IocContext;
+  declare context: IocContext;
 
   constructor(props: P, context: IocContext) {
     super(props, context);
@@ -43,7 +43,7 @@ export abstract class Component<P = {}, S = {}> extends React.Component<P, S> {
 export abstract class PureComponent<P = {}, S = {}> extends React.PureComponent<P, S> {
   static contextType = Context;
 
-  context: IocContext;
+  declare context: IocContext;
 
   constructor(props: P, context: IocContext) {
     super(props, context);
