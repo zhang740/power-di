@@ -1,4 +1,5 @@
-import { getGlobalType, getMetadata, KeyType } from '@power-di/class-loader';
+import type { KeyType } from '@power-di/class-loader';
+import { getGlobalType, getMetadata } from '@power-di/class-loader';
 
 /** subClasses/implements inject */
 export function imports({

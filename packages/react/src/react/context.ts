@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { IocContext } from '@power-di/di';
+import * as React from 'react';
 
 export const Context = React.createContext(IocContext.DefaultInstance);
 

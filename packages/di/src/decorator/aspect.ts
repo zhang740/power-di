@@ -1,20 +1,28 @@
-import { FunctionContext, AspectPoint, getMetadata } from '@power-di/class-loader';
-import { IocContext } from '../IocContext';
+import type { AspectPoint, FunctionContext } from '@power-di/class-loader';
+import type { IocContext } from '../IocContext';
+import { getMetadata } from '@power-di/class-loader';
 
 /* istanbul ignore next */
-const normalFn = function normalFn() {};
+function normalFn() {}
 /* istanbul ignore next */
-const generatorFn = function* () {};
+function generatorFn() {}
 
 const normalFuncPrototype = Object.getPrototypeOf(normalFn);
 const generatorFuncPrototype = Object.getPrototypeOf(generatorFn);
 function isGeneratorFunction(fn: any) {
-  // if use some transformer, generator is polyfill maybe.
-  return (
-    typeof fn === 'function' &&
-    normalFuncPrototype !== generatorFuncPrototype &&
-    Object.getPrototypeOf(fn) === generatorFuncPrototype
-  );
+  if (typeof fn !== 'function') {
+    return false;
+  }
+  const constructor = fn.constructor as any;
+  if (constructor) {
+    if (constructor.name === 'GeneratorFunction' || constructor.displayName === 'GeneratorFunction') {
+      return true;
+    }
+    if (constructor.prototype && typeof constructor.prototype.next === 'function' && typeof constructor.prototype.throw === 'function') {
+      return true;
+    }
+  }
+  return normalFuncPrototype !== generatorFuncPrototype && Object.getPrototypeOf(fn) === generatorFuncPrototype;
 }
 
 export type Throwable = Error | any;
@@ -46,7 +54,8 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
         }
         run(point.after, context);
         return context.ret;
-      } catch (error) {
+      }
+      catch (error) {
         context.err = error as Error;
         run(point.error, context);
         if (context.err) {
@@ -54,7 +63,8 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
         }
       }
     };
-  } else {
+  }
+  else {
     newFn = function (...args: any[]) {
       const context = createContext(ioc, this, oriFn, args);
       try {
@@ -78,11 +88,13 @@ export function genAspectWrapper(ioc: IocContext, point: AspectPoint, oriFn: Fun
             });
           }
           return context.ret;
-        } else {
+        }
+        else {
           run(point.after, context);
           return context.ret;
         }
-      } catch (error) {
+      }
+      catch (error) {
         context.err = error as Error;
         run(point.error, context);
         if (context.err) {

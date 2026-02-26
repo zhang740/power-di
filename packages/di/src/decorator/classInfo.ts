@@ -1,7 +1,8 @@
-import { ClassInfo, nameSymbol, getMetadata, classLoader } from '@power-di/class-loader';
+import type { ClassInfo } from '@power-di/class-loader';
+import { classLoader, getMetadata, nameSymbol } from '@power-di/class-loader';
 
 export function classInfo(info: ClassInfo = {}): ClassDecorator {
-  return target => {
+  return (target) => {
     if (info.name) {
       Object.defineProperty(target, nameSymbol, {
         enumerable: false,
@@ -19,7 +20,7 @@ export function classInfo(info: ClassInfo = {}): ClassDecorator {
       {
         // default value
       } as ClassInfo,
-      info
+      info,
     );
     classLoader.registerClass(target);
   };

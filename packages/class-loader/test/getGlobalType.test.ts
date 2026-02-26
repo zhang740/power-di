@@ -1,22 +1,22 @@
-import { test, expect } from 'vitest';
+import { expect, it } from 'vitest';
 import {
   getGlobalType,
   getSuperClassInfo,
   isClass,
   isExtendOf,
   symbolString,
-} from '@power-di/class-loader';
+} from '../src';
 
-test('getGlobalType, error.', () => {
+it('getGlobalType, error.', () => {
   expect(() => getGlobalType(undefined)).toThrow();
   expect(() => getGlobalType(123)).toThrow();
 });
 
-test('getGlobalType, string.', () => {
+it('getGlobalType, string.', () => {
   expect(getGlobalType('stringKey')).toBe('stringKey');
 });
 
-test('getGlobalType, a class.', () => {
+it('getGlobalType, a class.', () => {
   class A {}
 
   expect(getGlobalType(A)).toBe('A');
@@ -31,7 +31,7 @@ test('getGlobalType, a class.', () => {
   expect(getGlobalType(test)).toMatch(/^test/);
 });
 
-test('getSuperClassInfo.', () => {
+it('getSuperClassInfo.', () => {
   class A {}
   class B extends A {}
 
@@ -46,7 +46,7 @@ test('getSuperClassInfo.', () => {
   expect(() => getSuperClassInfo(() => {})).toThrow();
 });
 
-test('isExtendOf', () => {
+it('isExtendOf', () => {
   class A {}
   class B extends A {}
   class C {}
@@ -58,12 +58,12 @@ test('isExtendOf', () => {
   expect(() => isExtendOf(1 as any, A)).toThrow();
 });
 
-test('symbolString', () => {
+it('symbolString', () => {
   const sym = Symbol('TestSymbol');
   expect(symbolString(sym)).toBe('Symbol(TestSymbol)');
 });
 
-test('isClass', () => {
+it('isClass', () => {
   expect(!!isClass(1)).toBe(false);
   expect(!!isClass('')).toBe(false);
   expect(!!isClass(undefined)).toBe(false);

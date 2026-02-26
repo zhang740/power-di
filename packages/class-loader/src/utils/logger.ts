@@ -17,16 +17,19 @@ export class Logger {
       console.error(message, ...optionalParams);
     }
   }
+
   info(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Info) {
       console.info(message, ...optionalParams);
     }
   }
+
   log(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Log) {
       console.log(message, ...optionalParams);
     }
   }
+
   warn(message?: any, ...optionalParams: any[]): void {
     if (this.outLevel <= OutLevel.Warn) {
       console.warn(message, ...optionalParams);

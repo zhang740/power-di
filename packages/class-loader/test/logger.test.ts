@@ -1,7 +1,7 @@
-import { test, expect } from 'vitest';
-import { logger, OutLevel } from '@power-di/class-loader';
+import { expect, it } from 'vitest';
+import { logger, OutLevel } from '../src';
 
-test('logger', () => {
+it('logger', () => {
   logger.setOutLevel(OutLevel.Log);
   logger.log('');
   logger.info('');

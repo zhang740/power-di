@@ -1,109 +1,80 @@
-import { test as vitestTest, expect } from 'vitest';
-import { injectable, IocContext, MultiImplementError, NotfoundTypeError } from '@power-di/di';
+import { it } from 'vitest';
+import { injectable, IocContext, MultiImplementError } from '../src';
 
-const test = (name: string, fn: (t: any) => any) =>
-  vitestTest(name, () => fn(createAssert()));
-
-function createAssert() {
-  return {
-    true: (value: any) => expect(value).toBe(true),
-    false: (value: any) => expect(value).toBe(false),
-    is: (value: any, expected: any) => expect(value).toBe(expected),
-    deepEqual: (value: any, expected: any) => expect(value).toEqual(expected),
-    throws: (fn: () => any, opts?: any) => {
-      if (opts?.instanceOf) {
-        return expect(fn).toThrow(opts.instanceOf);
-      }
-      return expect(fn).toThrow();
-    },
-    notThrows: (fn: () => any) => expect(fn).not.toThrow(),
-    throwsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).rejects.toThrow();
-    },
-    notThrowsAsync: async (fn: () => Promise<any>) => {
-      await expect(fn()).resolves.toBeUndefined();
-    },
-    pass: () => expect(true).toBe(true),
-    assert: (value: any) => expect(!!value).toBe(true),
-    fail: () => expect(false).toBe(true),
-  };
-}
-
-test('default.', t => {
+it('default.', (t) => {
   const parent = new IocContext();
   parent.register(5, 'TEST');
-  t.true(parent.get('TEST') === 5);
+  t.expect(parent.get('TEST') === 5).toBe(true);
 
   const child = parent.createChildContext();
-  t.true(child.get('TEST') === 5);
+  t.expect(child.get('TEST') === 5).toBe(true);
 
   child.register(8, 'TEST');
-  t.true(child.get('TEST') === 8);
-  t.true(parent.get('TEST') === 5);
+  t.expect(child.get('TEST') === 8).toBe(true);
+  t.expect(parent.get('TEST') === 5).toBe(true);
 });
 
-test('getImports.', t => {
+it('getImports.', (t) => {
   class BaseCls {}
   class TestCls extends BaseCls {}
   const parent = new IocContext();
   parent.classLoader!.registerClass(TestCls);
 
   const parentImpls = parent.getImports(BaseCls);
-  t.true(parentImpls[0] instanceof TestCls);
+  t.expect(parentImpls[0] instanceof TestCls).toBe(true);
 
   const child = parent.createChildContext();
 
   const childImpls = child.getImports(BaseCls);
-  t.true(childImpls[0] instanceof TestCls);
+  t.expect(childImpls[0] instanceof TestCls).toBe(true);
 
-  t.true(parentImpls[0] === childImpls[0]);
+  t.expect(parentImpls[0] === childImpls[0]).toBe(true);
 });
 
-test('inherit.', t => {
+it('inherit.', (t) => {
   const parent = new IocContext({ autoRegisterSelf: true });
-  t.true(parent.config.autoRegisterSelf === true);
+  t.expect(parent.config.autoRegisterSelf === true).toBe(true);
 
   const child = parent.createChildContext();
-  t.true(child.config.autoRegisterSelf === true);
+  t.expect(child.config.autoRegisterSelf === true).toBe(true);
 
   const child2 = parent.createChildContext({});
-  t.true(child2.config.autoRegisterSelf === true);
+  t.expect(child2.config.autoRegisterSelf === true).toBe(true);
 });
 
-test('parent finder', t => {
+it('parent finder', (t) => {
   class IService {}
   class TestCls extends IService {}
 
   const parent = new IocContext();
   parent.classLoader!.registerClass(TestCls);
 
-  t.true(parent.get(IService) === parent.get(TestCls));
+  t.expect(parent.get(IService) === parent.get(TestCls)).toBe(true);
 
   const child = parent.createChildContext();
-  t.true(child.get(IService) === parent.get(IService));
-  t.true(child.get(IService) === parent.get(TestCls));
+  t.expect(child.get(IService) === parent.get(IService)).toBe(true);
+  t.expect(child.get(IService) === parent.get(TestCls)).toBe(true);
 
   parent.register('TEST', IService);
-  t.true(parent.get(IService) === 'TEST');
-  t.true(child.get(IService) === 'TEST');
+  t.expect(parent.get(IService) === 'TEST').toBe(true);
+  t.expect(child.get(IService) === 'TEST').toBe(true);
 });
 
-test('parent finder, not deep', t => {
+it('parent finder, not deep', (t) => {
   class IService {}
   class TestCls extends IService {}
 
   const parent = new IocContext();
   parent.classLoader!.registerClass(TestCls);
 
-  t.true(parent.get(IService) === parent.get(TestCls));
+  t.expect(parent.get(IService) === parent.get(TestCls)).toBe(true);
 
   const child = parent.createChildContext();
-
-  t.true(child.get(IService, { deep: false }) !== parent.get(IService, { deep: false }));
-  t.true(child.get(IService, { deep: false }) !== parent.get(TestCls, { deep: false }));
+  t.expect(child.get(IService, { deep: false }) !== parent.get(IService, { deep: false })).toBe(true);
+  t.expect(child.get(IService, { deep: false }) !== parent.get(TestCls, { deep: false })).toBe(true);
 });
 
-test('multi implement, use classLoader, resolve.', t => {
+it('multi implement, use classLoader, resolve.', (t) => {
   const context = new IocContext();
   const childContext = context.createChildContext();
 
@@ -112,14 +83,14 @@ test('multi implement, use classLoader, resolve.', t => {
   @injectable()
   class A extends IService {}
 
-  t.true(context.get(IService) instanceof IService);
-  t.true(context.get(IService) instanceof A);
+  t.expect(context.get(IService) instanceof IService).toBe(true);
+  t.expect(context.get(IService) instanceof A).toBe(true);
   context.remove(A);
 
   @injectable()
   class B extends IService {}
 
-  t.throws(() => childContext.get(IService), { instanceOf: MultiImplementError });
+  t.expect(() => childContext.get(IService)).toThrowError(MultiImplementError);
 
   childContext.setConfig({
     conflictHandler(type, implCls, sourceCls) {
@@ -127,10 +98,10 @@ test('multi implement, use classLoader, resolve.', t => {
     },
   });
 
-  t.true(childContext.get(IService) instanceof A);
+  t.expect(childContext.get(IService) instanceof A).toBe(true);
 });
 
-test('multi implement, use classLoader, resolve deep.', t => {
+it('multi implement, use classLoader, resolve deep.', (t) => {
   const context = new IocContext();
   const childContext = context.createChildContext();
 
@@ -139,14 +110,14 @@ test('multi implement, use classLoader, resolve deep.', t => {
   @injectable()
   class A extends IService {}
 
-  t.true(context.get(IService) instanceof IService);
-  t.true(context.get(IService) instanceof A);
+  t.expect(context.get(IService) instanceof IService).toBe(true);
+  t.expect(context.get(IService) instanceof A).toBe(true);
   context.remove(A);
 
   @injectable()
   class B extends A {}
 
-  t.throws(() => childContext.get(IService), { instanceOf: MultiImplementError });
+  t.expect(() => childContext.get(IService)).toThrowError(MultiImplementError);
 
   context.setConfig({
     conflictHandler(type, implCls, sourceCls) {
@@ -154,21 +125,19 @@ test('multi implement, use classLoader, resolve deep.', t => {
     },
   });
 
-  t.true(childContext.get(IService) instanceof A);
-  t.false(childContext.get(IService) instanceof B);
+  t.expect(childContext.get(IService) instanceof A).toBe(true);
+  t.expect(childContext.get(IService) instanceof B).toBe(false);
 
   context.clear();
   const subChildContext = childContext.createChildContext();
 
-  t.throws(() => subChildContext.get(IService, { deep: false }), {
-    instanceOf: MultiImplementError,
-  });
+  t.expect(() => subChildContext.get(IService, { deep: false })).toThrowError(MultiImplementError);
 
-  t.true(subChildContext.get(IService) instanceof A);
-  t.false(subChildContext.get(IService) instanceof B);
+  t.expect(subChildContext.get(IService) instanceof A).toBe(true);
+  t.expect(subChildContext.get(IService) instanceof B).toBe(false);
 });
 
-test('multi implement, use classLoader, one instance existed.', t => {
+it('multi implement, use classLoader, one instance existed.', (t) => {
   const context = new IocContext({
     conflictHandler(type, implCls, sourceCls) {
       return implCls.find(s => s.type === A)?.type;
@@ -185,6 +154,6 @@ test('multi implement, use classLoader, one instance existed.', t => {
   @injectable()
   class B extends A {}
 
-  t.false(context.get(IService) instanceof B);
-  t.false(childContext.get(IService) instanceof B);
+  t.expect(context.get(IService) instanceof B).toBe(false);
+  t.expect(childContext.get(IService) instanceof B).toBe(false);
 });

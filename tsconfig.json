@@ -1,43 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "target": "es2022",
     "jsx": "react",
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "isolatedModules": false,
-    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noImplicitAny": true,
+    "declaration": true,
+    "inlineSources": true,
     "preserveConstEnums": true,
     "removeComments": false,
-    "declaration": true,
     "sourceMap": true,
-    "inlineSources": true,
-    "pretty": true,
-    "baseUrl": ".",
-    "paths": {
-      "@power-di/class-loader": [
-        "packages/class-loader/src"
-      ],
-      "@power-di/di": [
-        "packages/di/src"
-      ],
-      "@power-di/aspect": [
-        "packages/aspect/src"
-      ],
-      "@power-di/react": [
-        "packages/react/src"
-      ],
-      "power-di": [
-        "packages/legacy-di/src"
-      ],
-      "power-di/react": [
-        "packages/legacy-di/src/react.ts"
-      ],
-      "power-di/utils": [
-        "packages/legacy-di/src/utils.ts"
-      ]
-    }
+    "esModuleInterop": true,
+    "isolatedModules": false,
+    "pretty": true
   },
   "compileOnSave": true
 }

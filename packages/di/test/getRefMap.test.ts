@@ -1,8 +1,8 @@
-import { test, expect } from 'vitest';
 import { getRefMap } from '@power-di/class-loader';
-import { inject, injectable } from '@power-di/di';
+import { expect, it } from 'vitest';
+import { inject, injectable } from '../src';
 
-test('getRefMap, base', () => {
+it('getRefMap, base', () => {
   @injectable()
   class A {}
 
@@ -40,7 +40,7 @@ test('getRefMap, base', () => {
   });
 });
 
-test('getRefMap, super class', () => {
+it('getRefMap, super class', () => {
   class Base {}
 
   @injectable()
@@ -80,7 +80,7 @@ test('getRefMap, super class', () => {
   });
 });
 
-test('getRefMap, extends', () => {
+it('getRefMap, extends', () => {
   class InjClsA {}
   class InjClsB {}
 

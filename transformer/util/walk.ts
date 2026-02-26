@@ -5,13 +5,13 @@ export type NodeTransformer = (node: ts.Node) => ts.Node;
 export type NodeTransformerFactory = (
   context: ts.TransformationContext,
   sourceFile: ts.SourceFile,
-  typeChecker: ts.TypeChecker
+  typeChecker: ts.TypeChecker,
 ) => NodeTransformer;
 
 export function walker(
   sourceFile: ts.SourceFile,
   ctx: ts.TransformationContext,
-  nodeTransformer?: NodeTransformer
+  nodeTransformer?: NodeTransformer,
 ) {
   function visitor(node: ts.Node): any {
     return ts.visitEachChild(nodeTransformer(node), visitor, ctx);

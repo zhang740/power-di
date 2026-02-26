@@ -1,6 +1,12 @@
 {
   "name": "@power-di/react",
   "version": "2.4.56",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

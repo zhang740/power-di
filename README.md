@@ -1,6 +1,6 @@
 # Power DI
 
-[![CI status][github-action-image]][github-action-url] [![codecov][codecov-image]][codecov-url] [![NPM version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![][bundlephobia-image]][bundlephobia-url] [![][license-image]][license-url]
+[![CI status][github-action-image]][github-action-url] [![codecov][codecov-image]][codecov-url] [![NPM version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![bundlephobia][bundlephobia-image]][bundlephobia-url] [![license][license-image]][license-url]
 
 [npm-image]: https://img.shields.io/npm/v/power-di.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/power-di
@@ -87,7 +87,7 @@ const service = ctx.get('XService');
 ## Decorators
 
 ```ts
-import { IocContext, inject, injectable } from 'power-di';
+import { inject, injectable, IocContext } from 'power-di';
 
 @injectable()
 class NRService {}
@@ -107,7 +107,7 @@ const inst = ctx.get(LITestService);
 Use `@imports({ type })` to inject all implementations/subclasses of a base type (runtime key).
 
 ```ts
-import { IocContext, imports, injectable } from 'power-di';
+import { imports, injectable, IocContext } from 'power-di';
 
 abstract class A {}
 
@@ -131,7 +131,7 @@ const all = inst.testService;
 ## Lifecycle
 
 ```ts
-import { IocContext, injectable, postConstruct, preDestroy } from 'power-di';
+import { injectable, IocContext, postConstruct, preDestroy } from 'power-di';
 
 @injectable()
 class Service {
@@ -157,15 +157,15 @@ ctx.remove(Service);
 ## Aspect (AOP)
 
 ```ts
-import { IocContext, injectable, aspect } from 'power-di';
+import { aspect, injectable, IocContext } from 'power-di';
 
 @injectable()
 class Svc {
   @aspect({
-    before: ctx => {
+    before: (ctx) => {
       ctx.data.tag = 'before';
     },
-    after: ctx => {
+    after: (ctx) => {
       ctx.data.tag = 'after';
     },
   })
@@ -183,9 +183,9 @@ ctx.get(Svc).run('ok');
 If you installed the legacy `power-di` entry, you can replace `@power-di/di` with `power-di` and `@power-di/react` with `power-di/react`.
 
 ```tsx
+import { inject, injectable, IocContext } from '@power-di/di';
+import { Component, IocProvider, useInstanceHook } from '@power-di/react';
 import * as React from 'react';
-import { IocContext, inject, injectable } from '@power-di/di';
-import { IocProvider, Component, useInstanceHook } from '@power-di/react';
 
 @injectable()
 class NRService {}

@@ -1,6 +1,12 @@
 {
   "name": "@power-di/di",
   "version": "2.4.56",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -15,7 +21,6 @@
     "@power-di/class-loader": "workspace:*"
   },
   "devDependencies": {
-    "@types/co": "catalog:",
     "co": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:",

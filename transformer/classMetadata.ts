@@ -1,8 +1,8 @@
-// tslint:disable
-import * as path from 'path';
-import * as fs from 'fs';
+import type { NodeTransformer } from './util';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import * as ts from 'typescript';
-import { NodeTransformer, walker } from './util';
+import { walker } from './util';
 
 console.log('[power-di] load transformer: class metadata.');
 
@@ -21,7 +21,7 @@ export function before(
   ctx: ts.TransformationContext,
   sf: ts.SourceFile,
   typeChecker: ts.TypeChecker,
-  config?: Config
+  config?: Config,
 ): NodeTransformer {
   const pkg = findPkg(sf.fileName);
   if (!pkg) {
@@ -35,26 +35,26 @@ export function before(
       return node;
     }
     // 处理注入 type
-    const injectDecorators = config?.decoratorNames?.inject ||
-      pkg['power-di']?.decoratorNames?.inject || [
-        'inject',
-        'getContributions',
-        'getExtensions',
-        'getPlugins',
-      ];
+    const injectDecorators = config?.decoratorNames?.inject
+      || pkg['power-di']?.decoratorNames?.inject || [
+      'inject',
+      'getContributions',
+      'getExtensions',
+      'getPlugins',
+    ];
     if (injectDecorators.includes(`${getDecoratorName(node)}`)) {
       return processInject(ctx, node, sf, typeChecker);
     }
 
     // 处理 class
-    const classDecorators = config?.decoratorNames?.class ||
-      pkg['power-di']?.decoratorNames?.class || [
-        'classInfo',
-        'injectable',
-        'contribution',
-        'extension',
-        'plugin',
-      ];
+    const classDecorators = config?.decoratorNames?.class
+      || pkg['power-di']?.decoratorNames?.class || [
+      'classInfo',
+      'injectable',
+      'contribution',
+      'extension',
+      'plugin',
+    ];
     if (classDecorators.includes(`${getDecoratorName(node)}`)) {
       return processClassInfo(ctx, node, pkg, sf, typeChecker);
     }
@@ -68,7 +68,7 @@ function processClassInfo(
   node: ts.Decorator,
   pkg: ReturnType<typeof findPkg>,
   sourceFile: ts.SourceFile,
-  typeChecker: ts.TypeChecker
+  typeChecker: ts.TypeChecker,
 ) {
   const clsNode = node.parent;
   if (!ts.isClassDeclaration(clsNode) || !ts.isCallExpression(node.expression)) {
@@ -76,49 +76,49 @@ function processClassInfo(
   }
   const decoratorFactory = node.expression;
   if (
-    decoratorFactory.arguments &&
-    decoratorFactory.arguments[0] &&
-    !ts.isObjectLiteralExpression(decoratorFactory.arguments[0])
+    decoratorFactory.arguments
+    && decoratorFactory.arguments[0]
+    && !ts.isObjectLiteralExpression(decoratorFactory.arguments[0])
   ) {
     console.warn(
       '[power-di] class metadata transformer fail!',
       `@${getDecoratorName(node)} of class [${
         clsNode.name.escapedText
-      }] param is not a ObjectLiteral.`
+      }] param is not a ObjectLiteral.`,
     );
     return node;
   }
   const oldArg = decoratorFactory.arguments.length && decoratorFactory.arguments[0];
   const oldArgObj = oldArg && ts.isObjectLiteralExpression(oldArg) && oldArg;
 
-  const impls =
-    !hasField(oldArgObj, 'implements') &&
-    clsNode.heritageClauses?.find(hc => hc.token === ts.SyntaxKind.ImplementsKeyword);
+  const impls
+    = !hasField(oldArgObj, 'implements')
+      && clsNode.heritageClauses?.find(hc => hc.token === ts.SyntaxKind.ImplementsKeyword);
 
-  impls &&
-    impls.types.forEach(typeNode => {
-      const type = typeChecker.getTypeFromTypeNode(typeNode);
-      const symbol = type.getSymbol();
-      fixedImport(
-        ctx,
-        symbol?.name ||
-          typeNode.getText?.() ||
-          typeNode.expression.getText?.() ||
-          (typeNode.expression as ts.Identifier).escapedText,
-        sourceFile
-      );
-    });
+  impls
+  && impls.types.forEach((typeNode) => {
+    const type = typeChecker.getTypeFromTypeNode(typeNode);
+    const symbol = type.getSymbol();
+    fixedImport(
+      ctx,
+      symbol?.name
+      || typeNode.getText?.()
+      || typeNode.expression.getText?.()
+      || (typeNode.expression as ts.Identifier).escapedText,
+      sourceFile,
+    );
+  });
 
   const f = ctx.factory;
 
   const info = [
     f.createPropertyAssignment('pkg', f.createStringLiteral(pkg.name)),
     f.createPropertyAssignment('version', f.createStringLiteral(pkg.version)),
-    impls &&
-      f.createPropertyAssignment(
-        'implements',
-        f.createArrayLiteralExpression(impls.types.map(type => type.expression))
-      ),
+    impls
+    && f.createPropertyAssignment(
+      'implements',
+      f.createArrayLiteralExpression(impls.types.map(type => type.expression)),
+    ),
   ].filter(s => s);
 
   const config = oldArgObj
@@ -128,13 +128,13 @@ function processClassInfo(
           ...info,
           ...oldArgObj.properties.filter(
             p =>
-              p.name &&
-              ts.isIdentifier(p.name) &&
-              !['pkg', 'version', impls ? 'implements' : undefined]
+              p.name
+              && ts.isIdentifier(p.name)
+              && !['pkg', 'version', impls ? 'implements' : undefined]
                 .filter(s => s)
-                .includes(`${p.name.escapedText}`)
+                .includes(`${p.name.escapedText}`),
           ),
-        ])
+        ]),
       )
     : f.createObjectLiteralExpression(f.createNodeArray(info), false);
 
@@ -144,8 +144,8 @@ function processClassInfo(
       decoratorFactory,
       decoratorFactory.expression,
       decoratorFactory.typeArguments,
-      [config]
-    )
+      [config],
+    ),
   );
 }
 
@@ -153,7 +153,7 @@ function processInject(
   ctx: ts.TransformationContext,
   node: ts.Decorator,
   sourceFile: ts.SourceFile,
-  typeChecker: ts.TypeChecker
+  _typeChecker: ts.TypeChecker,
 ) {
   const propertyNode = node.parent;
   if (!ts.isPropertyDeclaration(propertyNode) || !ts.isCallExpression(node.expression)) {
@@ -161,15 +161,15 @@ function processInject(
   }
   const decoratorFactory = node.expression;
   if (
-    decoratorFactory.arguments &&
-    decoratorFactory.arguments[0] &&
-    !ts.isObjectLiteralExpression(decoratorFactory.arguments[0])
+    decoratorFactory.arguments
+    && decoratorFactory.arguments[0]
+    && !ts.isObjectLiteralExpression(decoratorFactory.arguments[0])
   ) {
     console.warn(
       '[power-di] class metadata transformer fail!',
       `@${getDecoratorName(
-        node
-      )} of class [${propertyNode.name.getText?.()}] param is not a ObjectLiteral.`
+        node,
+      )} of class [${propertyNode.name.getText?.()}] param is not a ObjectLiteral.`,
     );
     return node;
   }
@@ -180,10 +180,10 @@ function processInject(
     ? ts.isTypeReferenceNode(propertyNode.type)
       ? propertyNode.type
       : ts.isArrayTypeNode(propertyNode.type)
-      ? ts.isTypeReferenceNode(propertyNode.type.elementType)
-        ? propertyNode.type.elementType
+        ? ts.isTypeReferenceNode(propertyNode.type.elementType)
+          ? propertyNode.type.elementType
+          : undefined
         : undefined
-      : undefined
     : undefined;
   if (!refType) {
     return node;
@@ -197,7 +197,7 @@ function processInject(
         '[power-di] class metadata transformer fail!',
         getDecoratorName(node),
         propertyNode.name.getText?.(),
-        refType.getText?.()
+        refType.getText?.(),
       );
       return node;
     }
@@ -210,7 +210,7 @@ function processInject(
   const info = [
     f.createPropertyAssignment('type', identifier),
     propertyNode.questionToken && f.createPropertyAssignment('optional', f.createTrue()),
-  ].filter(s => {
+  ].filter((s) => {
     if (!s) {
       return false;
     }
@@ -219,16 +219,16 @@ function processInject(
     }
     return !oldArgObj.properties.some(
       p =>
-        ts.isIdentifier(p.name) &&
-        ts.isIdentifier(s.name) &&
-        p.name.escapedText === s.name.escapedText
+        ts.isIdentifier(p.name)
+        && ts.isIdentifier(s.name)
+        && p.name.escapedText === s.name.escapedText,
     );
   });
 
   const config = oldArgObj
     ? f.updateObjectLiteralExpression(
         oldArgObj,
-        f.createNodeArray([...info, ...oldArgObj.properties])
+        f.createNodeArray([...info, ...oldArgObj.properties]),
       )
     : f.createObjectLiteralExpression(f.createNodeArray(info), false);
 
@@ -238,23 +238,23 @@ function processInject(
       decoratorFactory,
       decoratorFactory.expression,
       decoratorFactory.typeArguments,
-      [config]
-    )
+      [config],
+    ),
   );
 }
 
-type Config = {
+interface Config {
   decoratorNames?: {
     inject?: string[];
     class?: string[];
   };
-};
+}
 
-type PkgJSONType = {
-  name: string;
-  version: string;
+interface PkgJSONType {
+  'name': string;
+  'version': string;
   'power-di'?: Config;
-};
+}
 
 const pkgCache: { path: string; pkg: PkgJSONType }[] = [];
 function findPkg(filePath: string): PkgJSONType {
@@ -287,17 +287,17 @@ function getDecoratorName(node: ts.Decorator) {
   return ts.isIdentifier(node.expression)
     ? node.expression.escapedText
     : ts.isCallExpression(node.expression) && ts.isIdentifier(node.expression.expression)
-    ? node.expression.expression.escapedText
-    : '';
+      ? node.expression.expression.escapedText
+      : '';
 }
 
 function getField(config: ts.Expression | undefined, fieldName: string) {
-  const prop =
-    config &&
-    ts.isObjectLiteralExpression(config) &&
-    config.properties.find(p => {
-      return p.name && ts.isIdentifier(p.name) && p.name.escapedText === fieldName;
-    });
+  const prop
+    = config
+      && ts.isObjectLiteralExpression(config)
+      && config.properties.find((p) => {
+        return p.name && ts.isIdentifier(p.name) && p.name.escapedText === fieldName;
+      });
   return prop && ts.isPropertyAssignment(prop) && prop;
 }
 
@@ -308,7 +308,7 @@ function hasField(config: ts.Expression | undefined, fieldName: string) {
 function fixedImport(
   ctx: ts.TransformationContext,
   escapedText: string | ts.__String,
-  sourceFile: ts.SourceFile
+  sourceFile: ts.SourceFile,
 ) {
   if (!escapedText) {
     console.warn('fixedImport no escapedText!', sourceFile.fileName);
@@ -322,7 +322,7 @@ function fixedImport(
     .filter(n => ts.isImportDeclaration(n))
     .forEach((im: ts.ImportDeclaration) => {
       const nb = im.importClause?.namedBindings as ts.NamedImports;
-      const el = nb?.elements?.find(el => {
+      const el = nb?.elements?.find((el) => {
         return el.name.escapedText === escapedText;
       });
       if (el) {

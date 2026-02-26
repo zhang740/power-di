@@ -1,7 +1,7 @@
-import { ClassType, KeyType } from '../utils/types';
-import { ClassInfo } from './ClassInfo';
-import { getMetadata } from './metadata';
+import type { ClassType, KeyType } from '../utils/types';
+import type { ClassInfo } from './ClassInfo';
 import { getGlobalType, getSuperClassInfo } from '../utils';
+import { getMetadata } from './metadata';
 
 type ExtendAndInterface = KeyType;
 export interface TypeWithInfo {
@@ -22,7 +22,7 @@ export class ClassLoader {
     public callback: {
       onRegisterClass?: (type: ClassType, info: ClassInfo) => void;
       onUnregisterClass?: (type: ClassType, info: ClassInfo) => void;
-    } = {}
+    } = {},
   ) {}
 
   /** has class */
@@ -53,7 +53,7 @@ export class ClassLoader {
     }
 
     // add cache
-    [...clsInfo.extends, ...clsInfo.implements].forEach(ext => {
+    [...clsInfo.extends, ...clsInfo.implements].forEach((ext) => {
       const impls = this.getImplCacheByType(ext);
       if (impls.every(impl => impl.type !== type)) {
         impls.push({
@@ -72,7 +72,7 @@ export class ClassLoader {
     const info = this.classInfoMap.get(type);
     if (info) {
       // remove from cache
-      [...info.extends, ...info.implements].forEach(ext => {
+      [...info.extends, ...info.implements].forEach((ext) => {
         const cache = this.getImplCacheByType(ext);
         const index = cache.findIndex(c => c.type === type);
         /* istanbul ignore else */

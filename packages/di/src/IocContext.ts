@@ -1,19 +1,21 @@
-import {
-  getGlobalType,
-  getReflectMetadata,
-  isClass,
-  symbolString,
-  GetReturnType,
-  RegKeyType,
-  KeyType,
+import type {
+  ClassLoader,
   ClassType,
+  GetReturnType,
+  InjectMetadataType,
+  KeyType,
+  RegKeyType,
+  TypeWithInfo,
+} from '@power-di/class-loader';
+import {
+  classLoader,
+  getGlobalType,
   getMetadata,
   getMetadataField,
-  InjectMetadataType,
-  classLoader,
-  TypeWithInfo,
-  ClassLoader,
+  getReflectMetadata,
   guard,
+  isClass,
+  symbolString,
 } from '@power-di/class-loader';
 import { genAspectWrapper } from './decorator/aspect';
 
@@ -30,8 +32,9 @@ export class Config {
   conflictHandler?: (
     type: KeyType,
     implCls: TypeWithInfo[],
-    sourceCls?: TypeWithInfo
+    sourceCls?: TypeWithInfo,
   ) => ClassType | undefined;
+
   /** create instance hook, return value will replace instance */
   createInstanceHook?: (inst: any, ioc: IocContext) => any;
   /** destroy instance hook */
@@ -41,7 +44,7 @@ export class Config {
   /** create new instance in this context when is not exist */
   newInstanceInThisContext?: boolean;
   /** default inject options */
-  defaultInjectOptions?: Pick<InjectMetadataType, 'optional' | 'always'>;
+  defaultInjectOptions?: Partial<Pick<InjectMetadataType, 'optional' | 'always'>>;
 }
 
 export const DefaultRegisterOption: RegisterOptions = {
@@ -52,9 +55,11 @@ export const DefaultRegisterOption: RegisterOptions = {
 export interface RegisterOptions {
   /** default: true */
   singleton?: boolean;
-  /** if data as a class, auto new a instance.
+  /**
+   * if data as a class, auto new a instance.
    *  if data as a function, auto run(lazy).
-   *  default: true */
+   *  default: true
+   */
   autoNew?: boolean;
 }
 export interface Store {
@@ -89,12 +94,12 @@ export class IocContext {
    */
   public setConfig(config: Partial<Config>) {
     Object.assign(this.config, config);
-    this._classLoader =
-      this.config.useClassLoader === true
+    this._classLoader
+      = this.config.useClassLoader === true
         ? classLoader
         : this.config.useClassLoader === false
-        ? undefined
-        : this.config.useClassLoader;
+          ? undefined
+          : this.config.useClassLoader;
   }
 
   /**
@@ -113,7 +118,7 @@ export class IocContext {
 
   /** clear all */
   public clear() {
-    Array.from(this.components.values()).forEach(ele => {
+    Array.from(this.components.values()).forEach((ele) => {
       this.preDestroyInstance(ele);
     });
     this.components.clear();
@@ -137,7 +142,7 @@ export class IocContext {
       sourceType?: KeyOrType;
       /** deep get from parent context, default: true */
       deep?: boolean;
-    } = {}
+    } = {},
   ): GetReturnType<T, KeyOrType> {
     const key = getGlobalType(keyOrType);
 
@@ -170,7 +175,7 @@ export class IocContext {
                 sourceType: opt.sourceType || keyOrType,
               }
             : opt),
-          useClassLoader: target.final ? false : true,
+          useClassLoader: !target.final,
         });
       }
     }
@@ -181,9 +186,9 @@ export class IocContext {
       }
     }
 
-    const canAutoRegister =
-      isClass(keyOrType) &&
-      (this.config.autoRegisterSelf || getMetadata(keyOrType as any).injectable);
+    const canAutoRegister
+      = isClass(keyOrType)
+        && (this.config.autoRegisterSelf || getMetadata(keyOrType as any).injectable);
     if (canAutoRegister) {
       this.register(keyOrType);
       return this.get(keyOrType, opt);
@@ -196,7 +201,7 @@ export class IocContext {
     type: KeyType,
     classes: TypeWithInfo[],
     sourceCls?: TypeWithInfo,
-    deep?: boolean
+    deep?: boolean,
   ): ClassType | undefined {
     if (this.config.conflictHandler) {
       const one = this.config.conflictHandler(type, classes, sourceCls);
@@ -215,7 +220,7 @@ export class IocContext {
     opt: {
       sourceCls?: ClassType;
       deep?: boolean;
-    }
+    },
   ) {
     const classes = this.classLoader.getImplementClasses(type);
 
@@ -243,7 +248,7 @@ export class IocContext {
             info: this.classLoader.getClassInfo(opt.sourceCls),
           }
         : undefined,
-      opt.deep
+      opt.deep,
     );
     if (resolved !== undefined) {
       return { type: resolved, final: true };
@@ -274,7 +279,7 @@ export class IocContext {
     }: {
       /** peer cache */
       cache?: boolean;
-    } & Partial<Pick<Parameters<IocContext['get']>[1], 'deep'>> = {}
+    } & Partial<Pick<Parameters<IocContext['get']>[1], 'deep'>> = {},
   ): GetReturnType<T, KeyOrType>[] {
     const type = keyOrType as any;
     if (cache && this.has(type)) {
@@ -283,7 +288,7 @@ export class IocContext {
     if (!this.classLoader) {
       return [];
     }
-    const data = this.classLoader.getImplementClasses(type).map(clsInfo => {
+    const data = this.classLoader.getImplementClasses(type).map((clsInfo) => {
       return this.get(clsInfo.type, { useClassLoader: false, deep });
     });
     if (cache) {
@@ -325,15 +330,17 @@ export class IocContext {
     keyOrType: KeyType,
     newData: any,
     options?: RegisterOptions,
-    registerIfNotExist = false
+    registerIfNotExist = false,
   ) {
     const key = getGlobalType(keyOrType);
     const data = this.components.get(key);
     if (data) {
       this.components.set(key, this.newStore(newData, options || data.options));
-    } else if (registerIfNotExist) {
+    }
+    else if (registerIfNotExist) {
       this.register(newData, keyOrType, options);
-    } else {
+    }
+    else {
       throw new NoRegistryError(key);
     }
   }
@@ -349,7 +356,8 @@ export class IocContext {
       if (!this.canBeKey(key)) {
         throw new Error('key require string, symbol or class.');
       }
-    } else {
+    }
+    else {
       if (!this.canBeKey(data)) {
         throw new Error('when data is not string, symbol or class, require a key.');
       }
@@ -376,21 +384,21 @@ export class IocContext {
     instance: any,
     opt = {
       autoRunPostConstruct: true,
-    }
+    },
   ) {
     const iocSelf = this;
     const classType = instance.constructor;
 
-    getMetadataField(classType, 'injects').forEach(inject => {
+    getMetadataField(classType, 'injects').forEach((inject) => {
       const { type, key, typeCls, singleton } = inject;
 
       const descriptor = Object.getOwnPropertyDescriptor(instance, key);
-      let defaultValue: any = descriptor && descriptor.value;
+      const defaultValue: any = descriptor && descriptor.value;
 
       const isAllowOptional = () =>
         inject.optional ?? this.config.defaultInjectOptions?.optional ?? defaultValue !== undefined;
 
-      if ('inject' === type) {
+      if (type === 'inject') {
         Object.defineProperty(instance, key, {
           configurable: true,
           writable: true,
@@ -402,14 +410,14 @@ export class IocContext {
               }),
             {
               defaultValue,
-              onError: err => {
+              onError: (err) => {
                 if (isAllowOptional() && isError(err, NotfoundTypeError)) {
                   return;
                 }
                 err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
                 throw err;
               },
-            }
+            },
           ),
         });
       }
@@ -417,7 +425,7 @@ export class IocContext {
       if (['lazyInject', 'imports'].includes(type)) {
         Object.defineProperty(instance, key, {
           configurable: true,
-          get: function () {
+          get() {
             const always = inject.always ?? iocSelf.config.defaultInjectOptions?.always ?? false;
             let hasErr = false;
             const data = guard(
@@ -434,7 +442,7 @@ export class IocContext {
               },
               {
                 defaultValue,
-                onError: err => {
+                onError: (err) => {
                   hasErr = true;
                   if (isAllowOptional() && isError(err, NotfoundTypeError)) {
                     return;
@@ -442,7 +450,7 @@ export class IocContext {
                   err.message += `\n\tSource: ${classType.name}.${key.toString()}`;
                   throw err;
                 },
-              }
+              },
             );
             if (!hasErr && !always) {
               Object.defineProperty(this, key, {
@@ -453,7 +461,7 @@ export class IocContext {
             }
             return data;
           },
-          set: function (value) {
+          set(value) {
             Object.defineProperty(this, key, {
               configurable: true,
               writable: true,
@@ -464,7 +472,7 @@ export class IocContext {
       }
     });
 
-    getMetadataField(classType, 'aspects').forEach(aspect => {
+    getMetadataField(classType, 'aspects').forEach((aspect) => {
       const oriFn = instance[aspect.key];
       const newFn = genAspectWrapper(this, aspect.point, oriFn);
       Object.defineProperty(instance, aspect.key, {
@@ -480,16 +488,16 @@ export class IocContext {
 
   public runPostConstruct(instance: any) {
     Array.from(
-      new Set(getMetadataField(instance.constructor, 'postConstruct').map(p => p.key))
-    ).forEach(key => {
+      new Set(getMetadataField(instance.constructor, 'postConstruct').map(p => p.key)),
+    ).forEach((key) => {
       instance[key]();
     });
   }
 
   public runPreDestroy(instance: any) {
     Array.from(
-      new Set(getMetadataField(instance.constructor, 'preDestroy').map(p => p.key))
-    ).forEach(key => {
+      new Set(getMetadataField(instance.constructor, 'preDestroy').map(p => p.key)),
+    ).forEach((key) => {
       instance[key]();
     });
     if (this.config.destroyInstanceHook) {
@@ -525,7 +533,7 @@ export class IocContext {
     const dataIsClass = dataIsFunction && isClass(data);
     const needFactory = dataIsFunction && options.autoNew;
     return {
-      inited: needFactory ? false : true,
+      inited: !needFactory,
       factory: needFactory
         ? () => {
             if (dataIsClass) {
@@ -536,16 +544,16 @@ export class IocContext {
                 if (paramTypes) {
                   args = paramTypes.map((type: any) => {
                     if (
-                      type === ClsType ||
-                      type === undefined ||
-                      type === null ||
-                      type === Number ||
-                      type === Error ||
-                      type === Object ||
-                      type === String ||
-                      type === Boolean ||
-                      type === Array ||
-                      type === Function
+                      type === ClsType
+                      || type === undefined
+                      || type === null
+                      || type === Number
+                      || type === Error
+                      || type === Object
+                      || type === String
+                      || type === Boolean
+                      || type === Array
+                      || type === Function
                     ) {
                       return null;
                     }
@@ -558,7 +566,8 @@ export class IocContext {
               return this.config.createInstanceHook
                 ? this.config.createInstanceHook(value, this)
                 : value;
-            } else {
+            }
+            else {
               const func = data;
               return func(this);
             }
@@ -583,7 +592,8 @@ export class IocContext {
       return data.inited
         ? data.value
         : ((data.inited = true), (data.value = data.factory()), data.value);
-    } else {
+    }
+    else {
       // TODO use WeakMap collection for destroy
       return data.factory();
     }

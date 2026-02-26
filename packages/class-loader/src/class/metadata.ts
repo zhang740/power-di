@@ -1,5 +1,5 @@
-import { ClassInfo } from './ClassInfo';
-import { KeyType, ClassType } from '../utils/types';
+import type { ClassType, KeyType } from '../utils/types';
+import type { ClassInfo } from './ClassInfo';
 
 export const metaSymbol = Symbol('power-di-metadata');
 export interface InjectMetadataType {
@@ -21,6 +21,7 @@ export interface PreDestroyMetadataType {
   key: string | symbol;
 }
 
+// eslint-disable-next-line ts/no-wrapper-object-types
 export interface FunctionContext<T extends Object = {}, K = {}> {
   readonly ioc: any;
   readonly inst: K;
@@ -44,6 +45,7 @@ export class MetadataType {
     extends: [],
     implements: [],
   };
+
   injects: InjectMetadataType[] = [];
   postConstruct: PostConstructMetadataType[] = [];
   preDestroy: PreDestroyMetadataType[] = [];
@@ -57,7 +59,7 @@ export class MetadataType {
 export function getMetadata(type: ClassType): MetadataType {
   if (
     [Object, Object.prototype, Array, Array.prototype, Error, Error.prototype, null].includes(
-      type as any
+      type as any,
     )
   ) {
     return new MetadataType();
@@ -81,7 +83,7 @@ export function getMetadata(type: ClassType): MetadataType {
  */
 export function getMetadataField<T extends keyof MetadataType>(
   type: ClassType,
-  key: T
+  key: T,
 ): MetadataType[T] {
   const field = getMetadata(type)[key];
   if (Array.isArray(field)) {
