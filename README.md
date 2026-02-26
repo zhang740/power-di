@@ -1,8 +1,19 @@
 # Power DI
 
-[![codecov](https://img.shields.io/codecov/c/github/zhang740/power-di/next?style=flat-square&logo=codecov&label=codecov)](https://codecov.io/github/zhang740/power-di)
-[![Version](https://img.shields.io/npm/v/power-di.svg?style=flat-square)](https://www.npmjs.com/package/power-di)
-[![License](https://img.shields.io/npm/l/power-di.svg?style=flat-square)](https://github.com/zhang740/power-di/blob/master/LICENSE)
+[![CI status][github-action-image]][github-action-url] [![codecov][codecov-image]][codecov-url] [![NPM version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![][bundlephobia-image]][bundlephobia-url] [![][license-image]][license-url]
+
+[npm-image]: https://img.shields.io/npm/v/power-di.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/power-di
+[github-action-image]: https://github.com/zhang740/power-di/actions/workflows/ci.yaml/badge.svg
+[github-action-url]: https://github.com/zhang740/power-di/actions/workflows/ci.yaml
+[codecov-image]: https://img.shields.io/codecov/c/github/zhang740/power-di?style=flat-square&logo=codecov&label=codecov
+[codecov-url]: https://codecov.io/gh/zhang740/power-di
+[download-image]: https://img.shields.io/npm/dm/power-di.svg?style=flat-square
+[download-url]: https://npmjs.org/package/power-di
+[bundlephobia-image]: https://img.shields.io/bundlephobia/minzip/power-di?style=flat-square
+[bundlephobia-url]: https://bundlephobia.com/package/power-di
+[license-image]: https://img.shields.io/npm/l/power-di.svg?style=flat-square
+[license-url]: https://github.com/zhang740/power-di/blob/master/LICENSE
 
 A lightweight Dependency Injection / IoC library for TypeScript & JavaScript.
 
