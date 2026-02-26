@@ -1,4 +1,4 @@
-name: Run tests and upload coverage
+name: tests
 
 on: 
   push
