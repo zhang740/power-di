@@ -5,7 +5,6 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['packages/**/test/**/*.{ts,tsx}'],
-    setupFiles: [path.resolve(__dirname, 'vitest.setup.ts')],
     coverage: {
       enabled: true,
       provider: 'v8', // or 'istanbul'
