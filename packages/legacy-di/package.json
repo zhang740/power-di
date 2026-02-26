@@ -12,18 +12,18 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@power-di/aspect": "workspace:*",
     "@power-di/class-loader": "workspace:*",
     "@power-di/di": "workspace:*",
-    "@power-di/aspect": "workspace:*",
     "@power-di/react": "workspace:*"
   },
   "devDependencies": {
-    "@types/react": "^16.x",
-    "@types/react-test-renderer": "^16.x",
-    "react": "^16.x",
-    "react-test-renderer": "^16.x",
-    "typescript": "~5.0",
-    "vitest": "^1.6.0",
-    "rimraf": "^3.0.2"
+    "@types/react": "catalog:",
+    "@types/react-test-renderer": "catalog:",
+    "react": "catalog:",
+    "react-test-renderer": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }
