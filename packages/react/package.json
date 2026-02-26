@@ -1,0 +1,29 @@
+{
+  "name": "@power-di/react",
+  "version": "2.4.56",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config ../../vitest.config.ts --passWithNoTests",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@power-di/di": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=16"
+  },
+  "devDependencies": {
+    "@types/react": "^16.x",
+    "@types/react-test-renderer": "^16.x",
+    "react": "^16.x",
+    "react-test-renderer": "^16.x",
+    "typescript": "~5.0",
+    "vitest": "^1.6.0",
+    "rimraf": "^3.0.2"
+  }
+}

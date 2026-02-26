@@ -1,41 +1,16 @@
 {
-  "name": "power-di",
-  "version": "2.4.56",
+  "name": "power-di-workspace",
+  "private": true,
   "description": "A lightweight Dependency Injection library. Using es6 and other features, remove unnecessary concepts, easy and convenient to use.",
-  "main": "./lib/index.js",
-  "typings": "./lib/index.d.ts",
-  "files": [
-    "utils.js",
-    "utils.d.ts",
-    "react.js",
-    "react.d.ts",
-    "lib/**/*.js",
-    "es/**/*.js",
-    "**/*.d.ts",
-    "**/*.js.map",
-    "dist"
+  "packageManager": "pnpm@10.28.2",
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "clean": "rm -rf es && rimraf -- dist lib/**/*.js lib/**/*.js.map lib/**/*.d.ts",
-    "rmjsmap": "rimraf -- **/*.js.map ./*.js.map test/*.js.map scripts/*.js.map",
-    "babel": "babel lib --out-dir lib",
-    "build:dist": "webpack --progress",
-    "test": "rimraf -- test/**/*.js && tsc -v && tsc && ava -v -s && npm run rmjsmap",
-    "test:prod": "npm run clean && tsc && npm run test",
-    "coverage": "nyc npm test",
-    "coverage:report": "nyc report --reporter=lcov",
-    "coverage:upload": "cat ./coverage/lcov.info | coveralls",
-    "report": "npm run coverage && npm run coverage:report",
-    "reinstall": "rimraf -- node_modules && npm install",
-    "prepublishOnly": "npm run test:prod && npm run clean && npm run es5",
-    "postpublish": "node scripts/published.js",
-    "es5": "rimraf -- es && tsc -p tsconfig.es5.json",
-    "es": "rimraf -- es && tsc -p tsconfig.es.json"
-  },
-  "ava": {
-    "files": [
-      "test/*.js"
-    ]
+    "build": "pnpm -r build",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "clean": "pnpm -r clean"
   },
   "repository": {
     "type": "git",
@@ -53,18 +28,16 @@
     "ioc",
     "react"
   ],
-  "peerDependencies": {
-    "reflect-metadata": ">=0.1.12"
-  },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
     "@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.3.4",
     "@types/co": "^4.6.2",
-    "@types/node": "^11.9.5",
+    "@types/node": "^20.11.30",
     "@types/react": "^16.x",
     "@types/react-test-renderer": "^16.x",
-    "ava": "^3.7.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "co": "^4.6.0",
     "coveralls": "^3.1.0",
     "husky": "^7.0.4",
@@ -73,9 +46,11 @@
     "prettier": "^2.5.1",
     "react": "^16.x",
     "react-test-renderer": "^16.x",
+    "reflect-metadata": "^0.2.2",
     "rimraf": "^3.0.2",
     "tslint": "5.13.0",
     "typescript": "~5.0",
+    "vitest": "^4.0.0",
     "webpack": "^4.29.5"
   },
   "husky": {

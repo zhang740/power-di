@@ -1,0 +1,19 @@
+{
+  "name": "@power-di/class-loader",
+  "version": "2.4.56",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config ../../vitest.config.ts --passWithNoTests",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "typescript": "~5.0",
+    "vitest": "^1.6.0",
+    "rimraf": "^3.0.2"
+  }
+}
