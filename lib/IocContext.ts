@@ -134,13 +134,6 @@ export class IocContext {
       return this.returnValue(store, opt.forceNew);
     }
 
-    if (this.config.notFoundHandler) {
-      const data = this.config.notFoundHandler(keyOrType as any);
-      if (data !== undefined) {
-        return data;
-      }
-    }
-
     if (opt.useClassLoader !== false && this.classLoader) {
       const target = this.findClassByClassLoader(keyOrType as any, key, {
         sourceCls: opt.sourceCls,
@@ -175,6 +168,13 @@ export class IocContext {
     if (canAutoRegister) {
       this.register(keyOrType);
       return this.get(keyOrType, opt);
+    }
+
+    if (this.config.notFoundHandler) {
+      const data = this.config.notFoundHandler(keyOrType as any);
+      if (data !== undefined) {
+        return data;
+      }
     }
 
     throw new NotfoundTypeError(keyOrType, key);
