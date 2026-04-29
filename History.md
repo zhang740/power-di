@@ -1,3 +1,7 @@
+# 2.4.57 / 2026-04-29
+
+- fix(ioc): reorder notFoundHandler execution after classLoader lookup
+
 # 2.4.56 / 2026-01-19
 
 - feat(ioc): support optional/always global default options for property injection
