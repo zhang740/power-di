@@ -324,3 +324,15 @@ test('hook, unregisterClass', t => {
 
   loader.unregisterClass(Test);
 });
+
+test('notFoundHandler', t => {
+  const loader = new ClassLoader();
+  class Test  {}
+  loader.registerClass(Test);
+
+  const ioc = new IocContext({ useClassLoader: loader,notFoundHandler(type) {
+    t.fail('Should not be executed');
+  }, });
+
+  t.true(ioc.get(Test) instanceof Test);
+});
