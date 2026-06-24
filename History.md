@@ -1,3 +1,10 @@
+## 3.0.0-alpha.0 / 2026-06-24
+
+- feat(workspace): restructure the project into pnpm workspace packages, split core/react/class-loader modules, and keep `power-di` as the legacy facade package
+- build: centralize dependency versions with the pnpm catalog system and refresh package exports/configuration
+- ci: add GitHub Actions test and coverage workflow, and update README badges and documentation
+- refactor(di): run `notFoundHandler` only after container, class loader, and parent context lookups fail
+
 ## 2.4.56 / 2026-01-19
 
 - feat(ioc): support optional/always global default options for property injection
