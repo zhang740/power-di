@@ -502,6 +502,25 @@ it('config, notFoundHandler', (t) => {
   t.expect(context.get('str')).toBe('123');
 });
 
+it('config, notFoundHandler after classLoader lookup', (t) => {
+  const loader = new ClassLoader();
+  let called = false;
+
+  class Test {}
+
+  loader.registerClass(Test);
+
+  const context = new IocContext({
+    useClassLoader: loader,
+    notFoundHandler: () => {
+      called = true;
+    },
+  });
+
+  t.expect(context.get(Test) instanceof Test).toBe(true);
+  t.expect(called).toBe(false);
+});
+
 it('config, parentContext, useClassLoader', (t) => {
   class A {}
   class B {}
