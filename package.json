@@ -27,7 +27,8 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "clean": "pnpm -r clean",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "release:alpha": "pnpm install --frozen-lockfile && pnpm run build && pnpm run test && pnpm -r --filter './packages/*' publish --access public --tag alpha --no-git-checks"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:",
