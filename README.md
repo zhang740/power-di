@@ -1,55 +1,45 @@
 # Power DI
 
-[![CI status][github-action-image]][github-action-url] [![codecov][codecov-image]][codecov-url] [![NPM version][npm-image]][npm-url] [![NPM downloads][download-image]][download-url] [![bundlephobia][bundlephobia-image]][bundlephobia-url] [![license][license-image]][license-url]
+[![CI status][github-action-image]][github-action-url] [![codecov][codecov-image]][codecov-url] [![NPM downloads][download-image]][download-url] [![bundlephobia][bundlephobia-image]][bundlephobia-url] [![license][license-image]][license-url]
 
-[npm-image]: https://img.shields.io/npm/v/power-di.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/power-di
-[github-action-image]: https://github.com/zhang740/power-di/actions/workflows/ci.yaml/badge.svg
-[github-action-url]: https://github.com/zhang740/power-di/actions/workflows/ci.yaml
-[codecov-image]: https://img.shields.io/codecov/c/github/zhang740/power-di?style=flat-square&logo=codecov&label=codecov
-[codecov-url]: https://codecov.io/gh/zhang740/power-di
-[download-image]: https://img.shields.io/npm/dm/power-di.svg?style=flat-square
-[download-url]: https://npmjs.org/package/power-di
-[bundlephobia-image]: https://img.shields.io/bundlephobia/minzip/power-di?style=flat-square
-[bundlephobia-url]: https://bundlephobia.com/package/power-di
-[license-image]: https://img.shields.io/npm/l/power-di.svg?style=flat-square
-[license-url]: https://github.com/zhang740/power-di/blob/master/LICENSE
+Lightweight, decorator-first Dependency Injection / IoC for TypeScript and JavaScript.
 
-A lightweight Dependency Injection / IoC library for TypeScript & JavaScript.
+`power-di` is a pnpm workspace with modular packages and a legacy compatibility entry.
 
-This repository is a pnpm workspace. It ships a set of composable packages and also keeps the legacy `power-di` entry for compatibility. Core features:
+## Why Power DI
 
-- `IocContext` container (supports parent/child contexts)
-- Decorator-based DI (`@injectable` / `@inject` / `@imports`)
-- Lifecycle hooks (`@postConstruct` / `@preDestroy`)
-- AOP (`@aspect`, supports sync/Promise/Generator)
-- React bindings (Provider/Consumer, base components, hooks)
+- 🧩 Clean IoC container with parent/child contexts
+- 🎯 Decorator-based injection (`@injectable`, `@inject`, `@imports`)
+- 🔁 Lifecycle hooks (`@postConstruct`, `@preDestroy`)
+- 🪄 AOP hooks (`@aspect`) for sync/async/generator methods
+- ⚛️ React integration (`IocProvider`, base components, hooks)
 
 ## Packages
 
-- `power-di`: legacy entry (re-export facade)
-- `@power-di/di`: IoC container and decorators (also re-exports class-loader APIs)
-- `@power-di/class-loader`: class info collection and implementation lookup (extends/implements)
-- `@power-di/react`: React bindings (Provider/base components/hooks)
-- `@power-di/aspect`: AOP entry (thin wrapper)
+| Package                  | Version                              | Description                                        | Notes                                                                 |
+| ------------------------ | ------------------------------------ | -------------------------------------------------- | --------------------------------------------------------------------- |
+| `power-di`               | [![NPM version][npm-image]][npm-url] | Legacy facade package                              | Re-exports `@power-di/di`, plus `power-di/react` and `power-di/utils` |
+| `@power-di/di`           | [![NPM version][npm-image]][npm-url] | Core IoC container + decorators                    | Also re-exports class-loader APIs                                     |
+| `@power-di/react`        | [![NPM version][npm-image]][npm-url] | React bindings                                     | Depends on `@power-di/di`, peer `react >= 16`                         |
+| `@power-di/class-loader` | [![NPM version][npm-image]][npm-url] | Class metadata and implementation lookup utilities | Used internally by DI, can be used directly                           |
 
-## Install
+## Quick Start
 
-Legacy entry (good for upgrading existing projects):
+### 1) Install
 
-```shell
+Legacy (compatible with existing projects):
+
+```bash
 npm i power-di
 ```
 
-Modular install (recommended for new projects):
+Modular (recommended for new projects):
 
-```shell
+```bash
 npm i @power-di/di @power-di/react
 ```
 
-## TypeScript Setup
-
-Enable decorators:
+### 2) Enable decorators in TypeScript
 
 ```json
 {
@@ -59,128 +49,30 @@ Enable decorators:
 }
 ```
 
-## Quick Start
+### 3) Create and resolve services
 
 ```ts
-import { IocContext } from 'power-di';
-
-class AService { }
-
-const context = IocContext.DefaultInstance;
-context.register(AService);
-const aService = context.get(AService);
-```
-
-## Register With Key
-
-```ts
-import { IocContext } from 'power-di';
-
-class AService { }
-
-const ctx = new IocContext();
-ctx.register(AService, 'XService');
-
-const service = ctx.get('XService');
-```
-
-## Decorators
-
-```ts
-import { inject, injectable, IocContext } from 'power-di';
+import { inject, injectable, IocContext } from '@power-di/di';
 
 @injectable()
-class NRService {}
-
-@injectable()
-class LITestService {
-  @inject({ type: NRService })
-  public testService!: NRService;
-}
-
-const ctx = new IocContext();
-const inst = ctx.get(LITestService);
-```
-
-## Collect Implementations / Subclasses
-
-Use `@imports({ type })` to inject all implementations/subclasses of a base type (runtime key).
-
-```ts
-import { imports, injectable, IocContext } from 'power-di';
-
-abstract class A {}
-
-@injectable()
-class B extends A {}
-
-@injectable()
-class C extends A {}
-
-@injectable()
-class LITestService {
-  @imports({ type: A })
-  public testService!: A[];
-}
-
-const ctx = new IocContext();
-const inst = ctx.get(LITestService);
-const all = inst.testService;
-```
-
-## Lifecycle
-
-```ts
-import { injectable, IocContext, postConstruct, preDestroy } from 'power-di';
-
-@injectable()
-class Service {
-  public started = false;
-  public stopped = false;
-
-  @postConstruct()
-  start() {
-    this.started = true;
-  }
-
-  @preDestroy()
-  stop() {
-    this.stopped = true;
+class UserService {
+  getName() {
+    return 'power-di';
   }
 }
 
-const ctx = new IocContext();
-const s = ctx.get(Service);
-ctx.remove(Service);
-```
-
-## Aspect (AOP)
-
-```ts
-import { aspect, injectable, IocContext } from 'power-di';
-
 @injectable()
-class Svc {
-  @aspect({
-    before: (ctx) => {
-      ctx.data.tag = 'before';
-    },
-    after: (ctx) => {
-      ctx.data.tag = 'after';
-    },
-  })
-  run(x: string) {
-    return x;
-  }
+class UserController {
+  @inject({ type: UserService })
+  service!: UserService;
 }
 
 const ctx = new IocContext();
-ctx.get(Svc).run('ok');
+const controller = ctx.get(UserController);
+controller.service.getName();
 ```
 
-## React
-
-If you installed the legacy `power-di` entry, you can replace `@power-di/di` with `power-di` and `@power-di/react` with `power-di/react`.
+## React Example
 
 ```tsx
 import { inject, injectable, IocContext } from '@power-di/di';
@@ -188,41 +80,103 @@ import { Component, IocProvider, useInstanceHook } from '@power-di/react';
 import * as React from 'react';
 
 @injectable()
-class NRService {}
-
-const ctx = new IocContext();
-ctx.register(NRService);
-
-class TestComponent extends Component {
-  @inject({ type: NRService })
-  service!: NRService;
-
-  render() {
-    return null;
+class MessageService {
+  text() {
+    return 'hello';
   }
 }
 
-function HookComp() {
-  const service = useInstanceHook(NRService);
-  return null;
+const ctx = new IocContext();
+ctx.register(MessageService);
+
+class ClassView extends Component {
+  @inject({ type: MessageService })
+  service!: MessageService;
+
+  render() {
+    return <div>{this.service.text()}</div>;
+  }
+}
+
+function HookView() {
+  const service = useInstanceHook(MessageService);
+  return <div>{service.text()}</div>;
 }
 
 export function App() {
   return (
     <IocProvider context={ctx}>
-      <TestComponent />
-      <HookComp />
+      <ClassView />
+      <HookView />
     </IocProvider>
   );
 }
 ```
 
-## Dev
+## API Highlights
 
-```shell
+### Container
+
+- `register(valueOrClass, key?, options?)`
+- `get(typeOrKey, options?)`
+- `has(typeOrKey, includeParent?, includeMapped?)`
+- `remove(typeOrKey)` / `clear()`
+- `createChildContext(options?)`
+- `inject(instance, options?)`
+
+### Decorators
+
+- `@injectable()` — mark classes for IoC management
+- `@inject({ type, lazy?, optional?, always? })` — inject by class/token/key
+- `@imports({ type })` — inject all implementations/subclasses
+- `@postConstruct()` / `@preDestroy()` — lifecycle hooks
+- `@aspect({ before?, after?, error? })` — AOP interception
+
+## Legacy vs Modular Usage
+
+- Legacy import style:
+
+  ```ts
+  import { injectable, IocContext } from 'power-di';
+  import { IocProvider } from 'power-di/react';
+  ```
+
+- Modular import style:
+
+  ```ts
+  import { injectable, IocContext } from '@power-di/di';
+  import { IocProvider } from '@power-di/react';
+  ```
+
+## Development
+
+```bash
 pnpm install
+pnpm lint
 pnpm test
 pnpm build
 ```
 
-Tests live under `packages/**/test`.
+Useful workspace scripts:
+
+- `pnpm test:ui` — run Vitest UI
+- `pnpm clean` — clean all package build outputs
+
+Tests are located under `packages/**/test`.
+
+## License
+
+MIT
+
+[npm-image]: https://img.shields.io/npm/v/power-di.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/power-di
+[github-action-image]: https://github.com/zhang740/power-di/actions/workflows/ci.yaml/badge.svg
+[github-action-url]: https://github.com/zhang740/power-di/actions/workflows/ci.yaml
+[codecov-image]: https://img.shields.io/codecov/c/github/zhang740/power-di?style=flat-square&logo=codecov&label=codecov
+[codecov-url]: https://codecov.io/gh/zhang740/power-di
+[download-image]: https://img.shields.io/npm/dm/power-di.svg?style=flat-square
+[download-url]: https://npmjs.org/package/power-di
+[bundlephobia-image]: https://img.shields.io/bundlephobia/min/power-di?style=flat-square
+[bundlephobia-url]: https://bundlephobia.com/package/power-di
+[license-image]: https://img.shields.io/npm/l/power-di.svg?style=flat-square
+[license-url]: https://github.com/zhang740/power-di/blob/master/LICENSE
