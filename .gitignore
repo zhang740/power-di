@@ -100,3 +100,6 @@ __tests__
 .vscode
 
 package-lock.json
+
+.omc
+.omx

@@ -1,0 +1,25 @@
+{
+  "name": "@power-di/eventbus",
+  "version": "3.0.0-alpha.0",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config ../../vitest.config.ts --passWithNoTests",
+    "clean": "rimraf dist"
+  },
+  "devDependencies": {
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

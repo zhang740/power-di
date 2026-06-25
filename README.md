@@ -13,6 +13,7 @@ Lightweight, decorator-first Dependency Injection / IoC for TypeScript and JavaS
 - 🔁 Lifecycle hooks (`@postConstruct`, `@preDestroy`)
 - 🪄 AOP hooks (`@aspect`) for sync/async/generator methods
 - ⚛️ React integration (`IocProvider`, base components, hooks)
+- 📡 Standalone typed event bus & delegate (`@power-di/eventbus`)
 
 ## Packages
 
@@ -22,6 +23,7 @@ Lightweight, decorator-first Dependency Injection / IoC for TypeScript and JavaS
 | `@power-di/di`           | [![NPM version][npm-image]][npm-url] | Core IoC container + decorators                    | Also re-exports class-loader APIs                                     |
 | `@power-di/react`        | [![NPM version][npm-image]][npm-url] | React bindings                                     | Depends on `@power-di/di`, peer `react >= 16`                         |
 | `@power-di/class-loader` | [![NPM version][npm-image]][npm-url] | Class metadata and implementation lookup utilities | Used internally by DI, can be used directly                           |
+| `@power-di/eventbus`     | [![NPM version][npm-image]][npm-url] | Lightweight typed event bus + event delegate       | Standalone, zero runtime dependencies                                 |
 
 ## Quick Start
 
