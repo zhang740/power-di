@@ -1,0 +1,42 @@
+{
+  "name": "@power-di/data",
+  "version": "3.0.0-alpha.0",
+  "description": "Proxy-based reactive data flow (observable / computed / action) with decoupled React bindings for Power DI.",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --config ../../vitest.config.ts --passWithNoTests",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": ">=16"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/react": "catalog:",
+    "@types/react-test-renderer": "catalog:",
+    "react": "catalog:",
+    "react-test-renderer": "catalog:",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
